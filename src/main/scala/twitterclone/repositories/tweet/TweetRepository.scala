@@ -3,11 +3,12 @@ package twitterclone.repositories.tweet
 import cats.Applicative
 import cats.implicits._
 import doobie.implicits._
+import doobie.implicits.javatimedrivernative._
 import doobie.{ConnectionIO, Query0, Update, Update0}
 import twitterclone.model.{Id, Tweet, TweetPagination, User}
 import twitterclone.repositories.shared.instances._
 
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 import scala.collection.concurrent.TrieMap
 
 trait TweetRepository[F[_]] {
@@ -51,7 +52,7 @@ object TweetRepository {
           .values
           .filter { t =>t.author == author && pagination.postedAfter.forall(t.postedOn isAfter _) }
           .toList
-          .sortBy(_.postedOn)(Ordering[ZonedDateTime].reverse)
+          .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
           .take(pagination.pageSize)
           .pure[F]
     }
@@ -103,7 +104,7 @@ object TweetRepository {
     sql"""SELECT id, author, contents, posted_on
          |FROM tweets
          |WHERE author = $author
-         |AND posted_on > ${pagination.postedAfter.getOrElse(ZonedDateTime.now())}
+         |AND posted_on > ${pagination.postedAfter.getOrElse(LocalDateTime.of(1970, 1, 1, 0, 0))}
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 

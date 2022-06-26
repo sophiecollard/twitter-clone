@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.model.{Comment, CommentPagination, Id, Tweet, User}
 
-import java.time.{LocalDate, LocalTime, ZoneId, ZonedDateTime}
+import java.time.{LocalDate, LocalDateTime, LocalTime}
 import scala.collection.concurrent.TrieMap
 
 class CommentRepositorySpec extends AnyWordSpec with Matchers {
@@ -56,10 +56,9 @@ trait Fixtures {
     tweetId = Id.random[Tweet],
     contents =
       "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes.",
-    postedOn = ZonedDateTime.of(
+    postedOn = LocalDateTime.of(
       LocalDate.of(1968, 4, 29),
-      LocalTime.of(19, 30),
-      ZoneId.of("Europe/Paris")
+      LocalTime.of(19, 30)
     )
   )
 
@@ -68,10 +67,9 @@ trait Fixtures {
     author = Id.random[User],
     tweetId = comment.tweetId,
     contents = "Je dis des choses tellement intelligentes que souvent, je ne comprends pas ce que je dis.",
-    postedOn = ZonedDateTime.of(
+    postedOn = LocalDateTime.of(
       LocalDate.of(1968, 4, 30),
-      LocalTime.of(19, 30),
-      ZoneId.of("Europe/Paris")
+      LocalTime.of(19, 30)
     )
   )
 
@@ -80,19 +78,11 @@ trait Fixtures {
     author = comment.author,
     tweetId = Id.random[Tweet],
     contents = "S'il n'a a pas de solution, c'est qu'il n'y a pas de problème.",
-    postedOn = ZonedDateTime.of(
+    postedOn = LocalDateTime.of(
       LocalDate.of(1968, 1, 1),
-      LocalTime.of(19, 30),
-      ZoneId.of("Europe/Paris")
+      LocalTime.of(19, 30)
     )
   )
 
-  val pagination: CommentPagination = CommentPagination(
-    pageSize = 10,
-    postedAfter = ZonedDateTime.of(
-      LocalDate.of(1968, 1, 1),
-      LocalTime.of(0, 0),
-      ZoneId.of("Europe/Paris")
-    )
-  )
+  val pagination: CommentPagination = CommentPagination.default
 }

@@ -4,7 +4,7 @@ import io.circe.Encoder
 import org.http4s.QueryParamDecoder
 import twitterclone.model.Id
 
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -22,10 +22,10 @@ object instances {
   implicit val uuidQueryParamDecoder: QueryParamDecoder[UUID] =
     QueryParamDecoder[String].map(UUID.fromString)
 
-  implicit val zonedDateTimeEncoder: Encoder[ZonedDateTime] =
-    Encoder[String].contramap(_.format(DateTimeFormatter.ISO_ZONED_DATE_TIME))
+  implicit val localDateTimeEncoder: Encoder[LocalDateTime] =
+    Encoder[String].contramap(_.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
 
-  implicit val zonedDateTimeQueryParamDecoder: QueryParamDecoder[ZonedDateTime] =
-    QueryParamDecoder[String].map(ZonedDateTime.parse(_, DateTimeFormatter.ISO_ZONED_DATE_TIME))
+  implicit val localDateTimeQueryParamDecoder: QueryParamDecoder[LocalDateTime] =
+    QueryParamDecoder[String].map(LocalDateTime.parse(_, DateTimeFormatter.ISO_LOCAL_DATE_TIME))
 
 }

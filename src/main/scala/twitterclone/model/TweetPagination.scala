@@ -1,10 +1,10 @@
 package twitterclone.model
 
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 
 final case class TweetPagination(
   pageSize: Int,
-  postedAfter: Option[ZonedDateTime]
+  postedAfter: Option[LocalDateTime]
 )
 
 object TweetPagination {

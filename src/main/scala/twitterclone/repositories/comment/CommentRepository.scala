@@ -2,9 +2,9 @@ package twitterclone.repositories.comment
 
 import cats.Applicative
 import cats.implicits._
-import twitterclone.model.{Comment, CommentPagination, Id, Tweet, User}
+import twitterclone.model._
 
-import java.time.ZonedDateTime
+import java.time.LocalDateTime
 import scala.collection.concurrent.TrieMap
 
 trait CommentRepository[F[_]] {
@@ -46,9 +46,9 @@ object CommentRepository {
       override def list(tweetId: Id[Tweet], pagination: CommentPagination): F[List[Comment]] =
         state
           .values
-          .filter { c => c.tweetId == tweetId && (c.postedOn isAfter pagination.postedAfter) }
+          .filter { c => c.tweetId == tweetId && pagination.postedAfter.forall(c.postedOn isAfter _) }
           .toList
-          .sortBy(_.postedOn)(Ordering[ZonedDateTime].reverse)
+          .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
           .take(pagination.pageSize)
           .pure[F]
     }

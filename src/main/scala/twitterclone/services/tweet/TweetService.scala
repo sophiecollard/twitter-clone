@@ -10,7 +10,7 @@ import twitterclone.services.error.{ServiceError, ServiceErrorOr}
 import twitterclone.services.syntax._
 import twitterclone.services.tweet.auth.{ByAuthor, WithAuthorizationByAuthor}
 
-import java.time.ZonedDateTime
+import java.time.{LocalDateTime, ZoneId}
 
 trait TweetService[F[_]] {
 
@@ -41,7 +41,7 @@ object TweetService {
           id = Id.random[Tweet],
           author = userId,
           contents,
-          postedOn = ZonedDateTime.now()
+          postedOn = LocalDateTime.now(ZoneId.of("UTC"))
         )
         tweetRepository.create(tweet).map {
           case 1 => Right(tweet)
