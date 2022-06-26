@@ -30,7 +30,7 @@ trait TweetService[F[_]] {
 
 object TweetService {
 
-  def create[F[_]: Monad, G[_]: Monad](
+  def create[F[_], G[_]: Monad](
     tweetRepository: TweetRepository[G],
     authByAuthorIdService: AuthorizationService[G, (Id[User], Id[Tweet]), ByAuthor]
   )(implicit transactor: G ~> F): TweetService[F] =

@@ -13,7 +13,7 @@ package object auth {
    * another which authorizes resources owners), the Tag type parameter helps the compiler enforce that the right kind
    * of authorization is used.
    */
-  sealed abstract class WithAuthorization[+R, _] {
+  sealed abstract class WithAuthorization[+R, *] {
     final def isSuccess: Boolean = this match {
       case Success(_) => true
       case Failure(_) => false
