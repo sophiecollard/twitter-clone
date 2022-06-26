@@ -2,29 +2,26 @@ package twitterclone.api.tweet
 
 import cats.effect.Async
 import cats.implicits._
-import org.http4s.dsl.Http4sDsl
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.circe.CirceEntityEncoder._
-import org.http4s.dsl.impl.{OptionalQueryParamDecoderMatcher, QueryParamDecoderMatcher}
+import org.http4s.dsl.Http4sDsl
 import org.http4s.server.AuthMiddleware
-import org.http4s.{AuthedRoutes, HttpRoutes, QueryParamDecoder}
+import org.http4s.{AuthedRoutes, HttpRoutes}
+import twitterclone.api.shared.extractors.TweetIdVar
+import twitterclone.api.shared.matchers._
 import twitterclone.api.syntax._
 import twitterclone.api.tweet.instances._
-import twitterclone.api.tweet.model.NewTweetRequestBody
-import twitterclone.model.{Id, Tweet, TweetPagination, User}
+import twitterclone.model.{Id, TweetPagination, User}
 import twitterclone.services.tweet.TweetService
 
-import java.time.format.DateTimeFormatter
-import java.time.ZonedDateTime
-import java.util.UUID
-import scala.util.Try
+final case class TweetEndpoints[F[_]](httpRoutes: HttpRoutes[F])
 
 object TweetEndpoints {
 
   def create[F[_]: Async](
     authMiddleware: AuthMiddleware[F, Id[User]],
     service: TweetService[F]
-  ): HttpRoutes[F] = {
+  ): TweetEndpoints[F] = {
     object dsl extends Http4sDsl[F]
     import dsl._
 
@@ -65,34 +62,7 @@ object TweetEndpoints {
         }
     }
 
-    publicRoutes <+> authMiddleware(privateRoutes)
+    TweetEndpoints(publicRoutes <+> authMiddleware(privateRoutes))
   }
-
-  // TODO move all this stuff
-
-  object TweetIdVar {
-    def unapply(value: String): Option[Id[Tweet]] =
-      Try(UUID.fromString(value))
-        .map(Id.apply[Tweet])
-        .toOption
-  }
-
-  implicit val uuidQueryParamDecoder: QueryParamDecoder[UUID] =
-    QueryParamDecoder[String].map(UUID.fromString)
-
-  implicit def idQueryParamDecoder[A]: QueryParamDecoder[Id[A]] =
-    QueryParamDecoder[UUID].map(Id.apply[A])
-
-  implicit val zonedDateTimeParamDecoder: QueryParamDecoder[ZonedDateTime] =
-    QueryParamDecoder[String].map(ZonedDateTime.parse(_, DateTimeFormatter.ISO_ZONED_DATE_TIME))
-
-  object AuthorQueryParamMatcher
-    extends QueryParamDecoderMatcher[Id[User]]("author")
-
-  object PageSizeQueryQueryParamMatcher
-    extends QueryParamDecoderMatcher[Int]("page_size")
-
-  object PostedAfterOptionalQueryParamMatcher
-    extends OptionalQueryParamDecoderMatcher[ZonedDateTime]("posted_after")
 
 }
