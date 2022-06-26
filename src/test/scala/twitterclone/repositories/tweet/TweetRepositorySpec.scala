@@ -84,12 +84,5 @@ trait Fixtures {
     )
   )
 
-  val pagination: TweetPagination = TweetPagination(
-    pageSize = 10,
-    postedAfter = ZonedDateTime.of(
-      LocalDate.of(1968, 1, 1),
-      LocalTime.of(0, 0),
-      ZoneId.of("Europe/Paris")
-    )
-  )
+  val pagination: TweetPagination = TweetPagination.default
 }

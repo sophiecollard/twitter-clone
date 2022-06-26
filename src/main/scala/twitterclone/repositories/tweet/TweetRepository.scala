@@ -49,7 +49,7 @@ object TweetRepository {
       override def list(author: Id[User], pagination: TweetPagination): F[List[Tweet]] =
         state
           .values
-          .filter { t =>t.author == author && (t.postedOn isAfter pagination.postedAfter) }
+          .filter { t =>t.author == author && pagination.postedAfter.forall(t.postedOn isAfter _) }
           .toList
           .sortBy(_.postedOn)(Ordering[ZonedDateTime].reverse)
           .take(pagination.pageSize)
@@ -103,7 +103,7 @@ object TweetRepository {
     sql"""SELECT id, author, contents, posted_on
          |FROM tweets
          |WHERE author = $author
-         |AND posted_on > ${pagination.postedAfter}
+         |AND posted_on > ${pagination.postedAfter.getOrElse(ZonedDateTime.now())}
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 

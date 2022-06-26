@@ -7,6 +7,7 @@ object Dependencies {
   private val circeVersion = "0.14.2"
   private val doobieVersion = "1.0.0-RC1"
   private val http4sVersion = "0.23.12"
+  private val http4sJettyServerVersion = "0.23.10"
   private val scalaTestVersion = "3.2.11"
 
   private val cats = Seq(
@@ -18,7 +19,8 @@ object Dependencies {
   ).map(_ % catsEffectVersion)
 
   private val circe = Seq(
-    "io.circe" %% "circe-core"
+    "io.circe" %% "circe-core",
+    "io.circe" %% "circe-generic"
   ).map(_ % circeVersion)
 
   private val doobie = Seq(
@@ -32,6 +34,10 @@ object Dependencies {
     "org.http4s" %% "http4s-server"
   ).map(_ % http4sVersion)
 
+  private val http4sJettyServer = Seq(
+    "org.http4s" % "http4s-jetty-server_2.13"
+  ).map(_ % http4sJettyServerVersion)
+
   private val scalaTest = Seq(
     "org.scalatest" %% "scalatest"
   ).map( _ % scalaTestVersion % Test)
@@ -42,6 +48,7 @@ object Dependencies {
       circe ++
       doobie ++
       http4s ++
+      http4sJettyServer ++
       scalaTest
 
 }
