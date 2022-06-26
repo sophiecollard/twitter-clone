@@ -10,11 +10,13 @@ Run tests with:
 sbt test
 ```
 
-Start the server with:
+Start the server on `localhost:8080` with:
 
 ```
 sbt run
 ```
+
+Use the provided [Postman collection](postman/TwitterClone.postman_collection.json) to interact with the server.
 
 ## Components
 
