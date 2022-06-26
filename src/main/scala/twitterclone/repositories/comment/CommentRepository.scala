@@ -23,23 +23,17 @@ trait CommentRepository[F[_]] {
 
 object CommentRepository {
 
-  def mock[F[_]: Applicative](state: TrieMap[Id[Comment], Comment] = TrieMap.empty): CommentRepository[F] =
+  def local[F[_]: Applicative](state: TrieMap[Id[Comment], Comment] = TrieMap.empty): CommentRepository[F] =
     new CommentRepository[F] {
       override def create(comment: Comment): F[Int] =
         if (state.contains(comment.id))
           0.pure[F]
         else
-          state
-            .addOne((comment.id, comment))
-            .pure[F]
-            .map(_ => 1)
+          state.addOne((comment.id, comment)).pure[F].map(_ => 1)
 
       override def delete(id: Id[Comment]): F[Int] =
         if (state.contains(id))
-          state
-            .remove(id)
-            .pure[F]
-            .map(_ => 1)
+          state.remove(id).pure[F].map(_ => 1)
         else
           0.pure[F]
 

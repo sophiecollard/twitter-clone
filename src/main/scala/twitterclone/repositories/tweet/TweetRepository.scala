@@ -1,9 +1,14 @@
 package twitterclone.repositories.tweet
 
+import cats.Applicative
+import cats.implicits._
 import doobie.implicits._
 import doobie.{ConnectionIO, Query0, Update, Update0}
 import twitterclone.model.{Id, Tweet, TweetPagination, User}
 import twitterclone.repositories.shared.instances._
+
+import java.time.ZonedDateTime
+import scala.collection.concurrent.TrieMap
 
 trait TweetRepository[F[_]] {
 
@@ -21,7 +26,37 @@ trait TweetRepository[F[_]] {
 
 object TweetRepository {
 
-  def create: TweetRepository[ConnectionIO] = new TweetRepository[ConnectionIO] {
+  def local[F[_]: Applicative](state: TrieMap[Id[Tweet], Tweet] = TrieMap.empty): TweetRepository[F] =
+    new TweetRepository[F] {
+      override def create(tweet: Tweet): F[Int] =
+        if (state.contains(tweet.id))
+          0.pure[F]
+        else
+          state.addOne((tweet.id, tweet)).pure[F].map(_ => 1)
+
+      override def delete(id: Id[Tweet]): F[Int] =
+        if (state.contains(id))
+          state.remove(id).pure[F].map(_ => 1)
+        else
+          0.pure[F]
+
+      override def get(id: Id[Tweet]): F[Option[Tweet]] =
+        state.get(id).pure[F]
+
+      override def getAuthor(id: Id[Tweet]): F[Option[Id[User]]] =
+        state.get(id).map(_.author).pure[F]
+
+      override def list(author: Id[User], pagination: TweetPagination): F[List[Tweet]] =
+        state
+          .values
+          .filter { t =>t.author == author && (t.postedOn isAfter pagination.postedAfter) }
+          .toList
+          .sortBy(_.postedOn)(Ordering[ZonedDateTime].reverse)
+          .take(pagination.pageSize)
+          .pure[F]
+    }
+
+  def postgres: TweetRepository[ConnectionIO] = new TweetRepository[ConnectionIO] {
     override def create(tweet: Tweet): ConnectionIO[Int] =
       createUpdate.run(tweet)
 

@@ -9,30 +9,30 @@ import java.time.{LocalDate, LocalTime, ZoneId, ZonedDateTime}
 import scala.collection.concurrent.TrieMap
 
 class CommentRepositorySpec extends AnyWordSpec with Matchers {
-  "The mock implementation" should {
+  "The local implementation" should {
     "create a new comment" in new Fixtures {
       private val state = TrieMap.empty[Id[Comment], Comment]
-      private val repo = CommentRepository.mock[CatsId](state)
+      private val repo = CommentRepository.local[CatsId](state)
       repo.create(comment)
       state.get(comment.id) shouldBe Some(comment)
     }
 
     "delete a comment" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
-      private val repo = CommentRepository.mock[CatsId](state)
+      private val repo = CommentRepository.local[CatsId](state)
       repo.delete(comment.id)
       state.contains(comment.id) shouldBe false
     }
 
     "get a comment" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
-      private val repo = CommentRepository.mock[CatsId](state)
+      private val repo = CommentRepository.local[CatsId](state)
       repo.get(comment.id) shouldBe Some(comment)
     }
 
     "get a comment's author" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
-      private val repo = CommentRepository.mock[CatsId](state)
+      private val repo = CommentRepository.local[CatsId](state)
       repo.getAuthor(comment.id) shouldBe Some(comment.author)
     }
 
@@ -43,7 +43,7 @@ class CommentRepositorySpec extends AnyWordSpec with Matchers {
           (commentFromSameAuthor.id, commentFromSameAuthor) ::
           Nil
       )
-      private val repo = CommentRepository.mock[CatsId](state)
+      private val repo = CommentRepository.local[CatsId](state)
       repo.list(comment.tweetId, pagination) shouldBe List(commentOnSameTweet, comment)
     }
   }
