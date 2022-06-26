@@ -6,5 +6,10 @@ final case class NewTweetRequestBody(contents: String)
 
 object NewTweetRequestBody {
   implicit val decoder: Decoder[NewTweetRequestBody] =
-    Decoder[String].map(apply)
+    Decoder.instance { hCursor =>
+      hCursor
+        .downField("contents")
+        .as[String]
+        .map(apply)
+    }
 }

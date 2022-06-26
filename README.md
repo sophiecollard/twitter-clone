@@ -1,5 +1,7 @@
 # Twitter Clone
 
+Simple Twitter clone to demo how to build backend services using the [Typelevel](https://typelevel.org/) stack.
+
 ## Usage
 
 Run tests with:
