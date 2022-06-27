@@ -50,7 +50,7 @@ object TweetRepository {
       override def list(author: Id[User], pagination: TweetPagination): F[List[Tweet]] =
         state
           .values
-          .filter { t =>t.author == author && pagination.postedAfter.forall(t.postedOn isAfter _) }
+          .filter { t => t.author == author && pagination.postedAfter.forall(t.postedOn isAfter _) }
           .toList
           .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
           .take(pagination.pageSize)

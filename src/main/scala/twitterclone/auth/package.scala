@@ -10,8 +10,8 @@ package object auth {
    * Used to wrap the result R of an operation requiring authorization.
    *
    * When multiple authorization services are used in one place (for instance: one which authorizes admin users and
-   * another which authorizes resources owners), the Tag type parameter helps the compiler enforce that the right kind
-   * of authorization is used.
+   * another which authorizes resources owners), the second type parameter helps the compiler enforce that the right
+   * kind of authorization is used.
    */
   sealed abstract class WithAuthorization[+R, *] {
     final def isSuccess: Boolean = this match {
@@ -24,16 +24,16 @@ package object auth {
 
     final def toEither: Either[AuthorizationError, R] = this match {
       case Success(result) => Right(result)
-      case Failure(error) => Left(error)
+      case Failure(error)  => Left(error)
     }
 
     final def unsafeResult: R = this match {
       case Success(result) => result
-      case Failure(_) => throw new RuntimeException("Authorization was a Failure")
+      case Failure(_)      => throw new RuntimeException("Authorization was a Failure")
     }
 
     final def unsafeError: AuthorizationError = this match {
-      case Success(_) => throw new RuntimeException("Authorization was a Success")
+      case Success(_)     => throw new RuntimeException("Authorization was a Success")
       case Failure(error) => error
     }
   }
