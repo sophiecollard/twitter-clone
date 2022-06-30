@@ -8,34 +8,42 @@ import twitterclone.model.{Id, Tweet, TweetPagination, User}
 import java.time.{LocalDate, LocalDateTime, LocalTime}
 import scala.collection.concurrent.TrieMap
 
-class TweetRepositorySpec extends AnyWordSpec with Matchers {
-  "The local implementation" should {
-    "create a new tweet" in new Fixtures {
+class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
+  "The create method" should {
+    "create a new tweet and return 1" in new Fixtures {
       private val state = TrieMap.empty[Id[Tweet], Tweet]
       private val repo = TweetRepository.local[CatsId](state)
-      repo.create(tweet)
+      repo.create(tweet) shouldBe 1
       state.get(tweet.id) shouldBe Some(tweet)
     }
+  }
 
-    "delete a tweet" in new Fixtures {
+  "The delete method" should {
+    "delete a tweet and return 1" in new Fixtures {
       private val state = TrieMap.from((tweet.id, tweet) :: Nil)
       private val repo = TweetRepository.local[CatsId](state)
-      repo.delete(tweet.id)
+      repo.delete(tweet.id) shouldBe 1
       state.contains(tweet.id) shouldBe false
     }
+  }
 
+  "The get method" should {
     "get a tweet" in new Fixtures {
       private val state = TrieMap.from((tweet.id, tweet) :: Nil)
       private val repo = TweetRepository.local[CatsId](state)
       repo.get(tweet.id) shouldBe Some(tweet)
     }
+  }
 
-    "get a tweet's author" in new Fixtures {
+  "The getAuthor method" should {
+    "get a tweet author's user Id" in new Fixtures {
       private val state = TrieMap.from((tweet.id, tweet) :: Nil)
       private val repo = TweetRepository.local[CatsId](state)
       repo.getAuthor(tweet.id) shouldBe Some(tweet.author)
     }
+  }
 
+  "The list method" should {
     "list tweets for an author" in new Fixtures {
       private val state = TrieMap.from(
         (tweet.id, tweet) ::

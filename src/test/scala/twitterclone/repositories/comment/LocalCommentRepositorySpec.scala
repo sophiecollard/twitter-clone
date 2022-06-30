@@ -8,34 +8,43 @@ import twitterclone.model.{Comment, CommentPagination, Id, Tweet, User}
 import java.time.{LocalDate, LocalDateTime, LocalTime}
 import scala.collection.concurrent.TrieMap
 
-class CommentRepositorySpec extends AnyWordSpec with Matchers {
-  "The local implementation" should {
-    "create a new comment" in new Fixtures {
+class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
+  "The create method" should {
+    "create a new comment and return 1" in new Fixtures {
       private val state = TrieMap.empty[Id[Comment], Comment]
       private val repo = CommentRepository.local[CatsId](state)
-      repo.create(comment)
+      repo.create(comment) shouldBe 1
       state.get(comment.id) shouldBe Some(comment)
     }
+  }
 
-    "delete a comment" in new Fixtures {
+  "The delete method" should {
+    "delete a comment and return 1" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
       private val repo = CommentRepository.local[CatsId](state)
-      repo.delete(comment.id)
+      repo.delete(comment.id) shouldBe 1
       state.contains(comment.id) shouldBe false
     }
+  }
 
+  "The get method" should {
     "get a comment" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
       private val repo = CommentRepository.local[CatsId](state)
       repo.get(comment.id) shouldBe Some(comment)
     }
+  }
 
-    "get a comment's author" in new Fixtures {
+  "The getAuthor method" should {
+    "get a comment author's user Id" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
       private val repo = CommentRepository.local[CatsId](state)
       repo.getAuthor(comment.id) shouldBe Some(comment.author)
     }
+  }
 
+
+  "The list method" should {
     "list comments for a tweet" in new Fixtures {
       private val state = TrieMap.from(
         (comment.id, comment) ::
