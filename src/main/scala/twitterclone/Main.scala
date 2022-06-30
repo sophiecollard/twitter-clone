@@ -8,7 +8,7 @@ import twitterclone.api.Server
 import twitterclone.api.authentication.dummyAuthMiddleware
 import twitterclone.api.tweet.TweetEndpoints
 import twitterclone.config.ServerConfig
-import twitterclone.repositories.tweet.TweetRepository
+import twitterclone.repositories.tweet.LocalTweetRepository
 import twitterclone.services.tweet.TweetService
 
 object Main extends IOApp {
@@ -16,7 +16,7 @@ object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     val stream: Stream[IO, ExitCode] = for {
       _ <- Stream.emit(()).covary[IO]
-      tweetRepository = TweetRepository.local[IO]()
+      tweetRepository = LocalTweetRepository.create[IO]()
       tweetAuthService = services.tweet.auth.byAuthorId(tweetRepository)
       tweetService = TweetService.create[IO, IO](tweetRepository, tweetAuthService)
       tweetEndpoints = TweetEndpoints.create[IO](dummyAuthMiddleware, tweetService)

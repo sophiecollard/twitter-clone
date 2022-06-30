@@ -12,7 +12,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
   "The create method" should {
     "create a new comment and return 1" in new Fixtures {
       private val state = TrieMap.empty[Id[Comment], Comment]
-      private val repo = CommentRepository.local[CatsId](state)
+      private val repo = LocalCommentRepository.create[CatsId](state)
       repo.create(comment) shouldBe 1
       state.get(comment.id) shouldBe Some(comment)
     }
@@ -21,7 +21,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
   "The delete method" should {
     "delete a comment and return 1" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
-      private val repo = CommentRepository.local[CatsId](state)
+      private val repo = LocalCommentRepository.create[CatsId](state)
       repo.delete(comment.id) shouldBe 1
       state.contains(comment.id) shouldBe false
     }
@@ -30,7 +30,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
   "The get method" should {
     "get a comment" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
-      private val repo = CommentRepository.local[CatsId](state)
+      private val repo = LocalCommentRepository.create[CatsId](state)
       repo.get(comment.id) shouldBe Some(comment)
     }
   }
@@ -38,7 +38,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
   "The getAuthor method" should {
     "get a comment author's user Id" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
-      private val repo = CommentRepository.local[CatsId](state)
+      private val repo = LocalCommentRepository.create[CatsId](state)
       repo.getAuthor(comment.id) shouldBe Some(comment.author)
     }
   }
@@ -52,7 +52,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
           (commentFromSameAuthor.id, commentFromSameAuthor) ::
           Nil
       )
-      private val repo = CommentRepository.local[CatsId](state)
+      private val repo = LocalCommentRepository.create[CatsId](state)
       repo.list(comment.tweetId, pagination) shouldBe List(commentOnSameTweet, comment)
     }
   }
