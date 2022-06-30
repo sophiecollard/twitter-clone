@@ -14,7 +14,7 @@ object matchers {
   object PageSizeOptionalQueryParamMatcher
     extends OptionalQueryParamDecoderMatcher[Int]("page_size")
 
-  object PostedAfterOptionalQueryParamMatcher
-    extends OptionalQueryParamDecoderMatcher[LocalDateTime]("posted_after")
+  object PostedBeforeOptionalQueryParamMatcher
+    extends OptionalQueryParamDecoderMatcher[LocalDateTime]("posted_before")
 
 }

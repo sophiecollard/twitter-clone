@@ -46,7 +46,7 @@ object CommentRepository {
       override def list(tweetId: Id[Tweet], pagination: CommentPagination): F[List[Comment]] =
         state
           .values
-          .filter { c => c.tweetId == tweetId && pagination.postedAfter.forall(c.postedOn isAfter _) }
+          .filter { c => c.tweetId == tweetId && pagination.postedBefore.forall(c.postedOn isBefore _) }
           .toList
           .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
           .take(pagination.pageSize)

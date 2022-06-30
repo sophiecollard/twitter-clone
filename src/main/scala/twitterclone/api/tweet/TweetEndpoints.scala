@@ -35,8 +35,8 @@ object TweetEndpoints {
       case GET -> Root :?
         AuthorQueryParamMatcher(author) +&
           PageSizeOptionalQueryParamMatcher(pageSize) +&
-          PostedAfterOptionalQueryParamMatcher(postedAfter) =>
-        service.list(author, TweetPagination(pageSize.getOrElse(10), postedAfter)).flatMap {
+          PostedBeforeOptionalQueryParamMatcher(postedBefore) =>
+        service.list(author, TweetPagination(pageSize.getOrElse(10), postedBefore)).flatMap {
           withNoServiceError { tweets =>
             Ok(tweets)
           }

@@ -8,7 +8,7 @@ import doobie.{ConnectionIO, Query0, Update, Update0}
 import twitterclone.model.{Id, Tweet, TweetPagination, User}
 import twitterclone.repositories.shared.instances._
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneId}
 import scala.collection.concurrent.TrieMap
 
 trait TweetRepository[F[_]] {
@@ -50,7 +50,7 @@ object TweetRepository {
       override def list(author: Id[User], pagination: TweetPagination): F[List[Tweet]] =
         state
           .values
-          .filter { t => t.author == author && pagination.postedAfter.forall(t.postedOn isAfter _) }
+          .filter { t => t.author == author && pagination.postedBefore.forall(t.postedOn isBefore _) }
           .toList
           .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
           .take(pagination.pageSize)
@@ -104,7 +104,7 @@ object TweetRepository {
     sql"""SELECT id, author, contents, posted_on
          |FROM tweets
          |WHERE author = $author
-         |AND posted_on > ${pagination.postedAfter.getOrElse(LocalDateTime.of(1970, 1, 1, 0, 0))}
+         |AND posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 
