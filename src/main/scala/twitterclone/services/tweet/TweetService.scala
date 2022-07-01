@@ -24,7 +24,7 @@ trait TweetService[F[_]] {
   def get(id: Id[Tweet]): F[ServiceErrorOr[Tweet]]
 
   /** Fetches tweets from a given User */
-  def list(author: Id[User], pagination: TweetPagination): F[ServiceErrorOr[List[Tweet]]]
+  def list(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
 
 }
 
@@ -66,7 +66,7 @@ object TweetService {
         }.transact
 
       /** Fetches tweets from a given User */
-      override def list(author: Id[User], pagination: TweetPagination): F[ServiceErrorOr[List[Tweet]]] =
+      override def list(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
         tweetRepository
           .list(author, pagination)
           .map(_.asRight[ServiceError])

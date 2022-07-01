@@ -55,12 +55,12 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
     "list tweets for an author" in new Fixtures {
       private val state = TrieMap.from(
         (tweet.id, tweet) ::
-          (tweetFromSameAuthor.id, tweetFromSameAuthor) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
           (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) ::
           Nil
       )
       private val repo = LocalTweetRepository.create[CatsId](state)
-      repo.list(tweet.author, pagination) shouldBe List(tweetFromSameAuthor, tweet)
+      repo.list(tweet.author, pagination) shouldBe List(tweet, earlierTweetFromSameAuthor)
     }
   }
 }
@@ -72,17 +72,17 @@ trait Fixtures {
     contents =
       "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes.",
     postedOn = LocalDateTime.of(
-      LocalDate.of(1968, 4, 29),
+      LocalDate.of(1968, 4, 30),
       LocalTime.of(19, 30)
     )
   )
 
-  val tweetFromSameAuthor: Tweet = Tweet(
+  val earlierTweetFromSameAuthor: Tweet = Tweet(
     id = Id.random[Tweet],
     author = tweet.author,
     contents = "Je dis des choses tellement intelligentes que souvent, je ne comprends pas ce que je dis.",
     postedOn = LocalDateTime.of(
-      LocalDate.of(1968, 4, 30),
+      LocalDate.of(1968, 4, 29),
       LocalTime.of(19, 30)
     )
   )
