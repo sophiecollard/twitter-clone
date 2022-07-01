@@ -17,7 +17,7 @@ object Main extends IOApp {
     val stream: Stream[IO, ExitCode] = for {
       _ <- Stream.emit(()).covary[IO]
       tweetRepository = LocalTweetRepository.create[IO]()
-      tweetAuthService = services.tweet.auth.byAuthorId(tweetRepository)
+      tweetAuthService = services.tweet.auth.byAuthor(tweetRepository)
       tweetService = TweetService.create[IO, IO](tweetRepository, tweetAuthService)
       tweetEndpoints = TweetEndpoints.create[IO](dummyAuthMiddleware, tweetService)
       serverConfig = ServerConfig("0.0.0.0", 8080)

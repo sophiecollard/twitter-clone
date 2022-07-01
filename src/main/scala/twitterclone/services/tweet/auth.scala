@@ -12,7 +12,7 @@ object auth {
   trait ByAuthor
   type WithAuthorizationByAuthor[R] = WithAuthorization[R, ByAuthor]
 
-  def byAuthorId[F[_]: Monad](
+  def byAuthor[F[_]: Monad](
     tweetRepository: TweetRepository[F]
   ): AuthorizationService[F, (Id[User], Id[Tweet]), ByAuthor] =
     AuthorizationService.create { case (userId, tweetId) =>

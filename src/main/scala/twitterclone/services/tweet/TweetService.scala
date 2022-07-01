@@ -32,7 +32,7 @@ object TweetService {
 
   def create[F[_], G[_]: Monad](
     tweetRepository: TweetRepository[G],
-    authByAuthorIdService: AuthorizationService[G, (Id[User], Id[Tweet]), ByAuthor]
+    authByAuthorService: AuthorizationService[G, (Id[User], Id[Tweet]), ByAuthor]
   )(implicit transactor: G ~> F): TweetService[F] =
     new TweetService[F] {
       /** Creates a new Tweet */
@@ -51,7 +51,7 @@ object TweetService {
 
       /** Deletes a Tweet */
       override def delete(id: Id[Tweet])(userId: Id[User]): F[WithAuthorizationByAuthor[ServiceErrorOr[Unit]]] =
-        authByAuthorIdService.authorize((userId, id)) {
+        authByAuthorService.authorize((userId, id)) {
           tweetRepository.delete(id).map {
             case 1 => Right(())
             case _ => Left(failedToDeleteResource(id, "Tweet"))
