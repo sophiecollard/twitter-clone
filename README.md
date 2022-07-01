@@ -20,13 +20,27 @@ Use the provided [Postman collection](postman/TwitterClone.postman_collection.js
 
 ## Components
 
-| Component                  | Implemented | Tested |
-|----------------------------|-------------|--------|
-| TweetRepository (local)    | yes         | yes    |
-| TweetRepository (SQL DB)   | yes         | no     | 
-| TweetService               | yes         | no     |
-| TweetEndpoints             | yes         | no     |
-| CommentRepository (local)  | yes         | yes    |
-| CommentRepository (SQL DB) | no          | no     |
-| CommentService             | no          | no     |
-| CommentEndpoints           | no          | no     |
+| Component                   | Implemented | Tested |
+|-----------------------------|-------------|--------|
+| LocalTweetRepository        | yes         | yes    |
+| PostgresTweetRepository     | no          | no     | 
+| TweetService                | yes         | yes    |
+| TweetEndpoints              | yes         | no     |
+| LocalCommentRepository      | yes         | yes    |
+| PostgresCommentRepository   | no          | no     |
+| CommentService              | no          | yes    |
+| CommentEndpoints            | no          | no     |
+
+## Mob programming sessions
+
+### Session 1
+
+Implement the `CommentService`. You can use `TweetService` as an example of how to implement a service and rely on `CommentServiceSpec` to verify the 
+correctness of your implementation.
+
+### Future sessions
+
+Potential tasks for future sessions:
+  * Implement `CommentEndpoints`
+  * Implement `PostgresCommentsRespository`
+  * Implement proper authentication

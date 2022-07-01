@@ -20,7 +20,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
     "not override a comment" in new Fixtures {
       private val state = TrieMap.from((comment.id, comment) :: Nil)
       private val repo = LocalCommentRepository.create[CatsId](state)
-      private val commentWithSameId = commentFromSameAuthor.copy(id = comment.id)
+      private val commentWithSameId = commentOnAnotherTweet.copy(id = comment.id)
       repo.create(commentWithSameId) shouldBe 0
       state.get(comment.id) shouldBe Some(comment)
     }
@@ -56,12 +56,12 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
     "list comments for a tweet" in new Fixtures {
       private val state = TrieMap.from(
         (comment.id, comment) ::
-          (commentOnSameTweet.id, commentOnSameTweet) ::
-          (commentFromSameAuthor.id, commentFromSameAuthor) ::
+          (earlierCommentOnSameTweet.id, earlierCommentOnSameTweet) ::
+          (commentOnAnotherTweet.id, commentOnAnotherTweet) ::
           Nil
       )
       private val repo = LocalCommentRepository.create[CatsId](state)
-      repo.list(comment.tweetId, pagination) shouldBe List(commentOnSameTweet, comment)
+      repo.list(comment.tweetId, pagination) shouldBe List(comment, earlierCommentOnSameTweet)
     }
   }
 }
@@ -74,23 +74,23 @@ trait Fixtures {
     contents =
       "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes.",
     postedOn = LocalDateTime.of(
-      LocalDate.of(1968, 4, 29),
-      LocalTime.of(19, 30)
-    )
-  )
-
-  val commentOnSameTweet: Comment = Comment(
-    id = Id.random[Comment],
-    author = Id.random[User],
-    tweetId = comment.tweetId,
-    contents = "Je dis des choses tellement intelligentes que souvent, je ne comprends pas ce que je dis.",
-    postedOn = LocalDateTime.of(
       LocalDate.of(1968, 4, 30),
       LocalTime.of(19, 30)
     )
   )
 
-  val commentFromSameAuthor: Comment = Comment(
+  val earlierCommentOnSameTweet: Comment = Comment(
+    id = Id.random[Comment],
+    author = Id.random[User],
+    tweetId = comment.tweetId,
+    contents = "Je dis des choses tellement intelligentes que souvent, je ne comprends pas ce que je dis.",
+    postedOn = LocalDateTime.of(
+      LocalDate.of(1968, 4, 29),
+      LocalTime.of(19, 30)
+    )
+  )
+
+  val commentOnAnotherTweet: Comment = Comment(
     id = Id.random[Comment],
     author = comment.author,
     tweetId = Id.random[Tweet],

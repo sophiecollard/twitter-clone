@@ -19,6 +19,9 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
     "create and return a new tweet" in new Fixtures {
       private val repoState = TrieMap.empty[Id[Tweet], Tweet]
       private val service = newService(repoState)
+      private val userId = Id.random[User]
+      private val contents: String =
+        "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
 
       withNoServiceError(service.create(contents)(userId)) { tweet =>
         tweet.author shouldBe userId
@@ -50,6 +53,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
 
         withFailedAuthorization(service.delete(tweet.id)(randomUserId)) { error =>
           error shouldBe NotTheTweetsAuthor(randomUserId, tweet.id)
+          repoState.get(tweet.id) shouldBe Some(tweet)
         }
       }
     }
@@ -58,6 +62,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
       "return an error" in new Fixtures {
         private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
         private val service = newService(repoState)
+        private val userId = Id.random[User]
         private val randomTweetId = Id.random[Tweet]
 
         withFailedAuthorization(service.delete(randomTweetId)(userId)) { error =>
@@ -98,8 +103,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val repoState = TrieMap.from(
           (tweet.id, tweet) ::
             (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
-            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil
-        )
+            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
 
         withNoServiceError(service.list(tweet.author)) { tweets =>
@@ -113,8 +117,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val repoState = TrieMap.from(
           (tweet.id, tweet) ::
             (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
-            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil
-        )
+            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
         private val pagination = TweetPagination(pageSize = 1, postedBefore = None)
 
@@ -128,8 +131,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val repoState = TrieMap.from(
           (tweet.id, tweet) ::
             (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
-            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil
-        )
+            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
         private val pagination = TweetPagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
 
@@ -147,8 +149,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val repoState = TrieMap.from(
           (tweet.id, tweet) ::
             (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
-            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil
-        )
+            (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
         private val randomUserId = Id.random[User]
 
@@ -161,8 +162,6 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
 }
 
 trait Fixtures {
-
-  val userId: Id[User] = Id.random[User]
 
   val tweet: Tweet = Tweet(
     id = Id.random[Tweet],
@@ -194,9 +193,6 @@ trait Fixtures {
       LocalTime.of(19, 30)
     )
   )
-
-  val contents: String =
-    "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
 
   def newService(repoState: TrieMap[Id[Tweet], Tweet]): TweetService[CatsId] = {
     val tweetRepository = LocalTweetRepository.create[CatsId](repoState)
