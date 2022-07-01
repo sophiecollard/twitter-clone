@@ -16,6 +16,14 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
       repo.create(tweet) shouldBe 1
       state.get(tweet.id) shouldBe Some(tweet)
     }
+
+    "not override an existing tweet" in new Fixtures {
+      private val state = TrieMap.from((tweet.id, tweet) :: Nil)
+      private val repo = LocalTweetRepository.create[CatsId](state)
+      private val tweetWithSameId = tweetFromAnotherAuthor.copy(id = tweet.id)
+      repo.create(tweetWithSameId) shouldBe 0
+      repo.get(tweet.id) shouldBe Some(tweet)
+    }
   }
 
   "The delete method" should {

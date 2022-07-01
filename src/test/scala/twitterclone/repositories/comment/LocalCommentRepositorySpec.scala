@@ -16,6 +16,14 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
       repo.create(comment) shouldBe 1
       state.get(comment.id) shouldBe Some(comment)
     }
+
+    "not override a comment" in new Fixtures {
+      private val state = TrieMap.from((comment.id, comment) :: Nil)
+      private val repo = LocalCommentRepository.create[CatsId](state)
+      private val commentWithSameId = commentFromSameAuthor.copy(id = comment.id)
+      repo.create(commentWithSameId) shouldBe 0
+      state.get(comment.id) shouldBe Some(comment)
+    }
   }
 
   "The delete method" should {
