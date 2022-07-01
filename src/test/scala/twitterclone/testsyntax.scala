@@ -2,7 +2,7 @@ package twitterclone
 
 import org.scalatest.Assertion
 import twitterclone.auth.error.AuthorizationError
-import twitterclone.services.error.ServiceErrorOr
+import twitterclone.services.error.{ServiceError, ServiceErrorOr}
 
 object testsyntax {
 
@@ -33,7 +33,17 @@ object testsyntax {
   ): Assertion =
     serviceErrorOr match {
       case Right(result) => ifNoError(result)
-      case Left(error)   => throw new AssertionError(s"Got service error: $error")
+      case Left(error)   => throw new AssertionError(s"Service returned an error: $error")
+    }
+
+  def withServiceError[R](
+    serviceErrorOr: ServiceErrorOr[R]
+  )(
+    ifError: ServiceError => Assertion
+  ): Assertion =
+    serviceErrorOr match {
+      case Left(error) => ifError(error)
+      case Right(_)    => throw new AssertionError("Service returned no error")
     }
 
 }

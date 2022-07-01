@@ -6,6 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.auth.error.AuthorizationError.NotTheTweetsAuthor
 import twitterclone.model.{Id, Tweet, User}
 import twitterclone.repositories.tweet.LocalTweetRepository
+import twitterclone.services.error.ServiceError.ResourceNotFound
 import twitterclone.services.tweet.auth.byAuthor
 import twitterclone.testinstances._
 import twitterclone.testsyntax._
@@ -61,6 +62,31 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
 
         withFailedAuthorization(service.delete(randomTweetId)(userId)) { error =>
           error shouldBe NotTheTweetsAuthor(userId, randomTweetId)
+        }
+      }
+    }
+  }
+
+  "The get method" when {
+    "the specified tweet if exists" should {
+      "get the tweet" in new Fixtures {
+        private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
+        private val service = newService(repoState)
+
+        withNoServiceError(service.get(tweet.id)) { returnedTweet =>
+          returnedTweet shouldBe tweet
+        }
+      }
+    }
+
+    "the specified tweet id doesn't exist" should {
+      "return an error" in new Fixtures {
+        private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
+        private val service = newService(repoState)
+        private val randomTweetId = Id.random[Tweet]
+
+        withServiceError(service.get(randomTweetId)) { error =>
+          error shouldBe ResourceNotFound(randomTweetId, "Tweet")
         }
       }
     }
