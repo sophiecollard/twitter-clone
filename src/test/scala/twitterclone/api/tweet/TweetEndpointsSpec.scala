@@ -2,9 +2,8 @@ package twitterclone.api.tweet
 
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
-import io.circe.generic.semiauto.deriveDecoder
-import io.circe.syntax._
-import io.circe.{Decoder, Encoder, Json}
+import io.circe.generic.semiauto
+import io.circe.{Decoder, Encoder}
 import org.http4s.server.AuthMiddleware
 import org.http4s.{Header, Headers, Method, Request, Status, Uri}
 import org.scalatest.EitherValues
@@ -23,7 +22,7 @@ import twitterclone.testsyntax.{CirceEntityDecoderOps, CirceEntityEncoderOps}
 import scala.collection.concurrent.TrieMap
 
 class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
-  "The POST /v1/tweets/{tweet_id} endpoint" when {
+  "The POST /v1/tweets endpoint" when {
     "the user is authenticated" should {
       "create and return a new tweet" in new Fixtures {
         private val repoState = TrieMap.empty[Id[Tweet], Tweet]
@@ -83,7 +82,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
 
   "The DELETE /v1/tweets/{tweet_id} endpoint" when {
     "the user is authenticated and is the author of the tweet" should {
-      "delete the tweet with the specified id" in new Fixtures {
+      "delete the tweet" in new Fixtures {
         private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
         private val endpoints = newEndpoints(repoState)
 
@@ -214,11 +213,9 @@ trait Fixtures {
   import twitterclone.api.shared.instances._
 
   implicit val newTweetRequestBodyEncoder: Encoder[NewTweetRequestBody] =
-    Encoder.instance { requestBody =>
-      Json.obj("contents" := requestBody.contents)
-    }
+    semiauto.deriveEncoder
 
   implicit val tweetDecoder: Decoder[Tweet] =
-    deriveDecoder
+    semiauto.deriveDecoder
 
 }
