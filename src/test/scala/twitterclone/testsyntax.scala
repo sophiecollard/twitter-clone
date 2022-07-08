@@ -1,10 +1,28 @@
 package twitterclone
 
+import cats.effect.Concurrent
+import io.circe.{Decoder, Encoder}
+import org.http4s.circe.CirceEntityCodec.{circeEntityDecoder, circeEntityEncoder}
+import org.http4s.{DecodeFailure, EntityBody, Media}
 import org.scalatest.Assertion
 import twitterclone.auth.error.AuthorizationError
 import twitterclone.services.error.{ServiceError, ServiceErrorOr}
 
 object testsyntax {
+
+  implicit class CirceEntityEncoderOps[A: Encoder](value: A) {
+    def asEntityBody[F[_]]: EntityBody[F] =
+      circeEntityEncoder[F, A]
+        .toEntity(value)
+        .body
+  }
+
+  implicit class CirceEntityDecoderOps[F[_]: Concurrent](value: Media[F]) {
+    def decodeBodyAs[A](implicit ev: Decoder[A]): F[Either[DecodeFailure, A]] =
+      circeEntityDecoder[F, A]
+        .decode(value, true)
+        .value
+  }
 
   def withSuccessfulAuthorization[R, Tag](
     authorizationResult: auth.WithAuthorization[R, Tag]

@@ -1,9 +1,8 @@
 package twitterclone.api.tweet
 
-import cats.effect.Async
+import cats.effect.Concurrent
 import cats.implicits._
-import org.http4s.circe.CirceEntityDecoder._
-import org.http4s.circe.CirceEntityEncoder._
+import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.AuthMiddleware
 import org.http4s.{AuthedRoutes, HttpRoutes}
@@ -18,7 +17,7 @@ final case class TweetEndpoints[F[_]](httpRoutes: HttpRoutes[F])
 
 object TweetEndpoints {
 
-  def create[F[_]: Async](
+  def create[F[_]: Concurrent](
     authMiddleware: AuthMiddleware[F, Id[User]],
     service: TweetService[F]
   ): TweetEndpoints[F] = {

@@ -25,7 +25,6 @@ object Server {
       "/v1/tweets" -> tweetEndpoints.httpRoutes
     ).orNotFound
 
-
     JettyBuilder[F]
       .bindHttp(config.port, config.host)
       .withIdleTimeout(1.minute)

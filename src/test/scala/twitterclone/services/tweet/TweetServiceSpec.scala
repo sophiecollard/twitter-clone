@@ -4,6 +4,7 @@ import cats.{Id => CatsId}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.auth.error.AuthorizationError.NotTheTweetsAuthor
+import twitterclone.fixtures.tweet._
 import twitterclone.model.{Id, Tweet, TweetPagination, User}
 import twitterclone.repositories.tweet.LocalTweetRepository
 import twitterclone.services.error.ServiceError.ResourceNotFound
@@ -11,7 +12,6 @@ import twitterclone.services.tweet.auth.byAuthor
 import twitterclone.testinstances._
 import twitterclone.testsyntax._
 
-import java.time.{LocalDate, LocalDateTime, LocalTime}
 import scala.collection.concurrent.TrieMap
 
 class TweetServiceSpec extends AnyWordSpec with Matchers {
@@ -162,37 +162,6 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
 }
 
 trait Fixtures {
-
-  val tweet: Tweet = Tweet(
-    id = Id.random[Tweet],
-    author = Id.random[User],
-    contents =
-      "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes.",
-    postedOn = LocalDateTime.of(
-      LocalDate.of(1968, 4, 30),
-      LocalTime.of(19, 30)
-    )
-  )
-
-  val earlierTweetFromSameAuthor: Tweet = Tweet(
-    id = Id.random[Tweet],
-    author = tweet.author,
-    contents = "Je dis des choses tellement intelligentes que souvent, je ne comprends pas ce que je dis.",
-    postedOn = LocalDateTime.of(
-      LocalDate.of(1968, 4, 29),
-      LocalTime.of(19, 30)
-    )
-  )
-
-  val tweetFromAnotherAuthor: Tweet = Tweet(
-    id = Id.random[Tweet],
-    author = Id.random[User],
-    contents = "S'il n'a a pas de solution, c'est qu'il n'y a pas de problème.",
-    postedOn = LocalDateTime.of(
-      LocalDate.of(1968, 1, 1),
-      LocalTime.of(19, 30)
-    )
-  )
 
   def newService(repoState: TrieMap[Id[Tweet], Tweet]): TweetService[CatsId] = {
     val tweetRepository = LocalTweetRepository.create[CatsId](repoState)

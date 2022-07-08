@@ -1,6 +1,6 @@
 package twitterclone.api.shared
 
-import io.circe.Encoder
+import io.circe.{Decoder, Encoder}
 import org.http4s.QueryParamDecoder
 import twitterclone.model.Id
 
@@ -12,6 +12,9 @@ object instances {
 
   implicit def idEncoder[A]: Encoder[Id[A]] =
     Encoder[UUID].contramap(_.value)
+
+  implicit def idDecoder[A]: Decoder[Id[A]] =
+    Decoder[UUID].map(Id.apply[A])
 
   implicit def idQueryParamDecoder[A]: QueryParamDecoder[Id[A]] =
     QueryParamDecoder[UUID].map(Id.apply[A])
