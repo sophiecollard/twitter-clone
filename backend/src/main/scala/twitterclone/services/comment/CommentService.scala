@@ -14,16 +14,16 @@ import java.time.{LocalDateTime, ZoneId}
 
 trait CommentService[F[_]] {
 
-  /** Creates a new Comment */
+  /** Creates a new comment */
   def create(tweetId: Id[Tweet], contents: String)(userId: Id[User]): F[ServiceErrorOr[Comment]]
 
-  /** Deletes a Comment */
+  /** Deletes a comment */
   def delete(id: Id[Comment])(userId: Id[User]): F[WithAuthorizationByAuthor[ServiceErrorOr[Unit]]]
 
-  /** Fetches a Comment */
+  /** Fetches a comment */
   def get(id: Id[Comment]): F[ServiceErrorOr[Comment]]
 
-  /** Fetches comments for a given Tweet */
+  /** Fetches comments for a given tweet */
   def list(tweetId: Id[Tweet], pagination: CommentPagination = CommentPagination.default): F[ServiceErrorOr[List[Comment]]]
 
 }
@@ -35,7 +35,7 @@ object CommentService {
     authByAuthorService: AuthorizationService[G, (Id[User], Id[Comment]), ByAuthor]
   )(implicit transactor: G ~> F): CommentService[F] =
     new CommentService[F] {
-      /** Creates a new Comment */
+      /** Creates a new comment */
       override def create(tweetId: Id[Tweet], contents: String)(userId: Id[User]): F[ServiceErrorOr[Comment]] = {
         val comment = Comment (
           id = Id.random[Comment],
@@ -50,7 +50,7 @@ object CommentService {
         }.transact
       }
 
-      /** Deletes a Comment */
+      /** Deletes a comment */
       override def delete(id: Id[Comment])(userId: Id[User]): F[WithAuthorizationByAuthor[ServiceErrorOr[Unit]]] =
         authByAuthorService.authorize((userId, id)) {
           commentRepository.delete(id).map {
@@ -59,7 +59,7 @@ object CommentService {
           }
         }.transact
 
-      /** Fetches a Comment */
+      /** Fetches a comment */
       override def get(id: Id[Comment]): F[ServiceErrorOr[Comment]] =
         commentRepository.get(id).map {
           case Some(comment) => Right(comment)
@@ -67,7 +67,7 @@ object CommentService {
         }.transact
 
 
-      /** Fetches comments for a given Tweet */
+      /** Fetches comments for a given tweet */
       override def list(tweetId: Id[Tweet], pagination: CommentPagination = CommentPagination.default): F[ServiceErrorOr[List[Comment]]] =
         commentRepository
           .list(tweetId, pagination)

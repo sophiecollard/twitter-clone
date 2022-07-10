@@ -14,17 +14,20 @@ import java.time.{LocalDateTime, ZoneId}
 
 trait TweetService[F[_]] {
 
-  /** Creates a new Tweet */
+  /** Creates a new tweet */
   def create(contents: String)(userId: Id[User]): F[ServiceErrorOr[Tweet]]
 
-  /** Deletes a Tweet */
+  /** Deletes a tweet */
   def delete(id: Id[Tweet])(userId: Id[User]): F[WithAuthorizationByAuthor[ServiceErrorOr[Unit]]]
 
-  /** Fetches a Tweet */
+  /** Fetches a tweet */
   def get(id: Id[Tweet]): F[ServiceErrorOr[Tweet]]
 
-  /** Fetches tweets from a given User */
-  def list(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
+  /** Fetches tweets from any author */
+  def list(pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
+
+  /** Fetches tweets from a given author */
+  def listBy(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
 
 }
 
@@ -35,7 +38,7 @@ object TweetService {
     authByAuthorService: AuthorizationService[G, (Id[User], Id[Tweet]), ByAuthor]
   )(implicit transactor: G ~> F): TweetService[F] =
     new TweetService[F] {
-      /** Creates a new Tweet */
+      /** Creates a new tweet */
       override def create(contents: String)(userId: Id[User]): F[ServiceErrorOr[Tweet]] = {
         val tweet = Tweet(
           id = Id.random[Tweet],
@@ -49,7 +52,7 @@ object TweetService {
         }.transact
       }
 
-      /** Deletes a Tweet */
+      /** Deletes a tweet */
       override def delete(id: Id[Tweet])(userId: Id[User]): F[WithAuthorizationByAuthor[ServiceErrorOr[Unit]]] =
         authByAuthorService.authorize((userId, id)) {
           tweetRepository.delete(id).map {
@@ -58,15 +61,22 @@ object TweetService {
           }
         }.transact
 
-      /** Fetches a Tweet */
+      /** Fetches a tweet */
       override def get(id: Id[Tweet]): F[ServiceErrorOr[Tweet]] =
         tweetRepository.get(id).map {
           case Some(tweet) => Right(tweet)
           case None        => Left(resourceNotFound(id, "Tweet"))
         }.transact
 
-      /** Fetches tweets from a given User */
-      override def list(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
+      /** Fetches tweets from any author */
+      override def list(pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
+        tweetRepository
+          .list(pagination)
+          .map(_.asRight[ServiceError])
+          .transact
+
+      /** Fetches tweets from a given author */
+      override def listBy(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
         tweetRepository
           .listBy(author, pagination)
           .map(_.asRight[ServiceError])

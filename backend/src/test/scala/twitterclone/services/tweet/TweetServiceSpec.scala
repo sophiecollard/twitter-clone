@@ -97,7 +97,47 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  "The list method" when {
+  "The list method" should {
+    "return a list of tweets" in new Fixtures {
+      private val repoState = TrieMap.from(
+        (tweet.id, tweet) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
+          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
+      private val service = newService(repoState)
+
+      withNoServiceError(service.list()) { tweets =>
+        tweets shouldEqual List(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor)
+      }
+    }
+
+    "only return as many tweets as specified in the pagination" in new Fixtures {
+      private val repoState = TrieMap.from(
+        (tweet.id, tweet) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
+          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
+      private val service = newService(repoState)
+      private val pagination = TweetPagination(pageSize = 1, postedBefore = None)
+
+      withNoServiceError(service.list(pagination)) { tweets =>
+        tweets shouldEqual List(tweet)
+      }
+    }
+
+    "only return tweets posted before the date specified in the pagination" in new Fixtures {
+      private val repoState = TrieMap.from(
+        (tweet.id, tweet) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
+          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
+      private val service = newService(repoState)
+      private val pagination = TweetPagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
+
+      withNoServiceError(service.list(pagination)) { tweets =>
+        tweets shouldEqual List(earlierTweetFromSameAuthor, tweetFromAnotherAuthor)
+      }
+    }
+  }
+
+  "The listBy method" when {
     "given an author id" should {
       "return a list of tweets from this author" in new Fixtures {
         private val repoState = TrieMap.from(
@@ -106,7 +146,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
             (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
 
-        withNoServiceError(service.list(tweet.author)) { tweets =>
+        withNoServiceError(service.listBy(tweet.author)) { tweets =>
           tweets.size shouldBe 2
           tweets should contain theSameElementsAs List(tweet, earlierTweetFromSameAuthor)
           tweets should not contain tweetFromAnotherAuthor
@@ -121,7 +161,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val service = newService(repoState)
         private val pagination = TweetPagination(pageSize = 1, postedBefore = None)
 
-        withNoServiceError(service.list(tweet.author, pagination)) { tweets =>
+        withNoServiceError(service.listBy(tweet.author, pagination)) { tweets =>
           tweets.size shouldBe 1
           tweets should contain (tweet)
         }
@@ -135,7 +175,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val service = newService(repoState)
         private val pagination = TweetPagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
 
-        withNoServiceError(service.list(tweet.author, pagination)) { tweets =>
+        withNoServiceError(service.listBy(tweet.author, pagination)) { tweets =>
           tweets.size shouldBe 1
           tweets should contain (earlierTweetFromSameAuthor)
           tweets should not contain tweet
@@ -153,7 +193,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val service = newService(repoState)
         private val randomUserId = Id.random[User]
 
-        withNoServiceError(service.list(randomUserId)) { tweets =>
+        withNoServiceError(service.listBy(randomUserId)) { tweets =>
           tweets shouldBe empty
         }
       }
