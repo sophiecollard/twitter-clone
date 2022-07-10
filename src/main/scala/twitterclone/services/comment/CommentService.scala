@@ -1,13 +1,16 @@
 package twitterclone.services.comment
 
+import cats.implicits.{catsSyntaxEitherId, toFunctorOps}
 import cats.{Monad, ~>}
 import twitterclone.auth.AuthorizationService
 import twitterclone.model.{Comment, CommentPagination, Id, Tweet, User}
 import twitterclone.repositories.comment.CommentRepository
 import twitterclone.services.comment.auth.{ByAuthor, WithAuthorizationByAuthor}
-import twitterclone.services.error.ServiceErrorOr
+import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}
+import twitterclone.services.error.{ServiceError, ServiceErrorOr}
+import twitterclone.services.syntax.Transactable
 
-import scala.annotation.nowarn
+import java.time.{LocalDateTime, ZoneId}
 
 trait CommentService[F[_]] {
 
@@ -27,27 +30,49 @@ trait CommentService[F[_]] {
 
 object CommentService {
 
-  @nowarn // TODO Remove annotation once you begin implementation
   def create[F[_], G[_]: Monad](
     commentRepository: CommentRepository[G],
     authByAuthorService: AuthorizationService[G, (Id[User], Id[Comment]), ByAuthor]
   )(implicit transactor: G ~> F): CommentService[F] =
     new CommentService[F] {
       /** Creates a new Comment */
-      override def create(tweetId: Id[Tweet], contents: String)(userId: Id[User]): F[ServiceErrorOr[Comment]] =
-        ???
+      override def create(tweetId: Id[Tweet], contents: String)(userId: Id[User]): F[ServiceErrorOr[Comment]] = {
+        val comment = Comment (
+          id = Id.random[Comment],
+          author = userId,
+          tweetId,
+          contents,
+          postedOn = LocalDateTime.now(ZoneId.of("UTC"))
+        )
+        commentRepository.create(comment).map {
+          case 1 => Right(comment)
+          case _ => Left(failedToCreateResource("Comment"))
+        }.transact
+      }
 
       /** Deletes a Comment */
       override def delete(id: Id[Comment])(userId: Id[User]): F[WithAuthorizationByAuthor[ServiceErrorOr[Unit]]] =
-        ???
+        authByAuthorService.authorize((userId, id)) {
+          commentRepository.delete(id).map {
+            case 1 => Right(())
+            case _ => Left(failedToDeleteResource(id, "Comment"))
+          }
+        }.transact
 
       /** Fetches a Comment */
       override def get(id: Id[Comment]): F[ServiceErrorOr[Comment]] =
-        ???
+        commentRepository.get(id).map {
+          case Some(comment) => Right(comment)
+          case None => Left(resourceNotFound(id, "Comment"))
+        }.transact
+
 
       /** Fetches comments for a given Tweet */
       override def list(tweetId: Id[Tweet], pagination: CommentPagination = CommentPagination.default): F[ServiceErrorOr[List[Comment]]] =
-        ???
+        commentRepository
+          .list(tweetId, pagination)
+          .map(_.asRight[ServiceError])
+          .transact
     }
 
 }
