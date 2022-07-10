@@ -12,6 +12,8 @@ trait TweetRepository[F[_]] {
 
   def getAuthor(id: Id[Tweet]): F[Option[Id[User]]]
 
-  def list(author: Id[User], pagination: TweetPagination): F[List[Tweet]]
+  def list(pagination: TweetPagination): F[List[Tweet]]
+
+  def listBy(author: Id[User], pagination: TweetPagination): F[List[Tweet]]
 
 }

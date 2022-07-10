@@ -24,8 +24,11 @@ object PostgresTweetRepository {
     override def getAuthor(id: Id[Tweet]): ConnectionIO[Option[Id[User]]] =
       getAuthorQuery(id).option
 
-    override def list(author: Id[User], pagination: TweetPagination): ConnectionIO[List[Tweet]] =
-      listQuery(author, pagination).to[List]
+    override def list(pagination: TweetPagination): ConnectionIO[List[Tweet]] =
+      listQuery(pagination).to[List]
+
+    override def listBy(author: Id[User], pagination: TweetPagination): ConnectionIO[List[Tweet]] =
+      listByQuery(author, pagination).to[List]
   }
 
   private val createUpdate: Update[Tweet] =
@@ -54,11 +57,18 @@ object PostgresTweetRepository {
          |WHERE id = $id
          |""".stripMargin.query[Id[User]]
 
-  private def listQuery(author: Id[User], pagination: TweetPagination): Query0[Tweet] =
+  private def listQuery(pagination: TweetPagination): Query0[Tweet] =
     sql"""SELECT id, author, contents, posted_on
          |FROM tweets
-         |WHERE author = $author
-         |AND posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
+         |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
+         |LIMIT ${pagination.pageSize}
+         |""".stripMargin.query[Tweet]
+
+  private def listByQuery(author: Id[User], pagination: TweetPagination): Query0[Tweet] =
+    sql"""SELECT id, author, contents, posted_on
+         |FROM tweets
+         |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
+         |AND author = $author
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 

@@ -52,7 +52,7 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
   }
 
   "The list method" should {
-    "list tweets for an author" in {
+    "list tweets by decreasing 'postedOn' date" in {
       val state = TrieMap.from(
         (tweet.id, tweet) ::
           (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
@@ -61,7 +61,21 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
       )
       val repo = LocalTweetRepository.create[CatsId](state)
       val pagination = TweetPagination.default
-      repo.list(tweet.author, pagination) shouldBe List(tweet, earlierTweetFromSameAuthor)
+      repo.list(pagination) shouldBe List(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor)
+    }
+  }
+
+  "The listBy method" should {
+    "list tweets by a given author by decreasing 'postedOn' date" in {
+      val state = TrieMap.from(
+        (tweet.id, tweet) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
+          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) ::
+          Nil
+      )
+      val repo = LocalTweetRepository.create[CatsId](state)
+      val pagination = TweetPagination.default
+      repo.listBy(tweet.author, pagination) shouldBe List(tweet, earlierTweetFromSameAuthor)
     }
   }
 }

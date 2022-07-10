@@ -68,7 +68,7 @@ object TweetService {
       /** Fetches tweets from a given User */
       override def list(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
         tweetRepository
-          .list(author, pagination)
+          .listBy(author, pagination)
           .map(_.asRight[ServiceError])
           .transact
     }
