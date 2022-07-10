@@ -40,6 +40,14 @@ object TweetEndpoints {
             Ok(tweets)
           }
         }
+      case GET -> Root :?
+        PageSizeOptionalQueryParamMatcher(pageSize) +&
+          PostedBeforeOptionalQueryParamMatcher(postedBefore) =>
+        service.list(TweetPagination(pageSize.getOrElse(10), postedBefore = postedBefore)).flatMap {
+          withNoServiceError { tweets =>
+            Ok(tweets)
+          }
+        }
     }
 
     val privateRoutes: AuthedRoutes[Id[User], F] = AuthedRoutes.of[Id[User], F] {

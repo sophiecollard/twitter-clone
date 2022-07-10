@@ -195,6 +195,33 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
         .value shouldBe List(tweet, earlierTweetFromSameAuthor)
     }
   }
+
+  "The GET /v1/tweets endpoint" should {
+    "return a list of tweets" in new Fixtures {
+      private val repoState = TrieMap.from(
+        (tweet.id, tweet) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
+          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
+      private val endpoints = newEndpoints(repoState)
+
+      private val request = Request[IO](
+        method = Method.GET,
+        uri = Uri.unsafeFromString("/")
+      )
+
+      private val response = endpoints
+        .httpRoutes
+        .orNotFound
+        .run(request)
+        .unsafeRunSync()
+
+      response.status shouldBe Status.Ok
+      response
+        .decodeBodyAs[List[Tweet]]
+        .unsafeRunSync()
+        .value shouldBe List(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor)
+    }
+  }
 }
 
 trait Fixtures {
