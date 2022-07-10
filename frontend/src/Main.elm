@@ -63,8 +63,8 @@ update msg _ =
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+subscriptions _ =
+  Sub.none
 
 -- VIEW
 
@@ -104,8 +104,8 @@ viewTweet tweet =
 computeNextPagePostedBefore : TweetPage -> PostedBefore
 computeNextPagePostedBefore tweets =
   let
-    computeEarlierDate : String -> Maybe String -> Maybe String
-    computeEarlierDate date maybeOtherDate =
+    selectEarliestDate : String -> Maybe String -> Maybe String
+    selectEarliestDate date maybeOtherDate =
       case maybeOtherDate of
         Just otherDate ->
           if date < otherDate then
@@ -115,7 +115,7 @@ computeNextPagePostedBefore tweets =
         Nothing ->
           Just date
   in
-    List.foldl (computeEarlierDate) Nothing (List.map .postedOn tweets)
+    List.foldl (selectEarliestDate) Nothing (List.map .postedOn tweets)
 
 -- HTTP
 
