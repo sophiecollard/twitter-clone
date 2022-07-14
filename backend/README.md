@@ -44,7 +44,7 @@ Implement the `CommentEndpoints`. You can use the `TweetEndpoints` as an example
 on the `CommentEndpointsSpec` to verify the correctness of your implementation.
 
 Once you are done, connect your endpoints to the `Server` router. The routes of your `CommentEndpoints` should all be
-prefixed with `/v1/comments`.
+prefixed with `/v1/comments`. Make sure you address any compilation errors resulting from changes made to `Server`.
 
 Start the server on `localhost:8080` with `sbt run` and try issuing some requests using [curl](https://curl.se/),
 [requests](https://pypi.org/project/requests/), [Postman](https://www.postman.com) or another tool of your choice.
