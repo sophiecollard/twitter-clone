@@ -2,7 +2,7 @@ package twitterclone.api.shared
 
 import org.http4s.dsl.impl.{OptionalQueryParamDecoderMatcher, QueryParamDecoderMatcher}
 import twitterclone.api.shared.instances.{idQueryParamDecoder, localDateTimeQueryParamDecoder}
-import twitterclone.model.{Id, User}
+import twitterclone.model.{Id, Tweet, User}
 
 import java.time.LocalDateTime
 
@@ -16,5 +16,8 @@ object matchers {
 
   object PostedBeforeOptionalQueryParamMatcher
     extends OptionalQueryParamDecoderMatcher[LocalDateTime]("posted_before")
+
+  object TweetIdQueryParamMatcher
+    extends QueryParamDecoderMatcher[Id[Tweet]]("tweet-id")
 
 }
