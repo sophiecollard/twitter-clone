@@ -38,6 +38,8 @@ Use the provided [Postman collection](postman/TwitterClone.postman_collection.js
 Implement the `CommentService`. You can use the `TweetService` as an example of how to implement a service and rely on
 the `CommentServiceSpec` to verify the correctness of your implementation.
 
+Held on July 7th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/1).
+
 ### Session 2
 
 Implement the `CommentEndpoints`. You can use the `TweetEndpoints` as an example of how to implement endpoints and rely 
@@ -48,6 +50,8 @@ prefixed with `/v1/comments`. Make sure you address any compilation errors resul
 
 Start the server on `localhost:8080` with `sbt run` and try issuing some requests using [curl](https://curl.se/),
 [requests](https://pypi.org/project/requests/), [Postman](https://www.postman.com) or another tool of your choice.
+
+Held on July 14th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/2).
 
 ### Future sessions
 
