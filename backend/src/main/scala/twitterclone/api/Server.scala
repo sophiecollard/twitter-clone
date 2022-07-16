@@ -7,6 +7,7 @@ import org.http4s.jetty.server.JettyBuilder
 import org.http4s.server.middleware.CORS
 import org.http4s.server.{DefaultServiceErrorHandler, Router, ServerBuilder}
 import org.http4s.{Http, HttpRoutes}
+import twitterclone.api.comment.CommentEndpoints
 import twitterclone.api.tweet.TweetEndpoints
 import twitterclone.config.ServerConfig
 
@@ -17,6 +18,7 @@ object Server {
 
   def create[F[_]: Async](
     config: ServerConfig,
+    commentEndpoints: CommentEndpoints[F],
     tweetEndpoints: TweetEndpoints[F]
   ): ServerBuilder[F] = {
     val dsl = new Http4sDsl[F] {}
@@ -25,6 +27,7 @@ object Server {
     @nowarn("cat=deprecation")
     val router: Http[F, F] = Router[F](
       "/live" -> HttpRoutes.of[F] { case GET -> Root => Ok() },
+      "/v1/comments" -> CORS(commentEndpoints.httpRoutes, config.cors),
       "/v1/tweets" -> CORS(tweetEndpoints.httpRoutes, config.cors)
     ).orNotFound
 
