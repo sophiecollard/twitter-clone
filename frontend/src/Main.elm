@@ -19,12 +19,9 @@ main =
 -- MODEL
 
 type Model
-  = Loading
+  = Loading TweetPage
   | Success TweetPage
-  | Failure PostedBefore
-
-type alias PostedBefore =
-  Maybe String
+  | Failure TweetPage PostedBefore
 
 type alias TweetPage =
   List Tweet
@@ -36,9 +33,12 @@ type alias Tweet =
   , postedOn: String
   }
 
+type alias PostedBefore =
+  Maybe String
+
 init : () -> (Model, Cmd Msg)
 init _ =
-  (Loading, getPage Nothing)
+  (Loading [], getPage Nothing)
 
 -- UPDATE
 
@@ -47,18 +47,43 @@ type Msg
   | GotPage PostedBefore (Result Http.Error TweetPage)
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg _ =
+-- Try matchin on model first
+update msg model =
   case msg of
     GetPage postedBefore ->
-      (Loading, getPage postedBefore)
+      case model of
+        Loading previousTweetPages ->
+          (Loading previousTweetPages, getPage postedBefore)
+
+        Success previousTweetPages ->
+          (Loading previousTweetPages, getPage postedBefore)
+
+        Failure previousTweetPages _ ->
+          (Loading previousTweetPages, getPage postedBefore)
 
     GotPage postedBefore result ->
       case result of
         Ok tweetPage ->
-          (Success tweetPage, Cmd.none)
+          case model of
+            Loading previousTweetPages ->
+              (Success (List.concat [ previousTweetPages, tweetPage ]), Cmd.none)
+
+            Success previousTweetPages ->
+              (Success (List.concat [ previousTweetPages, tweetPage ]), Cmd.none)
+
+            Failure previousTweetPages _ ->
+              (Success (List.concat [ previousTweetPages, tweetPage ]), Cmd.none)
 
         Err _ ->
-          (Failure postedBefore, Cmd.none)
+          case model of
+              Loading previousTweetPages ->
+                (Failure previousTweetPages postedBefore, Cmd.none)
+
+              Success previousTweetPages ->
+                (Failure previousTweetPages postedBefore, Cmd.none)
+
+              Failure previousTweetPages _ ->
+                (Failure previousTweetPages postedBefore, Cmd.none)
 
 -- SUBSCRIPTIONS
 
@@ -71,13 +96,13 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
   case model of
-    Loading ->
+    Loading _ ->
       text "Loading ..."
 
     Success tweetPage ->
       viewTweetPage tweetPage
 
-    Failure postedBefore ->
+    Failure _ postedBefore ->
       div []
         [ p [] [ text "Failed to load page" ]
         , button [ onClick (GetPage postedBefore) ] [ text "Try Again" ]
@@ -90,14 +115,14 @@ viewTweetPage tweetPage =
   in
     div []
       [ div[] (List.map viewTweet tweetPage)
-      , button [ onClick (GetPage nextPagePostedBefore) ] [ text "Next Page" ]
+      , button [ onClick (GetPage nextPagePostedBefore) ] [ text "Load more Tweets" ]
       ]
 
 viewTweet : Tweet -> Html Msg
 viewTweet tweet =
   div []
-    [ h2 [] [ text tweet.author ]
-    , p [] [ text tweet.contents ]
+    [ h3 [] [ text tweet.author ]
+    , h2 [] [ text tweet.contents ]
     , p [] [ text tweet.postedOn ]
     ]
 
@@ -125,9 +150,9 @@ getPage postedBefore =
     query_params =
       case postedBefore of
         Just value ->
-          String.concat [ "?posted_before=", value ]
+          String.concat [ "?page_size=1&posted_before=", value ]
         Nothing ->
-          ""
+          "?page_size=1"
   in
     Http.get
       { url = String.concat [ "http://localhost:8080/v1/tweets", query_params ]
