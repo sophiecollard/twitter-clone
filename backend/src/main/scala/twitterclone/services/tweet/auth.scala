@@ -4,7 +4,8 @@ import cats.Monad
 import cats.implicits._
 import twitterclone.auth.error.AuthorizationError.NotTheTweetsAuthor
 import twitterclone.auth.{AuthorizationService, WithAuthorization}
-import twitterclone.model.{Id, Tweet, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Tweet}
 import twitterclone.repositories.tweet.TweetRepository
 
 object auth {

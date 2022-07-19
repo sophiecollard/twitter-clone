@@ -3,7 +3,8 @@ package twitterclone.services.comment
 import cats.implicits.{catsSyntaxEitherId, toFunctorOps}
 import cats.{Monad, ~>}
 import twitterclone.auth.AuthorizationService
-import twitterclone.model.{Comment, CommentPagination, Id, Tweet, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
 import twitterclone.repositories.comment.CommentRepository
 import twitterclone.services.comment.auth.{ByAuthor, WithAuthorizationByAuthor}
 import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}

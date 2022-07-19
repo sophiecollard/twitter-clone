@@ -5,7 +5,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.auth.error.AuthorizationError.NotTheCommentsAuthor
 import twitterclone.fixtures.comment._
-import twitterclone.model.{Comment, CommentPagination, Id, Tweet, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
 import twitterclone.repositories.comment.LocalCommentRepository
 import twitterclone.services.comment.auth.byAuthor
 import twitterclone.services.error.ServiceError.ResourceNotFound

@@ -2,7 +2,8 @@ package twitterclone.repositories.tweet
 
 import cats.Applicative
 import cats.implicits._
-import twitterclone.model.{Id, Tweet, TweetPagination, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Tweet, TweetPagination}
 
 import java.time.LocalDateTime
 import scala.collection.concurrent.TrieMap

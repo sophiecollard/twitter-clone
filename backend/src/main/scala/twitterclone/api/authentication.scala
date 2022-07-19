@@ -3,7 +3,8 @@ package twitterclone.api
 import cats.Monad
 import cats.data.{Kleisli, OptionT}
 import org.http4s.server.AuthMiddleware
-import twitterclone.model.{Id, User}
+import twitterclone.model.Id
+import twitterclone.model.user.User
 
 import java.util.UUID
 import scala.util.Try

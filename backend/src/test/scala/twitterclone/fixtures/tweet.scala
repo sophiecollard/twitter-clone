@@ -1,6 +1,7 @@
 package twitterclone.fixtures
 
-import twitterclone.model.{Id, Tweet, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Tweet}
 
 import java.time.{LocalDate, LocalDateTime, LocalTime}
 

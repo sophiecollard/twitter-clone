@@ -2,15 +2,16 @@ package twitterclone.api.comment
 
 import cats.effect.Concurrent
 import cats.implicits._
-import org.http4s.{AuthedRoutes, HttpRoutes}
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.AuthMiddleware
+import org.http4s.{AuthedRoutes, HttpRoutes}
 import twitterclone.api.comment.instances._
 import twitterclone.api.shared.extractors.CommentIdVar
 import twitterclone.api.shared.matchers._
 import twitterclone.api.syntax._
-import twitterclone.model.{CommentPagination, Id, User}
+import twitterclone.model.user.User
+import twitterclone.model.{CommentPagination, Id}
 import twitterclone.services.comment.CommentService
 
 final case class CommentEndpoints[F[_]](httpRoutes: HttpRoutes[F])

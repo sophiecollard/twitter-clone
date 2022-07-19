@@ -1,6 +1,7 @@
 package twitterclone.auth
 
-import twitterclone.model.{Id, Comment, Tweet, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Comment, Tweet}
 
 object error {
 

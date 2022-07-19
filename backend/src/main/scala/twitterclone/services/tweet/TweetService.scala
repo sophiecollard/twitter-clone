@@ -3,7 +3,8 @@ package twitterclone.services.tweet
 import cats.{Monad, ~>}
 import cats.implicits._
 import twitterclone.auth.AuthorizationService
-import twitterclone.model.{Id, Tweet, TweetPagination, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Tweet, TweetPagination}
 import twitterclone.repositories.tweet.TweetRepository
 import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}
 import twitterclone.services.error.{ServiceError, ServiceErrorOr}
