@@ -18,19 +18,6 @@ sbt run
 
 Use the provided [Postman collection](postman/TwitterClone.postman_collection.json) to interact with the server.
 
-## Components
-
-| Component                   | Implemented | Tested |
-|-----------------------------|-------------|--------|
-| LocalTweetRepository        | yes         | yes    |
-| PostgresTweetRepository     | no          | no     | 
-| TweetService                | yes         | yes    |
-| TweetEndpoints              | yes         | yes    |
-| LocalCommentRepository      | yes         | yes    |
-| PostgresCommentRepository   | no          | no     |
-| CommentService              | yes         | yes    |
-| CommentEndpoints            | no          | yes    |
-
 ## Mob programming sessions
 
 ### Session 1
