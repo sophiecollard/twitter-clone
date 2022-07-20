@@ -31,6 +31,11 @@ object error {
         message = s"""${`type`}s with ids [${ids.map(_.value).mkString(",")}] not found"""
       )
 
+    final case class UserHandleAlreadyExists(handle: Handle)
+      extends ServiceError(
+        message = s"User with handle [${handle.value}] already exists"
+      )
+
     final case class UserHandleNotFound(handle: Handle)
       extends ServiceError(
         message = s"User with handle [${handle.value}] not found"
@@ -47,6 +52,9 @@ object error {
 
     def resourcesNotFound[A](ids: List[Id[A]], `type`: String): ServiceError =
       ResourcesNotFound(ids, `type`)
+
+    def userHandleAlreadyExists(handle: Handle): ServiceError =
+      UserHandleAlreadyExists(handle)
 
     def userHandleNotFound(handle: Handle): ServiceError =
       UserHandleNotFound(handle)
