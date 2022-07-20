@@ -39,6 +39,12 @@ object LocalUserRepository {
           .toList
           .find(_.handle == handle)
           .pure[F]
+
+      override def exists(handle: Handle): F[Boolean] =
+        state
+          .values
+          .exists(_.handle == handle)
+          .pure[F]
     }
 
 }

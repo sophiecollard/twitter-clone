@@ -15,4 +15,6 @@ trait UserRepository[F[_]] {
 
   def getByHandle(handle: Handle): F[Option[User]]
 
+  def exists(handle: Handle): F[Boolean]
+
 }
