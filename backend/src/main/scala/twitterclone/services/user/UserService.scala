@@ -5,8 +5,8 @@ import cats.{Monad, ~>}
 import twitterclone.model.Id
 import twitterclone.model.user.{Handle, Name, User}
 import twitterclone.repositories.user.UserRepository
-import twitterclone.services.error.ServiceError.{resourceNotFound, userHandleNotFound}
-import twitterclone.services.error.{ServiceError, ServiceErrorOr}
+import twitterclone.services.error.ServiceError.{resourceNotFound, resourcesNotFound, userHandleNotFound}
+import twitterclone.services.error.ServiceErrorOr
 import twitterclone.services.syntax._
 
 trait UserService[F[_]] {
@@ -46,8 +46,16 @@ object UserService {
       override def getMany(ids: List[Id[User]]): F[ServiceErrorOr[List[User]]] =
         userRepository
           .getMany(ids)
-          .map(_.asRight[ServiceError])
-          .transact // TODO Fix implementation
+          .map { users =>
+            val returnedUserIds = users.map(_.id)
+            if (ids.forall(returnedUserIds contains _)) {
+              Right(users)
+            } else {
+              val missingUserIds = ids.filterNot(returnedUserIds contains _)
+              Left(resourcesNotFound(missingUserIds, "User"))
+            }
+          }
+          .transact
 
       /** Fetches a user by its handle */
       override def getByHandle(handle: Handle): F[ServiceErrorOr[User]] =
