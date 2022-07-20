@@ -26,6 +26,11 @@ object error {
         message = s"${`type`} with id [${id.value}] not found"
       )
 
+    final case class ResourcesNotFound[A](ids: List[Id[A]], `type`: String)
+      extends ServiceError(
+        message = s"""${`type`}s with ids [${ids.map(_.value).mkString(",")}] not found"""
+      )
+
     final case class UserHandleNotFound(handle: Handle)
       extends ServiceError(
         message = s"User with handle [${handle.value}] not found"
@@ -39,6 +44,9 @@ object error {
 
     def resourceNotFound[A](id: Id[A], `type`: String): ServiceError =
       ResourceNotFound(id, `type`)
+
+    def resourcesNotFound[A](ids: List[Id[A]], `type`: String): ServiceError =
+      ResourcesNotFound(ids, `type`)
 
     def userHandleNotFound(handle: Handle): ServiceError =
       UserHandleNotFound(handle)

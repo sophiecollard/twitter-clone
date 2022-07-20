@@ -7,7 +7,7 @@ import twitterclone.fixtures.user._
 import twitterclone.model.Id
 import twitterclone.model.user.{Handle, User}
 import twitterclone.repositories.user.LocalUserRepository
-import twitterclone.services.error.ServiceError.{ResourceNotFound, UserHandleNotFound}
+import twitterclone.services.error.ServiceError.{ResourceNotFound, ResourcesNotFound, UserHandleNotFound}
 import twitterclone.testinstances._
 import twitterclone.testsyntax._
 
@@ -51,11 +51,33 @@ class UserServiceSpec extends AnyWordSpec with Matchers {
 
   "The getMany method" when {
     "all the user ids in the list exist" should {
-      "return all the users" in pending
+      "return all the users" in new Fixtures {
+        private val repoState = TrieMap.from(
+          (pendingActivationUser.id, pendingActivationUser) ::
+            (activeUser.id, activeUser) ::
+            (suspendedUser.id, suspendedUser) :: Nil)
+        private val service = newService(repoState)
+        private val ids = List(pendingActivationUser.id, activeUser.id, suspendedUser.id)
+
+        withNoServiceError(service.getMany(ids)) { users =>
+          users.size shouldBe 3
+          users should contain theSameElementsAs List(pendingActivationUser, activeUser, suspendedUser)
+        }
+      }
     }
 
     "one or more of the specified user ids don't exist" should {
-      "return an error" in pending
+      "return an error" in new Fixtures {
+        private val repoState = TrieMap.from(
+          (pendingActivationUser.id, pendingActivationUser) ::
+            (activeUser.id, activeUser) :: Nil)
+        private val service = newService(repoState)
+        private val ids = List(pendingActivationUser.id, activeUser.id, suspendedUser.id)
+
+        withServiceError(service.getMany(ids)) { error =>
+          error shouldBe ResourcesNotFound(List(suspendedUser.id), "User")
+        }
+      }
     }
   }
 
