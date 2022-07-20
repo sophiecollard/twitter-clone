@@ -1,5 +1,7 @@
 package twitterclone.model
 
+import twitterclone.model.user.User
+
 import java.time.LocalDateTime
 
 final case class Tweet(

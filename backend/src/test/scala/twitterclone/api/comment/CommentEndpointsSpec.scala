@@ -13,7 +13,8 @@ import org.typelevel.ci.CIString
 import twitterclone.api.authentication.dummyAuthMiddleware
 import twitterclone.fixtures.comment._
 import twitterclone.instances.ioTransactor
-import twitterclone.model.{Comment, Id, Tweet, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Comment, Id, Tweet}
 import twitterclone.repositories.comment.LocalCommentRepository
 import twitterclone.services.comment.CommentService
 import twitterclone.services.comment.auth.byAuthor

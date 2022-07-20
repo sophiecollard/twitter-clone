@@ -3,7 +3,8 @@ package twitterclone.repositories.tweet
 import doobie.implicits._
 import doobie.implicits.javatimedrivernative._
 import doobie.{ConnectionIO, Query0, Update, Update0}
-import twitterclone.model.{Id, Tweet, TweetPagination, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Tweet, TweetPagination}
 import twitterclone.repositories.shared.instances._
 
 import java.time.{LocalDateTime, ZoneId}

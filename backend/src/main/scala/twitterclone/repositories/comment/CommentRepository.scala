@@ -1,6 +1,7 @@
 package twitterclone.repositories.comment
 
 import twitterclone.model._
+import twitterclone.model.user.User
 
 trait CommentRepository[F[_]] {
 

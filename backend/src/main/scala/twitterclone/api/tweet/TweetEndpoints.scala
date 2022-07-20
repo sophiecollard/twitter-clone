@@ -10,7 +10,8 @@ import twitterclone.api.shared.extractors.TweetIdVar
 import twitterclone.api.shared.matchers._
 import twitterclone.api.syntax._
 import twitterclone.api.tweet.instances._
-import twitterclone.model.{Id, TweetPagination, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, TweetPagination}
 import twitterclone.services.tweet.TweetService
 
 final case class TweetEndpoints[F[_]](httpRoutes: HttpRoutes[F])

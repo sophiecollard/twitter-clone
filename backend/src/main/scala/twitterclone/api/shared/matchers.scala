@@ -2,7 +2,8 @@ package twitterclone.api.shared
 
 import org.http4s.dsl.impl.{OptionalQueryParamDecoderMatcher, QueryParamDecoderMatcher}
 import twitterclone.api.shared.instances.{idQueryParamDecoder, localDateTimeQueryParamDecoder}
-import twitterclone.model.{Id, Tweet, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Tweet}
 
 import java.time.LocalDateTime
 

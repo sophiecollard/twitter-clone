@@ -88,6 +88,12 @@ object error {
           FailedToDeleteResource(resourceType)
         case error @ ServiceError.ResourceNotFound(_, _) =>
           ResourceNotFound(error.message)
+        case error @ ServiceError.ResourcesNotFound(_, _) =>
+          ResourceNotFound(error.message)
+        case error @ ServiceError.UserHandleAlreadyExists(_) =>
+          ResourceAlreadyExists(error.message)
+        case error @ ServiceError.UserHandleNotFound(_) =>
+          ResourceNotFound(error.message)
       }
 
   }

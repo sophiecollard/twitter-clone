@@ -1,6 +1,7 @@
 package twitterclone.repositories.tweet
 
-import twitterclone.model.{Id, Tweet, TweetPagination, User}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Tweet, TweetPagination}
 
 trait TweetRepository[F[_]] {
 
