@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.fixtures.user._
 import twitterclone.model.Id
-import twitterclone.model.user.{Handle, User}
+import twitterclone.model.user.{Handle, Name, Status, User}
 import twitterclone.repositories.user.LocalUserRepository
 import twitterclone.services.error.ServiceError.{ResourceNotFound, ResourcesNotFound, UserHandleNotFound}
 import twitterclone.testinstances._
@@ -16,7 +16,17 @@ import scala.collection.concurrent.TrieMap
 class UserServiceSpec extends AnyWordSpec with Matchers {
   "The create method" when {
     "the specified handle does not exist" should {
-      "create and return a new user with status 'PendingActivation'" in pending
+      "create and return a new user with status 'PendingActivation'" in new Fixtures {
+        private val repoState = TrieMap.empty[Id[User], User]
+        private val service = newService(repoState)
+        private val handle = Handle.unsafeFromString("Anna")
+        private val name = Name.unsafeFromString("Anna11")
+        withNoServiceError(service.create(handle, name)) { returnedUser =>
+          returnedUser.handle.value shouldBe "Anna"
+          returnedUser.name.value shouldBe "Anna11"
+          returnedUser.status shouldBe Status.PendingActivation
+        }
+      }
     }
 
     "the specified handle already exists" should {
