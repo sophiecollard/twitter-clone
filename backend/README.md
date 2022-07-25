@@ -4,13 +4,30 @@ Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelev
 
 ## Usage
 
-Start the PostgreSQL container with:
+### Environment configuration
+
+Configure the local environment with:
+
+```sh
+export ENVIRONMENT="local"
+export SERVER_HOST="0.0.0.0"
+export SERVER_PORT=8080
+export ALLOWED_ORIGINS="[http://localhost:8000]"
+```
+
+When `ENVIRONMENT` is set to `"prod"`, the following env vars must also be set:
 
 ```sh
 export POSTGRES_DB="local"
 export POSTGRES_USER="local"
-export POSTGRES_PASSWORD="choose-a-password"
+export POSTGRES_PASSWORD="some-random-password"
+```
 
+### PostgreSQL container
+
+Before starting the server when `ENVIRONMENT` is set to `"prod"`, start the PostgreSQL container with:
+
+```sh
 docker run --name postgres-db \
 -e POSTGRES_DB=$POSTGRES_DB \
 -e POSTGRES_USER=$POSTGRES_USER \
@@ -25,11 +42,15 @@ At then end of a work session, stop the container with:
 docker stop postgres-db
 ```
 
-Run tests with:
+### Running the tests:
+
+Run the tests with:
 
 ```
 sbt test
 ```
+
+### Running the server:
 
 Start the server on `localhost:8080` with:
 
