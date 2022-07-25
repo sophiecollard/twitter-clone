@@ -22,12 +22,18 @@ Use the provided [Postman collection](postman/TwitterClone.postman_collection.js
 
 ### Session 1: Services
 
+Held on July 7th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/1).
+
+#### Instructions
+
 Implement the `CommentService`. You can use the `TweetService` as an example of how to implement a service and rely on
 the `CommentServiceSpec` to verify the correctness of your implementation.
 
-Held on July 7th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/1).
-
 ### Session 2: Endpoints
+
+Held on July 14th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/2).
+
+#### Instructions
 
 Implement the `CommentEndpoints`. You can use the `TweetEndpoints` as an example of how to implement endpoints and rely 
 on the `CommentEndpointsSpec` to verify the correctness of your implementation.
@@ -38,41 +44,43 @@ prefixed with `/v1/comments`. Make sure you address any compilation errors resul
 Start the server on `localhost:8080` with `sbt run` and try issuing some requests using [curl](https://curl.se/),
 [requests](https://pypi.org/project/requests/), [Postman](https://www.postman.com) or another tool of your choice.
 
-Held on July 14th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/2).
-
 ### Session 3: TDD
 
-#### Part 1
+Held on July 21st. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/4).
 
-In `UserServiceSpec`, implement the following test:
+#### Instructions: Part 1
+
+In `UserServiceSpec`, provide an implementation for the following test:
 
 > The create method,
 > when the specified handle does not exist,
 > should create and return a new user with status 'PendingActivation'
 
-Execute the test to verify that it fails.
+Run the test to verify that it fails.
 
-Now, in `UserService`, implement the `create` method. Execute the test again to verify that is passes.
+Then, implement the `create` method in `UserService`. Run the test again to verify that is passes.
 
-#### Part 2
+#### Instructions: Part 2
 
-Back in `UserServiceSpec`, implement the following test:
+Back in `UserServiceSpec`, provide an implementation for the following test:
 
 > The create method,
 > when the specified handle already exists,
 > should return an error
 
-Execute the test to verify that it fails.
+Run the test. Unless you thought about checking for the handle uniqueness when you first implemented the `create` method
+in part 1, the test should fail.
 
 In `UserService`, update your implementation of the `create` method to make the test pass. You may want to make use of
 the `exists` method on `UserRepository` and of the `UserHandleAlreadyExists` service error.
 
-Held on July 21st. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/4).
+### Session 4: PostgreSQL Repositories
+
+TBD
 
 ### Future sessions
 
-Potential tasks for future sessions:
-  * Implement PostgreSQL repositories
-  * Add configuration
-  * Add logging and metrics
-  * Implement proper authentication
+Potential topics for future sessions:
+  * [Configuration](https://cir.is/)
+  * Logging and metrics
+  * Authentication
