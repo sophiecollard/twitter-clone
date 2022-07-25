@@ -4,6 +4,27 @@ Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelev
 
 ## Usage
 
+Start the PostgreSQL container with:
+
+```sh
+export POSTGRES_DB="local"
+export POSTGRES_USER="local"
+export POSTGRES_PASSWORD="choose-a-password"
+
+docker run --name postgres-db \
+-e POSTGRES_DB=$POSTGRES_DB \
+-e POSTGRES_USER=$POSTGRES_USER \
+-e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+-p $POSTGRES_PORT:5432 \
+-d postgres:14.4
+```
+
+At then end of a work session, stop the container with:
+
+```sh
+docker stop postgres-db
+```
+
 Run tests with:
 
 ```
