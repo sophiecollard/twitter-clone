@@ -5,7 +5,7 @@ import cats.{Monad, ~>}
 import twitterclone.model.Id
 import twitterclone.model.user.{Handle, Name, Status, User}
 import twitterclone.repositories.user.UserRepository
-import twitterclone.services.error.ServiceError.{failedToCreateResource, resourceNotFound, resourcesNotFound, userHandleNotFound}
+import twitterclone.services.error.ServiceError._
 import twitterclone.services.error.ServiceErrorOr
 import twitterclone.services.syntax._
 
@@ -39,9 +39,17 @@ object UserService {
           name,
           status = Status.PendingActivation
         )
-        userRepository.create(user).map{
-          case 1 => Right(user)
-          case _ => Left(failedToCreateResource("User"))
+
+        userRepository.exists(handle).flatMap { handleAlreadyExists =>
+          if (handleAlreadyExists)
+            userHandleAlreadyExists(handle)
+              .asLeft[User]
+              .pure[G]
+          else
+            userRepository.create(user).map {
+              case 1 => Right(user)
+              case _ => Left(failedToCreateResource("User"))
+            }
         }.transact
       }
 
