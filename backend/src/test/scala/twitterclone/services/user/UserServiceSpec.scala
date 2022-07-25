@@ -5,9 +5,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.fixtures.user._
 import twitterclone.model.Id
-import twitterclone.model.user.{Handle, User}
+import twitterclone.model.user.{Handle, Name, Status, User}
 import twitterclone.repositories.user.LocalUserRepository
-import twitterclone.services.error.ServiceError.{ResourceNotFound, ResourcesNotFound, UserHandleNotFound}
+import twitterclone.services.error.ServiceError.{ResourceNotFound, ResourcesNotFound, UserHandleAlreadyExists, UserHandleNotFound}
 import twitterclone.testinstances._
 import twitterclone.testsyntax._
 
@@ -16,11 +16,30 @@ import scala.collection.concurrent.TrieMap
 class UserServiceSpec extends AnyWordSpec with Matchers {
   "The create method" when {
     "the specified handle does not exist" should {
-      "create and return a new user with status 'PendingActivation'" in pending
+      "create and return a new user with status 'PendingActivation'" in new Fixtures {
+        private val repoState = TrieMap.empty[Id[User], User]
+        private val service = newService(repoState)
+        private val handle = Handle.unsafeFromString("anna")
+        private val name = Name.unsafeFromString("Anna11")
+
+        withNoServiceError(service.create(handle, name)) { returnedUser =>
+          returnedUser.handle.value shouldBe "anna"
+          returnedUser.name.value shouldBe "Anna11"
+          returnedUser.status shouldBe Status.PendingActivation
+        }
+      }
     }
 
     "the specified handle already exists" should {
-      "return an error" in pending
+      "return an error" in new Fixtures {
+        private val repoState = TrieMap.from((activeUser.id, activeUser) :: Nil)
+        private val service = newService(repoState)
+        private val name = Name.unsafeFromString("Anna11")
+
+        withServiceError(service.create(activeUser.handle, name)) { error =>
+          error shouldBe UserHandleAlreadyExists(activeUser.handle)
+        }
+      }
     }
   }
 

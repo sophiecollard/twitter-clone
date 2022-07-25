@@ -67,6 +67,8 @@ Execute the test to verify that it fails.
 In `UserService`, update your implementation of the `create` method to make the test pass. You may want to make use of
 the `exists` method on `UserRepository` and of the `UserHandleAlreadyExists` service error.
 
+Held on July 21st. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/4).
+
 ### Future sessions
 
 Potential tasks for future sessions:

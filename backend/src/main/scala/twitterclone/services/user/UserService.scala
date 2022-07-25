@@ -3,9 +3,9 @@ package twitterclone.services.user
 import cats.implicits._
 import cats.{Monad, ~>}
 import twitterclone.model.Id
-import twitterclone.model.user.{Handle, Name, User}
+import twitterclone.model.user.{Handle, Name, Status, User}
 import twitterclone.repositories.user.UserRepository
-import twitterclone.services.error.ServiceError.{resourceNotFound, resourcesNotFound, userHandleNotFound}
+import twitterclone.services.error.ServiceError._
 import twitterclone.services.error.ServiceErrorOr
 import twitterclone.services.syntax._
 
@@ -32,8 +32,26 @@ object UserService {
   )(implicit transactor: G ~> F): UserService[F] =
     new UserService[F] {
       /** Creates a new user */
-      override def create(handle: Handle, name: Name): F[ServiceErrorOr[User]] =
-        ??? // TODO implement
+      override def create(handle: Handle, name: Name): F[ServiceErrorOr[User]] = {
+        val user = User (
+          id = Id.random[User],
+          handle,
+          name,
+          status = Status.PendingActivation
+        )
+
+        userRepository.exists(handle).flatMap { handleAlreadyExists =>
+          if (handleAlreadyExists)
+            userHandleAlreadyExists(handle)
+              .asLeft[User]
+              .pure[G]
+          else
+            userRepository.create(user).map {
+              case 1 => Right(user)
+              case _ => Left(failedToCreateResource("User"))
+            }
+        }.transact
+      }
 
       /** Fetches a user */
       override def get(id: Id[User]): F[ServiceErrorOr[User]] =
