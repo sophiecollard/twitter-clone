@@ -5,6 +5,7 @@ object Dependencies {
   private val catsVersion = "2.7.0"
   private val catsEffectVersion = "3.3.12"
   private val circeVersion = "0.14.2"
+  private val cirisVersion = "2.3.3"
   private val doobieVersion = "1.0.0-RC1"
   private val http4sVersion = "0.23.12"
   private val http4sJettyServerVersion = "0.23.10"
@@ -22,6 +23,10 @@ object Dependencies {
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic"
   ).map(_ % circeVersion)
+
+  private val ciris = Seq(
+    "is.cir" %% "ciris"
+  ).map(_ % cirisVersion)
 
   private val doobie = Seq(
     "org.tpolecat" %% "doobie-core"
@@ -46,6 +51,7 @@ object Dependencies {
     cats ++
       catsEffect ++
       circe ++
+      ciris ++
       doobie ++
       http4s ++
       http4sJettyServer ++
