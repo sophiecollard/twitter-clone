@@ -29,7 +29,8 @@ object Dependencies {
   ).map(_ % cirisVersion)
 
   private val doobie = List(
-    "org.tpolecat" %% "doobie-core"
+    "org.tpolecat" %% "doobie-core",
+    "org.tpolecat" %% "doobie-postgres"
   ).map(_ % doobieVersion)
 
   private val http4s = List(

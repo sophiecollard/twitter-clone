@@ -44,7 +44,7 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
   }
 
   "The getAuthor method" should {
-    "get a tweet author's user Id" in {
+    "get a tweet author's user id" in {
       val state = TrieMap.from((tweet.id, tweet) :: Nil)
       val repo = LocalTweetRepository.create[CatsId](state)
       repo.getAuthor(tweet.id) shouldBe Some(tweet.author)

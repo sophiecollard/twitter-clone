@@ -37,7 +37,7 @@ object PostgresTweetRepository {
     Update(
       s"""INSERT INTO tweets (id, author, contents, posted_on)
          |VALUES (?, ?, ?, ?)
-         |ON CONFLICT id DO NOTHING
+         |ON CONFLICT DO NOTHING
          |""".stripMargin
     )
 
@@ -63,6 +63,7 @@ object PostgresTweetRepository {
     sql"""SELECT id, author, contents, posted_on
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
+         |ORDER BY posted_on DESC
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 
@@ -71,6 +72,7 @@ object PostgresTweetRepository {
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
          |AND author = $author
+         |ORDER BY posted_on DESC
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 
