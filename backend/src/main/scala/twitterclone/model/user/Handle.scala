@@ -4,7 +4,7 @@ sealed abstract case class Handle(value: String)
 
 object Handle {
 
-  private val pattern = "^[a-zA-Z0-9-_]{1,24}$".r
+  private val pattern = "^[a-z0-9-_]{1,24}$".r
 
   def fromString(value: String): Either[String, Handle] =
     pattern findFirstIn value match {
