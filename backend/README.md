@@ -18,8 +18,8 @@ export ALLOWED_ORIGINS="[http://localhost:8000]"
 When `ENVIRONMENT` is set to `"prod"`, the following env vars must also be set:
 
 ```sh
-export POSTGRES_DB="local"
-export POSTGRES_USER="local"
+export POSTGRES_DB="postgres"
+export POSTGRES_USER="postgres"
 export POSTGRES_PASSWORD="some-random-password"
 ```
 
@@ -39,7 +39,7 @@ docker run --name postgres-db \
 At then end of a work session, stop the container with:
 
 ```sh
-docker stop postgres-db
+docker rm postgres-db
 ```
 
 ### Running the tests:
@@ -123,6 +123,5 @@ TBD
 ### Future sessions
 
 Potential topics for future sessions:
-  * [Configuration](https://cir.is/)
   * Logging and metrics
   * Authentication
