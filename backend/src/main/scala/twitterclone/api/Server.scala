@@ -16,7 +16,7 @@ import scala.concurrent.duration._
 
 object Server {
 
-  def create[F[_]: Async](
+  def builder[F[_]: Async](
     config: ServerConfig,
     commentEndpoints: CommentEndpoints[F],
     tweetEndpoints: TweetEndpoints[F]
