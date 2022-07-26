@@ -21,6 +21,7 @@ When `ENVIRONMENT` is set to `"prod"`, the following env vars must also be set:
 export POSTGRES_DB="postgres"
 export POSTGRES_USER="postgres"
 export POSTGRES_PASSWORD="some-random-password"
+export POSTGRES_PORT=5432
 ```
 
 ### PostgreSQL container
@@ -39,7 +40,7 @@ docker run --name postgres-db \
 At then end of a work session, stop the container with:
 
 ```sh
-docker rm postgres-db
+docker stop postgres-db && docker rm postgres-db
 ```
 
 ### Running the tests:
