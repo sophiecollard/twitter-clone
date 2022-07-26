@@ -15,7 +15,7 @@ import twitterclone.fixtures.tweet._
 import twitterclone.instances.ioTransactor
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet}
-import twitterclone.repositories.tweet.LocalTweetRepository
+import twitterclone.repositories.interpreters.local.LocalTweetRepository
 import twitterclone.services.tweet.TweetService
 import twitterclone.services.tweet.auth.byAuthor
 import twitterclone.testsyntax.{CirceEntityDecoderOps, CirceEntityEncoderOps}

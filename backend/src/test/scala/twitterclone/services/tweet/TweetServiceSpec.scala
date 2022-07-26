@@ -7,7 +7,7 @@ import twitterclone.auth.error.AuthorizationError.NotTheTweetsAuthor
 import twitterclone.fixtures.tweet._
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet, TweetPagination}
-import twitterclone.repositories.tweet.LocalTweetRepository
+import twitterclone.repositories.interpreters.local.LocalTweetRepository
 import twitterclone.services.error.ServiceError.ResourceNotFound
 import twitterclone.services.tweet.auth.byAuthor
 import twitterclone.testinstances._

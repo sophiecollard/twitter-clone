@@ -1,11 +1,12 @@
-package twitterclone.repositories.tweet
+package twitterclone.repositories.interpreters.postgres
 
 import doobie.implicits._
 import doobie.implicits.javatimedrivernative._
 import doobie.{ConnectionIO, Query0, Update, Update0}
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet, TweetPagination}
-import twitterclone.repositories.shared.instances._
+import twitterclone.repositories.domain.TweetRepository
+import twitterclone.repositories.interpreters.postgres.instances._
 
 import java.time.{LocalDateTime, ZoneId}
 

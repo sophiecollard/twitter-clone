@@ -1,4 +1,4 @@
-package twitterclone.repositories.comment
+package twitterclone.repositories.interpreters.local
 
 import cats.{Id => CatsId}
 import org.scalatest.matchers.should.Matchers

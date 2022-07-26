@@ -1,8 +1,9 @@
-package twitterclone.repositories.comment
+package twitterclone.repositories.interpreters.postgres
 
 import doobie.ConnectionIO
 import twitterclone.model.user.User
 import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
+import twitterclone.repositories.domain.CommentRepository
 
 /** An implementation of CommentRepository which stores data in a PostgreSQL DB. */
 object PostgresCommentRepository {

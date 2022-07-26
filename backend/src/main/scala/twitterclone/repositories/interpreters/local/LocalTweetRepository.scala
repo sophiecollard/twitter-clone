@@ -1,9 +1,10 @@
-package twitterclone.repositories.tweet
+package twitterclone.repositories.interpreters.local
 
 import cats.Applicative
 import cats.implicits._
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet, TweetPagination}
+import twitterclone.repositories.domain.TweetRepository
 
 import java.time.LocalDateTime
 import scala.collection.concurrent.TrieMap

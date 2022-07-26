@@ -4,7 +4,7 @@ import cats.implicits._
 import cats.{Monad, ~>}
 import twitterclone.model.Id
 import twitterclone.model.user.{Handle, Name, Status, User}
-import twitterclone.repositories.user.UserRepository
+import twitterclone.repositories.domain.UserRepository
 import twitterclone.services.error.ServiceError._
 import twitterclone.services.error.ServiceErrorOr
 import twitterclone.services.syntax._

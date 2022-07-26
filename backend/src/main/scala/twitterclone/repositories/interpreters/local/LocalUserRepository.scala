@@ -1,9 +1,10 @@
-package twitterclone.repositories.user
+package twitterclone.repositories.interpreters.local
 
 import cats.Applicative
 import cats.implicits._
 import twitterclone.model.Id
 import twitterclone.model.user.{Handle, User}
+import twitterclone.repositories.domain.UserRepository
 
 import scala.collection.concurrent.TrieMap
 

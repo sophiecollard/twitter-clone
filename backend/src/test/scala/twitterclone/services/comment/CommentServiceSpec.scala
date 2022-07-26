@@ -7,7 +7,7 @@ import twitterclone.auth.error.AuthorizationError.NotTheCommentsAuthor
 import twitterclone.fixtures.comment._
 import twitterclone.model.user.User
 import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
-import twitterclone.repositories.comment.LocalCommentRepository
+import twitterclone.repositories.interpreters.local.LocalCommentRepository
 import twitterclone.services.comment.auth.byAuthor
 import twitterclone.services.error.ServiceError.ResourceNotFound
 import twitterclone.testinstances._

@@ -6,7 +6,7 @@ import twitterclone.auth.error.AuthorizationError.NotTheTweetsAuthor
 import twitterclone.auth.{AuthorizationService, WithAuthorization}
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet}
-import twitterclone.repositories.tweet.TweetRepository
+import twitterclone.repositories.domain.TweetRepository
 
 object auth {
 

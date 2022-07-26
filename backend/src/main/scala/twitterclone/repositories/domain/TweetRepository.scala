@@ -1,4 +1,4 @@
-package twitterclone.repositories.tweet
+package twitterclone.repositories.domain
 
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet, TweetPagination}

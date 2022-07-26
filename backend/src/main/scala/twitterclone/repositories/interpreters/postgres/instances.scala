@@ -1,4 +1,4 @@
-package twitterclone.repositories.shared
+package twitterclone.repositories.interpreters.postgres
 
 import doobie.Meta
 import twitterclone.model.Id

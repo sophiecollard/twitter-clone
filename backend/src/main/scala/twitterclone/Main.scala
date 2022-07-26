@@ -11,8 +11,8 @@ import twitterclone.api.comment.CommentEndpoints
 import twitterclone.api.tweet.TweetEndpoints
 import twitterclone.config.Config
 import twitterclone.instances.ioTransactor
-import twitterclone.repositories.comment.{LocalCommentRepository, PostgresCommentRepository}
-import twitterclone.repositories.tweet.{LocalTweetRepository, PostgresTweetRepository}
+import twitterclone.repositories.interpreters.local.{LocalCommentRepository, LocalTweetRepository}
+import twitterclone.repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository}
 import twitterclone.services.comment.CommentService
 import twitterclone.services.tweet.TweetService
 

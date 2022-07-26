@@ -6,7 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.fixtures.user._
 import twitterclone.model.Id
 import twitterclone.model.user.{Handle, Name, Status, User}
-import twitterclone.repositories.user.LocalUserRepository
+import twitterclone.repositories.interpreters.local.LocalUserRepository
 import twitterclone.services.error.ServiceError.{ResourceNotFound, ResourcesNotFound, UserHandleAlreadyExists, UserHandleNotFound}
 import twitterclone.testinstances._
 import twitterclone.testsyntax._
