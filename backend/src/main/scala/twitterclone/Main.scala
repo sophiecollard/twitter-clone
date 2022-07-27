@@ -2,7 +2,7 @@ package twitterclone
 
 import cats.arrow.FunctionK
 import cats.effect.{ExitCode, IO, IOApp}
-import doobie.{ConnectionIO, Transactor}
+import doobie.ConnectionIO
 import fs2.Stream
 import org.http4s.server.ServerBuilder
 import twitterclone.api.Server
@@ -11,6 +11,7 @@ import twitterclone.api.comment.CommentEndpoints
 import twitterclone.api.tweet.TweetEndpoints
 import twitterclone.config.Config
 import twitterclone.instances.ioTransactor
+import repositories.interpreters.postgres.{utils => postgresUtils}
 import twitterclone.repositories.interpreters.local.{LocalCommentRepository, LocalTweetRepository}
 import twitterclone.repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository}
 import twitterclone.services.comment.CommentService
@@ -21,6 +22,7 @@ object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     val stream: Stream[IO, ExitCode] = for {
       config <- Stream.eval(Config.configValue.load[IO])
+      _ = println(s"Loaded application configuration: $config")
       serverBuilder = config match {
         case c: Config.Local => localServerBuilder(c)
         case c: Config.Production => productionServerBuilder(c)
@@ -43,15 +45,8 @@ object Main extends IOApp {
   }
 
   private def productionServerBuilder(config: Config.Production): ServerBuilder[IO] = {
-    val xa = Transactor.fromDriverManager[IO](
-      driver = "org.postgresql.Driver",
-      url = "jdbc:postgresql:world",
-      user = config.postgres.user,
-      pass = config.postgres.password.value
-    )
-
-    implicit val doobieTransactor: FunctionK[ConnectionIO, IO] =
-      xa.trans
+    val xa = postgresUtils.getTransactor[IO](config.postgres)
+    implicit val doobieTransactor: FunctionK[ConnectionIO, IO] = xa.trans
 
     val commentRepository = PostgresCommentRepository.create
     val commentAuthService = services.comment.auth.byAuthor(commentRepository)

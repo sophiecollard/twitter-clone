@@ -15,7 +15,8 @@ lazy val root = (project in file("."))
       "-Ywarn-numeric-widen",
       "-Ywarn-value-discard",
       "-Ywarn-unused"
-    )
+    ),
+    Test / parallelExecution := false // Required Postgres repo tests
   )
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)
