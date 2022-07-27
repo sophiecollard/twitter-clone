@@ -4,29 +4,37 @@ Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelev
 
 ## Usage
 
-### Environment configuration
+### Basic configuration
 
-Configure the local environment with:
+In order to start the server, the following environment variables must be set:
 
 ```sh
-export ENVIRONMENT="local"
+export ENVIRONMENT="local"   # or "prod"
 export SERVER_HOST="0.0.0.0"
-export SERVER_PORT=8080
+export SERVER_PORT=8080      # or any other available port number
 export ALLOWED_ORIGINS="[http://localhost:8000]"
 ```
 
-When `ENVIRONMENT` is set to `"prod"`, the following env vars must also be set:
+When `ENVIRONMENT` is set to `"local"`, the application uses in-memory repositories. These are great for unit testing
+and for running a single instance of the application on a laptop, but can't be used in production because:
+  * The data is not persisted to disk and disappears when the application is stopped.
+  * The application can't be scaled beyond a single instance since there is no mechanism for sharing data between multiple instances.
+
+Instead, set `ENVIRONMENT` to `"prod"` to use repositories that rely on a PostgresSQL database for storage.
+
+### PostgreSQL container
+
+To run the full test suite, or to start the server with `ENVIRONMENT` set to `"prod"`, set the following environment
+variables:
 
 ```sh
 export POSTGRES_DB="postgres"
 export POSTGRES_USER="postgres"
-export POSTGRES_PASSWORD="some-random-password"
+export POSTGRES_PASSWORD="some-random-password" # obviously replace this for deployments
 export POSTGRES_PORT=5432
 ```
 
-### PostgreSQL container
-
-Before starting the server when `ENVIRONMENT` is set to `"prod"`, start the PostgreSQL container with:
+Then, start the PostgreSQL container with:
 
 ```sh
 docker run --name postgres-db \
@@ -37,7 +45,7 @@ docker run --name postgres-db \
 -d postgres:14.4
 ```
 
-At then end of a work session, stop the container with:
+At then end of a work session, stop and remove the container with:
 
 ```sh
 docker stop postgres-db && docker rm postgres-db
@@ -45,15 +53,15 @@ docker stop postgres-db && docker rm postgres-db
 
 ### Running the tests:
 
-Run the tests with:
+Run the full test suite with:
 
 ```
 sbt test
 ```
 
-### Running the server:
+### Starting the server:
 
-Start the server on `localhost:8080` with:
+Start the server on `localhost:8080` (or whatever port number was [configured via env vars](#basic-configuration)) with:
 
 ```
 sbt run
@@ -87,7 +95,7 @@ prefixed with `/v1/comments`. Make sure you address any compilation errors resul
 Start the server on `localhost:8080` with `sbt run` and try issuing some requests using [curl](https://curl.se/),
 [requests](https://pypi.org/project/requests/), [Postman](https://www.postman.com) or another tool of your choice.
 
-### Session 3: TDD
+### Session 3: Test-driven Development
 
 Held on July 21st. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/4).
 
@@ -119,7 +127,30 @@ the `exists` method on `UserRepository` and of the `UserHandleAlreadyExists` ser
 
 ### Session 4: PostgreSQL Repositories
 
-TBD
+#### Instructions: Part 1
+
+Following the instructions in this README, [configure environment variables](#basic-configuration) and start a [Docker
+container](#postgresql-container) with a PostgreSQL database.
+
+#### Instructions: Part 2
+
+In `PostgresCommentRepositorySpec`, provide an implementation for the following test:
+
+> The get method should get a comment
+
+Run the test to verify that it fails.
+
+Then, implement the `getQuery` method in `PostgresCommentRepository`. Run the test again to verify that it passes.
+
+#### Instructions: Part 3
+
+In `PostgresCommentRepositorySpec`, provide an implementation for the following test:
+
+> The list method should list comments for a given tweet by decreasing 'postedOn' timestamp
+
+Run the test to verify that it fails.
+
+Then, implement the `listQuery` method in `PostgresCommentRepository`. Run the test again to verify that it passes.
 
 ### Future sessions
 

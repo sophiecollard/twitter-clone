@@ -44,10 +44,7 @@ object PostgresCommentRepository {
          |""".stripMargin.update
 
   private def getQuery(id: Id[Comment]): Query0[Comment] =
-    sql"""SELECT id, author, tweet_id, contents, posted_on
-         |FROM comments
-         |WHERE id = $id
-         |""".stripMargin.query[Comment]
+    ???
 
   private def getAuthorQuery(id: Id[Comment]): Query0[Id[User]] =
     sql"""SELECT author
