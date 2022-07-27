@@ -10,7 +10,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.config.PostgresConfig
 import twitterclone.fixtures.tweet._
-import twitterclone.model.{Tweet, TweetPagination}
+import twitterclone.model.{Id, Tweet, TweetPagination}
 import twitterclone.repositories.domain.TweetRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 import twitterclone.repositories.interpreters.postgres.testinstances._
@@ -24,6 +24,7 @@ class PostgresTweetRepositorySpec
   "The create method" should {
     "create a new tweet and return 1" in {
       repo.create(tweet).unsafe shouldBe 1
+      get(tweet.id).unsafe shouldBe Some(tweet)
     }
 
     "not override an existing tweet" in {
@@ -36,6 +37,7 @@ class PostgresTweetRepositorySpec
     "delete a tweet" in {
       insert(tweet).unsafe
       repo.delete(tweet.id).unsafe shouldBe 1
+      get(tweet.id).unsafe shouldBe None
     }
   }
 
@@ -115,5 +117,11 @@ trait PostgresTweetRepositorySetup {
 
   def insertMany(tweets: Tweet*): ConnectionIO[Int] =
     insertUpdate.updateMany(tweets)
+
+  def get(id: Id[Tweet]): ConnectionIO[Option[Tweet]] =
+    sql"""SELECT id, author, contents, posted_on
+         |FROM tweets
+         |WHERE id = $id
+         |""".stripMargin.query[Tweet].option
 
 }
