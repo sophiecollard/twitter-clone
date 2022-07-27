@@ -13,13 +13,14 @@ import twitterclone.fixtures.tweet._
 import twitterclone.model.{Tweet, TweetPagination}
 import twitterclone.repositories.domain.TweetRepository
 import twitterclone.repositories.interpreters.postgres.instances._
+import twitterclone.repositories.interpreters.postgres.testinstances._
 
 class PostgresTweetRepositorySpec
   extends AnyWordSpec
     with PostgresTweetRepositorySetup
     with Matchers
-    with BeforeAndAfterEach
-    with BeforeAndAfterAll {
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach {
   "The create method" should {
     "create a new tweet and return 1" in {
       repo.create(tweet).unsafe shouldBe 1
@@ -38,10 +39,17 @@ class PostgresTweetRepositorySpec
     }
   }
 
-  "The getAuthor method" should {
-    "get a tweet author's user Id" in {
+  "The get method" should {
+    "get a tweet" in {
       insert(tweet).unsafe
       repo.get(tweet.id).unsafe shouldBe Some(tweet)
+    }
+  }
+
+  "The getAuthor method" should {
+    "get a tweet author's user id" in {
+      insert(tweet).unsafe
+      repo.getAuthor(tweet.id).unsafe shouldBe Some(tweet.author)
     }
   }
 
@@ -54,20 +62,22 @@ class PostgresTweetRepositorySpec
   }
 
   "The listBy method" should {
-    "list tweets by a given author by decreasing 'postedOn' date" in {
+    "list tweets by a given author by decreasing 'postedOn' timestamp" in {
       insertMany(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor).unsafe
       repo.listBy(tweet.author, TweetPagination.default).unsafe shouldBe List(tweet, earlierTweetFromSameAuthor)
     }
   }
 
   override def beforeAll(): Unit = {
-    createTable.unsafe
     super.beforeAll()
+    createTable.unsafe
+    ()
   }
 
   override def beforeEach(): Unit = {
-    truncateTable.unsafe
     super.beforeEach()
+    truncateTable.unsafe
+    ()
   }
 }
 
@@ -93,7 +103,7 @@ trait PostgresTweetRepositorySetup {
   def truncateTable: ConnectionIO[Int] =
     sql"""TRUNCATE tweets;""".update.run
 
-  val insertUpdate: Update[Tweet] =
+  private val insertUpdate: Update[Tweet] =
     Update(
       """INSERT INTO tweets (id, author, contents, posted_on)
         |VALUES (?, ?, ?, ?)
@@ -105,10 +115,5 @@ trait PostgresTweetRepositorySetup {
 
   def insertMany(tweets: Tweet*): ConnectionIO[Int] =
     insertUpdate.updateMany(tweets)
-
-  implicit class ConnectionIOOps[A](value: ConnectionIO[A]) {
-    def unsafe(implicit xa: Transactor[IO]): A =
-      value.transact(xa).unsafeRunSync()
-  }
 
 }

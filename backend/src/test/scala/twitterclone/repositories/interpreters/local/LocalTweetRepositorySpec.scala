@@ -52,7 +52,7 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
   }
 
   "The list method" should {
-    "list tweets by decreasing 'postedOn' date" in {
+    "list tweets by decreasing 'postedOn' timestamp" in {
       val state = TrieMap.from(
         (tweet.id, tweet) ::
           (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
@@ -66,7 +66,7 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
   }
 
   "The listBy method" should {
-    "list tweets by a given author by decreasing 'postedOn' date" in {
+    "list tweets by a given author by decreasing 'postedOn' timestamp" in {
       val state = TrieMap.from(
         (tweet.id, tweet) ::
           (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::

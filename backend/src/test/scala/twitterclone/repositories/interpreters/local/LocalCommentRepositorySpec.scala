@@ -44,7 +44,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
   }
 
   "The getAuthor method" should {
-    "get a comment author's user Id" in {
+    "get a comment author's user id" in {
       val state = TrieMap.from((comment.id, comment) :: Nil)
       val repo = LocalCommentRepository.create[CatsId](state)
       repo.getAuthor(comment.id) shouldBe Some(comment.author)
@@ -53,7 +53,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
 
 
   "The list method" should {
-    "list comments for a tweet" in {
+    "list comments for a given tweet by decreasing 'postedOn' timestamp" in {
       val state = TrieMap.from(
         (comment.id, comment) ::
           (earlierCommentOnSameTweet.id, earlierCommentOnSameTweet) ::
