@@ -127,6 +127,8 @@ the `exists` method on `UserRepository` and of the `UserHandleAlreadyExists` ser
 
 ### Session 4: PostgreSQL Repositories
 
+Held on July 28th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/6).
+
 #### Instructions: Part 1
 
 Following the instructions in this README, [configure environment variables](#basic-configuration) and start a [Docker
