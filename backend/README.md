@@ -2,6 +2,11 @@
 
 Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
 
+## Contents
+
+  * [Usage](#usage)
+  * [Mob-programming sessions](#mob-programming-sessions)
+
 ## Usage
 
 ### Basic configuration
@@ -131,8 +136,8 @@ Held on July 28th. See resulting [PR](https://github.com/sophiecollard/twitter-c
 
 #### Instructions: Part 1
 
-Following the instructions in this README, [configure environment variables](#basic-configuration) and start a [Docker
-container](#postgresql-container) with a PostgreSQL database.
+Following the instructions in this README, [configure environment variables](#basic-configuration) and start the
+[PostgreSQL Docker container](#postgresql-container).
 
 #### Instructions: Part 2
 
