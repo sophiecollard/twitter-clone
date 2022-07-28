@@ -8,6 +8,8 @@ import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
 import twitterclone.repositories.domain.CommentRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 
+import java.time.{LocalDateTime, ZoneId}
+
 /** An implementation of CommentRepository which stores data in a PostgreSQL DB. */
 object PostgresCommentRepository {
 
@@ -44,7 +46,10 @@ object PostgresCommentRepository {
          |""".stripMargin.update
 
   private def getQuery(id: Id[Comment]): Query0[Comment] =
-    ???
+    sql"""SELECT id, author, tweet_id, contents, posted_on
+         |FROM comments
+         |WHERE id= $id
+         |""".stripMargin.query[Comment]
 
   private def getAuthorQuery(id: Id[Comment]): Query0[Id[User]] =
     sql"""SELECT author
@@ -53,6 +58,12 @@ object PostgresCommentRepository {
          |""".stripMargin.query[Id[User]]
 
   private def listQuery(tweetId: Id[Tweet], pagination: CommentPagination): Query0[Comment] =
-    ???
+    sql""" SELECT id, author, tweet_id, contents, posted_on
+          |FROM comments
+          |WHERE tweet_id = $tweetId
+          |AND posted_on  < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
+          |ORDER BY posted_on DESC
+          |LIMIT ${pagination.pageSize}
+          |""".stripMargin.query[Comment]
 
 }
