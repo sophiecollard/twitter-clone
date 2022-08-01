@@ -159,6 +159,46 @@ Run the test to verify that it fails.
 
 Then, implement the `listQuery` method in `PostgresCommentRepository`. Run the test again to verify that it passes.
 
+### Session 5: Typeclasses
+
+#### Instructions: Part 1
+
+Try to compile the project with `sbt compile`. You should get a compilation error with a message about a missing
+implicit instance of `EntityDecoder[F, NewUserRequestBody]` in the `UserEndpoints` object.
+
+Take a look at the `org.http4s.EntityDecoder[F[_], T]` trait and try to get a sense for what it does.
+
+We've defined a new endpoint for creating users in `UserEndpoints`, which accepts POST requests with a payload that we
+attempt to decode to an instance of the `NewUserRequestBody` case class. But how exactly should the raw JSON in a
+request payload be decoded into an instance of that case class? Well, that's what's missing from our code, hence the
+compiler error.
+
+Provide a companion object for the `NewUserRequestBody` case class, and in it define an implicit instance of the
+`Decoder` typeclass from the Circe library:
+
+```scala
+import io.circe.Decoder
+
+object NewUserRequestBody {
+  implicit val decoder: Decoder[NewUserRequestBody] =
+    ???
+}
+```
+
+Then, return to `UserEndpoints` and add the following import at the top of the file:
+
+```scala
+import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
+```
+
+The code should now compile. Can you work out how our implicit `Decoder[NewUserRequestBody]` instance and the
+`circeEntityDecoder` import work together to provide us with an implicit instance of
+`EntityDecoder[F, NewUserRequestBody]`?
+
+#### Instructions: Part 2
+
+TBC
+
 ### Future sessions
 
 Potential topics for future sessions:

@@ -1,5 +1,6 @@
 package twitterclone.api.shared
 
+import twitterclone.model.user.User
 import twitterclone.model.{Comment, Id, Tweet}
 
 import java.util.UUID
@@ -18,6 +19,13 @@ object extractors {
     def unapply(value: String): Option[Id[Tweet]] =
       Try(UUID.fromString(value))
         .map(Id.apply[Tweet])
+        .toOption
+  }
+
+  object UserIdVar {
+    def unapply(value: String): Option[Id[User]] =
+      Try(UUID.fromString(value))
+        .map(Id.apply[User])
         .toOption
   }
 
