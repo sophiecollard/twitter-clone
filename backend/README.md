@@ -5,7 +5,7 @@ Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelev
 ## Contents
 
   * [Usage](#usage)
-  * [Mob-programming sessions](#mob-programming-sessions)
+  * [Mob programming sessions](#mob-programming-sessions)
 
 ## Usage
 
