@@ -174,14 +174,16 @@ request payload be decoded into an instance of that case class? Well, that's wha
 compiler error.
 
 Provide a companion object for the `NewUserRequestBody` case class, and in it define an implicit instance of the
-`Decoder` typeclass from the Circe library:
+`Decoder` typeclass from the [Circe library](https://circe.github.io/circe/):
 
 ```scala
 import io.circe.Decoder
 
 object NewUserRequestBody {
   implicit val decoder: Decoder[NewUserRequestBody] =
-    ???
+    Decoder.instance { hCursor =>
+      ???
+    }
 }
 ```
 
@@ -197,7 +199,50 @@ The code should now compile. Can you work out how our implicit `Decoder[NewUserR
 
 #### Instructions: Part 2
 
-TBC
+Are we really going to manually define instances of the `Decoder` typeclass for every class we may wish to serialize to
+JSON?
+
+No! We'd much rather leave tedious work like this to the compiler. And it turns out the Scala compiler (with the help of
+some clever libraries such as [Shapeless](https://github.com/milessabin/shapeless) or
+[Magnolia](https://github.com/softwaremill/magnolia)) is pretty good at this, but it needs a few building blocks to get
+started.
+
+Replace our previous implementation of a `Decoder` instance for `NewUserRequestBody` with the following:
+
+```scala
+import io.circe.Decoder
+import io.circe.generic.semiauto
+
+object NewUserRequestBody {
+  implicit val decoder: Decoder[NewUserRequestBody] =
+    semiauto.deriveDecoder
+}
+```
+
+Try to compile the project again. At this point, the error message the compiler will provide you won't help much. But
+you should know that in order to derive an instance of `Decoder[NewUserRequestBody]`, the compiler must have access to
+instances of the `Decoder` typeclass for the type of every attribute in `NewUserRequestBody`.
+
+Try and add implicit `Decoder` instances for the `Handle` and `Name` case classes:
+
+```scala
+implicit val handleDecoder: Decoder[Handle] =
+  ???
+
+implicit val nameDecoder: Decoder[Name] =
+  ???
+```
+
+**Hint:** For simple case classes such as `Handle` and `Name` that wrap around a single value of type `String` or some
+other primitive, a `Decoder` instance can be constructed starting from the `Decoder[String]` (or `Decoder[Int]`,
+`Decoder[Boolean]`, etc) instance provided by Circe and methods such as `map`, `emap` or `emapTry`.
+
+Verify that the code now compiles without any error.
+
+If you're curious about how the Scala compiler is able to derive instances of `SomeTypeclass[A]` for a case class `A`
+given instances of `SomeTypeclass` for the type of every attribute of `A`,
+[this book](https://underscore.io/books/shapeless-guide/) provides an excellent introduction to automatic typeclass
+derivation using [the Shapeless library](https://github.com/milessabin/shapeless).
 
 ### Future sessions
 
