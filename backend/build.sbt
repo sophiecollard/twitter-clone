@@ -4,6 +4,7 @@ ThisBuild / organization     := "com.github.sophiecollard"
 ThisBuild / organizationName := "SophieCollard"
 
 lazy val root = (project in file("."))
+  .configs(IntegrationTest extend Test) // Test must be extended in order to access fixtures
   .settings(
     name := "twitter-clone",
     libraryDependencies ++= Dependencies.list,
@@ -16,7 +17,8 @@ lazy val root = (project in file("."))
       "-Ywarn-value-discard",
       "-Ywarn-unused"
     ),
-    Test / parallelExecution := false // Required Postgres repo tests
+    Defaults.itSettings,
+    IntegrationTest / parallelExecution := false
   )
 
 addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full)

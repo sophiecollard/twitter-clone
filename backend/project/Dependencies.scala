@@ -46,7 +46,7 @@ object Dependencies {
 
   private val scalaTest = List(
     "org.scalatest" %% "scalatest"
-  ).map( _ % scalaTestVersion % Test)
+  ).map( _ % scalaTestVersion % "it,test")
 
   val list: List[ModuleID] =
     cats ++

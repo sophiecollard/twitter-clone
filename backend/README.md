@@ -30,7 +30,7 @@ Instead, set `ENVIRONMENT` to `"prod"` to use repositories that rely on a Postgr
 
 ### PostgreSQL container
 
-To run the full test suite, or to start the server with `ENVIRONMENT` set to `"prod"`, set the following environment
+To run the integration tests, or to start the server with `ENVIRONMENT` set to `"prod"`, set the following environment
 variables:
 
 ```sh
@@ -57,15 +57,21 @@ At then end of a work session, stop and remove the container with:
 docker stop postgres-db && docker rm postgres-db
 ```
 
-### Running the tests:
+### Tests
 
-Run the full test suite with:
+Run the unit tests with:
 
 ```
 sbt test
 ```
 
-### Starting the server:
+Run the integration tests with:
+
+```
+sbt it:test
+```
+
+### Starting the server
 
 Start the server on `localhost:8080` (or whatever port number was [configured via env vars](#basic-configuration)) with:
 
