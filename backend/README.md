@@ -5,7 +5,8 @@ Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelev
 ## Contents
 
   * [Usage](#usage)
-  * [Mob programming sessions](#mob-programming-sessions)
+  * [Autumn 2022 mob programming sessions](#autumn-2022-mob-programming-sessions)
+  * [Summer 2002 mob programming sessions](#summer-2022-mob-programming-sessions)
 
 ## Usage
 
@@ -74,7 +75,15 @@ sbt run
 
 Use the provided [Postman collection](postman/TwitterClone.postman_collection.json) to interact with the server.
 
-## Mob programming sessions
+## Autumn 2022 mob programming sessions
+
+### Session 1: Endpoints with http4s
+
+#### Instructions
+
+See instructions from this summer's [Session 2](#session-2-endpoints).
+
+## Summer 2022 mob programming sessions
 
 ### Session 1: Services
 
@@ -245,9 +254,3 @@ If you're curious about how the Scala compiler is able to derive instances of `S
 given instances of `SomeTypeclass` for the type of every attribute of `A`,
 [this book](https://underscore.io/books/shapeless-guide/) provides an excellent introduction to automatic typeclass
 derivation using [the Shapeless library](https://github.com/milessabin/shapeless).
-
-### Future sessions
-
-Potential topics for future sessions:
-  * Logging and metrics
-  * Authentication
