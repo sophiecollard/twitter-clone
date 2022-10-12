@@ -45,7 +45,7 @@ object CommentEndpoints {
 
     val privateRoutes: AuthedRoutes[Id[User], F] = AuthedRoutes.of[Id[User], F] {
       case authedRequest @ POST -> Root as userId =>
-        authedRequest.req.withBodyAs[NewCommentRequestBody] { requestBody =>
+        authedRequest.req.withBodyAs[PostCommentRequest] { requestBody =>
           service.create(requestBody.tweetId, requestBody.contents)(userId).flatMap {
             withNoServiceError { comment =>
               Created(comment)

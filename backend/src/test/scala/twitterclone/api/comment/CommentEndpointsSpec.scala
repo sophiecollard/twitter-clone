@@ -30,7 +30,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
         private val endpoints = newEndpoints(repoState)
         private val userId = Id.random[User]
         private val tweetId = Id.random[Tweet]
-        private val requestBody = NewCommentRequestBody(
+        private val requestBody = PostCommentRequest(
           tweetId = tweetId,
           contents = "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
         )
@@ -64,7 +64,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
         private val repoState = TrieMap.empty[Id[Comment], Comment]
         private val endpoints = newEndpoints(repoState)
         private val tweetId = Id.random[Tweet]
-        private val requestBody = NewCommentRequestBody(
+        private val requestBody = PostCommentRequest(
           tweetId = tweetId,
           contents = "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
         )
@@ -218,7 +218,7 @@ trait Fixtures {
 
   import twitterclone.api.shared.instances._
 
-  implicit val newCommentRequestBodyEncoder: Encoder[NewCommentRequestBody] =
+  implicit val newCommentRequestBodyEncoder: Encoder[PostCommentRequest] =
     semiauto.deriveEncoder
 
   implicit val commentDecoder: Decoder[Comment] =

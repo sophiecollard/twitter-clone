@@ -29,7 +29,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
         private val repoState = TrieMap.empty[Id[Tweet], Tweet]
         private val endpoints = newEndpoints(repoState)
         private val userId = Id.random[User]
-        private val requestBody = NewTweetRequestBody(
+        private val requestBody = PostTweetRequest(
           "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
         )
 
@@ -60,7 +60,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
       "respond with an unauthorized error" in new Fixtures {
         private val repoState = TrieMap.empty[Id[Tweet], Tweet]
         private val endpoints = newEndpoints(repoState)
-        private val requestBody = NewTweetRequestBody(
+        private val requestBody = PostTweetRequest(
           "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
         )
 
@@ -240,7 +240,7 @@ trait Fixtures {
 
   import twitterclone.api.shared.instances._
 
-  implicit val newTweetRequestBodyEncoder: Encoder[NewTweetRequestBody] =
+  implicit val newTweetRequestBodyEncoder: Encoder[PostTweetRequest] =
     semiauto.deriveEncoder
 
   implicit val tweetDecoder: Decoder[Tweet] =

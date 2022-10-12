@@ -53,7 +53,7 @@ object TweetEndpoints {
 
     val privateRoutes: AuthedRoutes[Id[User], F] = AuthedRoutes.of[Id[User], F] {
       case authedRequest @ POST -> Root as userId =>
-        authedRequest.req.withBodyAs[NewTweetRequestBody] { requestBody =>
+        authedRequest.req.withBodyAs[PostTweetRequest] { requestBody =>
           service.create(requestBody.contents)(userId).flatMap {
             withNoServiceError { tweet =>
               Created(tweet)

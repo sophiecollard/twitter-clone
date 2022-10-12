@@ -2,10 +2,10 @@ package twitterclone.api.tweet
 
 import io.circe.Decoder
 
-final case class NewTweetRequestBody(contents: String)
+final case class PostTweetRequest(contents: String)
 
-object NewTweetRequestBody {
-  implicit val decoder: Decoder[NewTweetRequestBody] =
+object PostTweetRequest {
+  implicit val decoder: Decoder[PostTweetRequest] =
     Decoder.instance { hCursor =>
       hCursor
         .downField("contents")

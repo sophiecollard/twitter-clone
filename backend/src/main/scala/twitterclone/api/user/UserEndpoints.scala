@@ -20,7 +20,7 @@ object UserEndpoints {
 
     val publicRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
       case request @ POST -> Root =>
-        request.withBodyAs[NewUserRequestBody] { requestBody =>
+        request.withBodyAs[CreateUserRequest] { requestBody =>
           service.create(requestBody.handle, requestBody.name).flatMap {
             withNoServiceError { _ =>
               Created()
