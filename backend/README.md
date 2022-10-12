@@ -10,37 +10,98 @@ Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelev
 
 ## Usage
 
-### Basic configuration
+### Running the test suite
 
-In order to start the server, the following environment variables must be set:
+Run the unit tests with:
+
+```
+sbt test
+```
+
+Run the integration tests with:
+
+```
+sbt it:test
+```
+
+Note that the latter require access to a [PostgreSQL instance](#postgresql-container).
+
+### Starting the application
+
+Start the server on `localhost:8080` (or any other port number [configured via the SERVER_PORT env var](#configuration))
+with:
+
+```
+sbt run
+```
+
+Use the provided [Postman collection](postman/TwitterClone.postman_collection.json) to interact with the server.
+
+
+### Configuration
+
+The following parameters can be configured before starting the application:
+
+#### Environment
+
+The environment can be set to either `local` or `prod`.
+
+When set to `local`, the application will use an in-memory database. This is great for running a single instance of the
+application on a laptop during development, but can't be used in production because:
+* The data is not persisted to disk and is lost when the application is stopped.
+* The application can't be scaled beyond a single instance since there is no mechanism in place for sharing data between multiple instances.
+
+If the environment is set to `prod` instead, the application will attempt to connect to a [PostgreSQL instance](#postgresql-container).
+
+Configuration is done via the `ENVIRONMENT` env var:
 
 ```sh
-export ENVIRONMENT="local"   # or "prod"
+export ENVIRONMENT="local"
+```
+
+If the `ENVIRONMENT` env var is not set, the environment will default to `local`.
+
+#### Server host and port
+
+The host and port used by the application server can be configured via the `SERVER_HOST` and `SERVER_PORT` env vars:
+
+```sh
 export SERVER_HOST="0.0.0.0"
-export SERVER_PORT=8080      # or any other available port number
+export SERVER_PORT=8080
+```
+
+If these are not set, the host and port values will default to `0.0.0.0` (or `localhost`) and `8080`, respectively.
+
+#### Allowed origins
+
+The list of origins from which the application server allows requests is configured via the `ALLOWED_ORIGINS` env var:
+
+```sh
 export ALLOWED_ORIGINS="[http://localhost:8000]"
 ```
 
-When `ENVIRONMENT` is set to `"local"`, the application uses in-memory repositories. These are great for unit testing
-and for running a single instance of the application on a laptop, but can't be used in production because:
-  * The data is not persisted to disk and disappears when the application is stopped.
-  * The application can't be scaled beyond a single instance since there is no mechanism for sharing data between multiple instances.
+The value should be a string beginning with `[` and ending with `]` and containing a comma-separated list of allowed
+origins, such as `[http://localhost:3000,http://localhost:8000]`.
 
-Instead, set `ENVIRONMENT` to `"prod"` to use repositories that rely on a PostgresSQL database for storage.
+If the `ALLOWED_ORIGINS` env var is not set, the application server will default to allowing only requests originating
+from `localhost:8000`, which is the host and port number used by the
+[Elm reactor](https://guide.elm-lang.org/install/elm.html).
 
 ### PostgreSQL container
 
-To run the integration tests, or to start the server with `ENVIRONMENT` set to `"prod"`, set the following environment
-variables:
+To run the integration tests or to start the server with `ENVIRONMENT` set to `prod`, you must provide a PostgreSQL
+instance for the application to use.
+
+Start by setting the following env vars:
 
 ```sh
 export POSTGRES_DB="postgres"
 export POSTGRES_USER="postgres"
-export POSTGRES_PASSWORD="some-random-password" # obviously replace this for deployments
+export POSTGRES_PASSWORD="<change-me-please>"
 export POSTGRES_PORT=5432
 ```
 
-Then, start the PostgreSQL container with:
+Then, start a PostgreSQL instance in a Docker container with:
 
 ```sh
 docker run --name postgres-db \
@@ -56,30 +117,6 @@ At then end of a work session, stop and remove the container with:
 ```sh
 docker stop postgres-db && docker rm postgres-db
 ```
-
-### Tests
-
-Run the unit tests with:
-
-```
-sbt test
-```
-
-Run the integration tests with:
-
-```
-sbt it:test
-```
-
-### Starting the server
-
-Start the server on `localhost:8080` (or whatever port number was [configured via env vars](#basic-configuration)) with:
-
-```
-sbt run
-```
-
-Use the provided [Postman collection](postman/TwitterClone.postman_collection.json) to interact with the server.
 
 ## Autumn 2022 mob programming sessions
 
