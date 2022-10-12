@@ -1,5 +1,7 @@
 package twitterclone.model.user
 
+import io.circe.Decoder
+
 sealed abstract case class Handle(value: String)
 
 object Handle {
@@ -19,5 +21,8 @@ object Handle {
       case Right(handle) => handle
       case Left(error)   => throw new RuntimeException(error)
     }
+
+  implicit val decoder: Decoder[Handle] =
+   Decoder.decodeString.emap(fromString)
 
 }

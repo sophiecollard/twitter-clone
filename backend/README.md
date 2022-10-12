@@ -161,6 +161,8 @@ Then, implement the `listQuery` method in `PostgresCommentRepository`. Run the t
 
 ### Session 5: Typeclasses
 
+Held on August 4th. See resulting [PR](https://github.com/sophiecollard/twitter-clone/pull/7).
+
 #### Instructions: Part 1
 
 Try to compile the project with `sbt compile`. You should get a compilation error with a message about a missing
