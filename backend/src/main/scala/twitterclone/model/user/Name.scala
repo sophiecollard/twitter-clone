@@ -1,6 +1,6 @@
 package twitterclone.model.user
 
-import io.circe.Decoder
+import io.circe.{Decoder, Encoder}
 
 sealed abstract case class Name(value: String)
 
@@ -24,5 +24,8 @@ object Name {
 
   implicit val decoder: Decoder[Name] =
     Decoder.decodeString.emap(fromString)
+
+  implicit val encoder: Encoder[Name] =
+    Encoder.encodeString.contramap(_.value)
 
 }

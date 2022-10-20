@@ -126,6 +126,24 @@ docker stop postgres-db && docker rm postgres-db
 
 See instructions from this summer's [Session 2](#session-2-endpoints).
 
+### Session 2: Circe encoders and decoders
+
+#### Instructions: Part 1
+
+Provide `Decoder` and `Encoder` instances for the `twitterclone.model.user.Bio` case class in its companion object.
+
+Provide a `Decoder` instance for the `twitterclone.model.user.Handle` abstract case class in its companion object.
+
+#### Instructions: Part 2
+
+Provide `Decoder` and `Encoder` instances for the `twitterclone.api.user.CreateUserRequest` case class in its companion
+object.
+
+#### Instructions: Part 3
+
+Use semi-auto derivation to provide `Decoder` and `Encoder` instances for the `twitterclone.api.user.CreateUserRequest`
+case class instead of explicitly defining those.
+
 ## Summer 2022 mob programming sessions
 
 ### Session 1: Services
