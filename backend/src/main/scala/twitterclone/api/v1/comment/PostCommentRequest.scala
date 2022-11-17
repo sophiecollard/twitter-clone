@@ -1,8 +1,7 @@
-package twitterclone.api.comment
+package twitterclone.api.v1.comment
 
 import io.circe.Decoder
 import io.circe.generic.semiauto
-import twitterclone.api.shared.instances.idDecoder
 import twitterclone.model.{Id, Tweet}
 
 final case class PostCommentRequest(

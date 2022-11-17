@@ -1,4 +1,4 @@
-package twitterclone.api.user
+package twitterclone.api.v1.user
 
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder

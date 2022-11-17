@@ -1,6 +1,6 @@
 # Twitter clone backend
 
-Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
+Simple Twitter clone to demo building REST APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
 
 ## Contents
 

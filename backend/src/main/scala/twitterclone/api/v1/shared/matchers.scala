@@ -1,7 +1,7 @@
-package twitterclone.api.shared
+package twitterclone.api.v1.shared
 
 import org.http4s.dsl.impl.{OptionalQueryParamDecoderMatcher, QueryParamDecoderMatcher}
-import twitterclone.api.shared.instances.{idQueryParamDecoder, localDateTimeQueryParamDecoder}
+import instances.{idQueryParamDecoder, localDateTimeQueryParamDecoder}
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet}
 

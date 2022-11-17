@@ -3,7 +3,7 @@ package twitterclone.api
 import cats.Applicative
 import cats.implicits._
 import io.circe.syntax._
-import io.circe.{Encoder, Json}
+import io.circe.{Decoder, Encoder, Json}
 import org.http4s.Response
 import org.http4s.circe.CirceEntityEncoder._
 import org.http4s.dsl.Http4sDsl
@@ -96,6 +96,16 @@ object error {
           ResourceNotFound(error.message)
       }
 
+    implicit val encoder: Encoder[ApiError] =
+      Encoder.instance { apiError =>
+        apiError.responseBody.asJson
+      }
+
+    implicit val decoder: Decoder[ApiError] =
+      Decoder[ErrorResponseBody].map { _ =>
+        UnexpectedError // FIXME Map to the proper API error
+      }
+
   }
 
   final case class ErrorResponseBody(
@@ -112,6 +122,15 @@ object error {
           "message" := error.message.value.asJson,
           "help" := error.help.map(_.value).asJson
         )
+      }
+
+    implicit val decoder: Decoder[ErrorResponseBody] =
+      Decoder.instance { cursor =>
+        for {
+          error <- cursor.downField("error").as[String].map(Code.apply)
+          message <- cursor.downField("message").as[String].map(Message.apply)
+          help <- cursor.downField("help").as[Option[String]].map(_.map(Help.apply))
+        } yield ErrorResponseBody(error, message, help)
       }
   }
 

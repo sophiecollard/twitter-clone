@@ -1,4 +1,4 @@
-package twitterclone.api.shared
+package twitterclone.api.v1.shared
 
 import twitterclone.model.user.User
 import twitterclone.model.{Comment, Id, Tweet}

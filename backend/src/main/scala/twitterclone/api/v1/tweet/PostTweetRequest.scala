@@ -1,4 +1,4 @@
-package twitterclone.api.tweet
+package twitterclone.api.v1.tweet
 
 import io.circe.Decoder
 

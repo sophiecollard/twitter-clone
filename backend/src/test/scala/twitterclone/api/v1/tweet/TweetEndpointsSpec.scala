@@ -1,9 +1,9 @@
-package twitterclone.api.tweet
+package twitterclone.api.v1.tweet
 
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
 import io.circe.generic.semiauto
-import io.circe.{Decoder, Encoder}
+import io.circe.Encoder
 import org.http4s.server.AuthMiddleware
 import org.http4s.{Header, Headers, Method, Request, Status, Uri}
 import org.scalatest.EitherValues
@@ -11,6 +11,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.typelevel.ci.CIString
 import twitterclone.api.authentication.dummyAuthMiddleware
+import twitterclone.api.v1.tweet.{PostTweetRequest, TweetEndpoints}
 import twitterclone.fixtures.tweet._
 import twitterclone.instances.ioTransactor
 import twitterclone.model.user.User
@@ -23,7 +24,7 @@ import twitterclone.testsyntax.{CirceEntityDecoderOps, CirceEntityEncoderOps}
 import scala.collection.concurrent.TrieMap
 
 class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
-  "The POST /v1/tweets endpoint" when {
+  "The POST /tweets endpoint" when {
     "the user is authenticated" should {
       "create and return a new tweet" in new Fixtures {
         private val repoState = TrieMap.empty[Id[Tweet], Tweet]
@@ -81,7 +82,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
     }
   }
 
-  "The DELETE /v1/tweets/{tweet_id} endpoint" when {
+  "The DELETE /tweets/{tweet_id} endpoint" when {
     "the user is authenticated and is the author of the tweet" should {
       "delete the tweet" in new Fixtures {
         private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
@@ -149,7 +150,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
     }
   }
 
-  "The GET /v1/tweets/{tweet_id} endpoint" should {
+  "The GET /tweets/{tweet_id} endpoint" should {
     "return the tweet with the specified id" in new Fixtures {
       private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
       private val endpoints = newEndpoints(repoState)
@@ -170,7 +171,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
     }
   }
 
-  "The GET /v1/tweets?author={user_id} endpoint" should {
+  "The GET /tweets?author={user_id} endpoint" should {
     "return a list of tweets from the specified author" in new Fixtures {
       private val repoState = TrieMap.from(
         (tweet.id, tweet) ::
@@ -197,7 +198,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
     }
   }
 
-  "The GET /v1/tweets endpoint" should {
+  "The GET /tweets endpoint" should {
     "return a list of tweets" in new Fixtures {
       private val repoState = TrieMap.from(
         (tweet.id, tweet) ::
@@ -238,12 +239,7 @@ trait Fixtures {
     TweetEndpoints.create(dummyAuthMiddleware[IO], tweetService)
   }
 
-  import twitterclone.api.shared.instances._
-
   implicit val newTweetRequestBodyEncoder: Encoder[PostTweetRequest] =
     semiauto.deriveEncoder
-
-  implicit val tweetDecoder: Decoder[Tweet] =
-    semiauto.deriveDecoder
 
 }

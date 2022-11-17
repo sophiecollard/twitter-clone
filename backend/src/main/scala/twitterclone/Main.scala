@@ -7,11 +7,13 @@ import fs2.Stream
 import org.http4s.server.ServerBuilder
 import twitterclone.api.Server
 import twitterclone.api.authentication.dummyAuthMiddleware
-import twitterclone.api.comment.CommentEndpoints
-import twitterclone.api.tweet.TweetEndpoints
 import twitterclone.config.Config
 import twitterclone.instances.ioTransactor
 import repositories.interpreters.postgres.{utils => postgresUtils}
+import twitterclone.api.v1.comment.CommentEndpoints
+import twitterclone.api.v1.tweet.TweetEndpoints
+import twitterclone.api.v2.SwaggerDocsEndpoints
+import twitterclone.api.v2.interpreters.{Http4sCommentEndpoints, Http4sTweetEndpoints}
 import twitterclone.repositories.interpreters.local.{LocalCommentRepository, LocalTweetRepository}
 import twitterclone.repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository}
 import twitterclone.services.comment.CommentService
@@ -36,12 +38,15 @@ object Main extends IOApp {
     val commentRepository = LocalCommentRepository.create[IO]()
     val commentAuthService = services.comment.auth.byAuthor(commentRepository)
     val commentService = CommentService.create(commentRepository, commentAuthService)
-    val commentEndpoints = CommentEndpoints.create[IO](dummyAuthMiddleware, commentService)
+    val v1CommentEndpoints = CommentEndpoints.create[IO](dummyAuthMiddleware, commentService)
+    val v2CommentEndpoints = Http4sCommentEndpoints.create[IO](commentService)
     val tweetRepository = LocalTweetRepository.create[IO]()
     val tweetAuthService = services.tweet.auth.byAuthor(tweetRepository)
     val tweetService = TweetService.create(tweetRepository, tweetAuthService)
-    val tweetEndpoints = TweetEndpoints.create[IO](dummyAuthMiddleware, tweetService)
-    Server.builder(config.server, commentEndpoints, tweetEndpoints)
+    val v1TweetEndpoints = TweetEndpoints.create[IO](dummyAuthMiddleware, tweetService)
+    val v2TweetEndpoints = Http4sTweetEndpoints.create[IO](tweetService)
+    val v2SwaggerDocsEndpoints = SwaggerDocsEndpoints.create[IO]
+    Server.builder(config.server, v1CommentEndpoints, v1TweetEndpoints, v2CommentEndpoints, v2TweetEndpoints, v2SwaggerDocsEndpoints)
   }
 
   private def productionServerBuilder(config: Config.Production): ServerBuilder[IO] = {
@@ -51,12 +56,15 @@ object Main extends IOApp {
     val commentRepository = PostgresCommentRepository.create
     val commentAuthService = services.comment.auth.byAuthor(commentRepository)
     val commentService = CommentService.create[IO, ConnectionIO](commentRepository, commentAuthService)
-    val commentEndpoints = CommentEndpoints.create[IO](dummyAuthMiddleware, commentService)
+    val v1CommentEndpoints = CommentEndpoints.create[IO](dummyAuthMiddleware, commentService)
+    val v2CommentEndpoints = Http4sCommentEndpoints.create[IO](commentService)
     val tweetRepository = PostgresTweetRepository.create
     val tweetAuthService = services.tweet.auth.byAuthor(tweetRepository)
     val tweetService = TweetService.create[IO, ConnectionIO](tweetRepository, tweetAuthService)
-    val tweetEndpoints = TweetEndpoints.create[IO](dummyAuthMiddleware, tweetService)
-    Server.builder(config.server, commentEndpoints, tweetEndpoints)
+    val v1TweetEndpoints = TweetEndpoints.create[IO](dummyAuthMiddleware, tweetService)
+    val v2TweetEndpoints = Http4sTweetEndpoints.create[IO](tweetService)
+    val v2SwaggerDocsEndpoints = SwaggerDocsEndpoints.create[IO]
+    Server.builder(config.server, v1CommentEndpoints, v1TweetEndpoints, v2CommentEndpoints, v2TweetEndpoints, v2SwaggerDocsEndpoints)
   }
 
 }

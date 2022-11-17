@@ -10,6 +10,7 @@ object Dependencies {
   private val http4sVersion = "0.23.12"
   private val http4sJettyServerVersion = "0.23.10"
   private val scalaTestVersion = "3.2.11"
+  private val tapirVersion = "1.2.1"
 
   private val cats = List(
     "org.typelevel" %% "cats-core"
@@ -48,6 +49,13 @@ object Dependencies {
     "org.scalatest" %% "scalatest"
   ).map( _ % scalaTestVersion % "it,test")
 
+  private val tapir = List(
+    "com.softwaremill.sttp.tapir" %% "tapir-core",
+    "com.softwaremill.sttp.tapir" %% "tapir-http4s-server",
+    "com.softwaremill.sttp.tapir" %% "tapir-json-circe",
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle"
+  ).map(_ % tapirVersion)
+
   val list: List[ModuleID] =
     cats ++
       catsEffect ++
@@ -56,6 +64,7 @@ object Dependencies {
       doobie ++
       http4s ++
       http4sJettyServer ++
-      scalaTest
+      scalaTest ++
+      tapir
 
 }

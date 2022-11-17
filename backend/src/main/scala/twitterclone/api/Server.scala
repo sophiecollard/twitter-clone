@@ -4,31 +4,36 @@ import cats.effect.Async
 import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
 import org.http4s.jetty.server.JettyBuilder
-import org.http4s.server.middleware.CORS
 import org.http4s.server.{DefaultServiceErrorHandler, Router, ServerBuilder}
 import org.http4s.{Http, HttpRoutes}
-import twitterclone.api.comment.CommentEndpoints
-import twitterclone.api.tweet.TweetEndpoints
+import twitterclone.api.v1.comment.CommentEndpoints
+import twitterclone.api.v1.tweet.TweetEndpoints
+import twitterclone.api.v2.SwaggerDocsEndpoints
+import twitterclone.api.v2.interpreters.{Http4sCommentEndpoints, Http4sTweetEndpoints}
 import twitterclone.config.ServerConfig
 
-import scala.annotation.nowarn
 import scala.concurrent.duration._
 
 object Server {
 
   def builder[F[_]: Async](
     config: ServerConfig,
-    commentEndpoints: CommentEndpoints[F],
-    tweetEndpoints: TweetEndpoints[F]
+    v1CommentEndpoints: CommentEndpoints[F],
+    v1TweetEndpoints: TweetEndpoints[F],
+    v2CommentEnpoints: Http4sCommentEndpoints[F],
+    v2TweetEndpoints: Http4sTweetEndpoints[F],
+    v2SwaggerDocsEndpoints: SwaggerDocsEndpoints[F]
   ): ServerBuilder[F] = {
     val dsl = new Http4sDsl[F] {}
     import dsl._
 
-    @nowarn("cat=deprecation")
-    val router: Http[F, F] = Router[F](
-      "/live" -> HttpRoutes.of[F] { case GET -> Root => Ok() },
-      "/v1/comments" -> CORS(commentEndpoints.httpRoutes, config.cors),
-      "/v1/tweets" -> CORS(tweetEndpoints.httpRoutes, config.cors)
+    val httpApp: Http[F, F] = Router[F](mappings =
+      "/api/ping" -> HttpRoutes.of[F] { case GET -> Root => Ok("pong") },
+      "/api/v1/comments" -> v1CommentEndpoints.httpRoutes,
+      "/api/v1/tweets" -> v1TweetEndpoints.httpRoutes,
+      "/api/v2" -> v2CommentEnpoints.httpRoutes,
+      "/api/v2" -> v2TweetEndpoints.httpRoutes,
+      "/api/v2" -> v2SwaggerDocsEndpoints.httpRoutes
     ).orNotFound
 
     JettyBuilder[F]
@@ -36,10 +41,9 @@ object Server {
       .withIdleTimeout(1.minute)
       .withServiceErrorHandler(DefaultServiceErrorHandler)
       .mountService(
-        HttpRoutes.of { case request => router.run(request) },
+        HttpRoutes.of { case request => config.corsPolicy(httpApp).run(request) },
         prefix = ""
       )
-      .withBanner(Nil) // TODO check what this does
   }
 
 }

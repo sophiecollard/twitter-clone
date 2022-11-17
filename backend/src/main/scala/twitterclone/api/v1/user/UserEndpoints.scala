@@ -1,4 +1,4 @@
-package twitterclone.api.user
+package twitterclone.api.v1.user
 
 import cats.effect.kernel.Concurrent
 import cats.implicits._
