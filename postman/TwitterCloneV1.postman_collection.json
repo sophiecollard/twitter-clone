@@ -1,0 +1,306 @@
+{
+	"info": {
+		"_postman_id": "36b49fa8-a974-4f75-98a1-9087e879ff0a",
+		"name": "TwitterClone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Tweet",
+			"item": [
+				{
+					"name": "Post new tweet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"tweet_id\", pm.response.json().id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{user_id}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contents\": \"Hello, World!\"\n}\n"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/tweets",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tweets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete tweet",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{user_id}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/tweets/{{tweet_id}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tweets",
+								"{{tweet_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get tweet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/api/v1/tweets/{{tweet_id}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tweets",
+								"{{tweet_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List tweets",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "0b73e653-5f82-46cd-a232-0166d83ce531",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/tweets",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tweets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List tweets by a given author",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "0b73e653-5f82-46cd-a232-0166d83ce531",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/tweets?author={{user_id}}&page_size=10",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tweets"
+							],
+							"query": [
+								{
+									"key": "author",
+									"value": "{{user_id}}"
+								},
+								{
+									"key": "page_size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comment",
+			"item": [
+				{
+					"name": "Post new comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"comment_id\", pm.response.json().id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{user_id}}",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tweetId\": \"{{tweet_id}}\",\n    \"contents\": \"Hello, World!\"\n}\n"
+						},
+						"url": {
+							"raw": "{{server}}/api/v1/comments",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete comment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "{{user_id}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/comments/{{comment_id}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								"{{comment_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get comment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server}}/api/v1/comments/{{comment_id}}",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments",
+								"{{comment_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List comments for a given tweet",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-user-id",
+								"value": "0b73e653-5f82-46cd-a232-0166d83ce531",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{server}}/api/v1/comments?tweet-id={{tweet_id}}&page_size=10",
+							"host": [
+								"{{server}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comments"
+							],
+							"query": [
+								{
+									"key": "tweet-id",
+									"value": "{{tweet_id}}"
+								},
+								{
+									"key": "page_size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{server}}/live",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"live"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
