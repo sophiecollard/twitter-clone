@@ -5,8 +5,8 @@ Simple Twitter clone to demo building REST APIs with Scala 2.13 and the [Typelev
 ## Contents
 
   * [Usage](#usage)
-  * [Autumn 2022 mob programming sessions](#autumn-2022-mob-programming-sessions)
   * [Summer 2002 mob programming sessions](#summer-2022-mob-programming-sessions)
+  * [Autumn 2022 mob programming sessions](#autumn-2022-mob-programming-sessions)
 
 ## Usage
 
@@ -117,14 +117,6 @@ At then end of a work session, stop and remove the container with:
 ```sh
 docker stop postgres-db && docker rm postgres-db
 ```
-
-## Autumn 2022 mob programming sessions
-
-### Session 1: Endpoints with http4s
-
-#### Instructions
-
-See instructions from this summer's [Session 2](#session-2-endpoints).
 
 ## Summer 2022 mob programming sessions
 
@@ -297,3 +289,9 @@ If you're curious about how the Scala compiler is able to derive instances of `S
 given instances of `SomeTypeclass` for the type of every attribute of `A`,
 [this book](https://underscore.io/books/shapeless-guide/) provides an excellent introduction to automatic typeclass
 derivation using [the Shapeless library](https://github.com/milessabin/shapeless).
+
+## Autumn 2022 mob programming sessions
+
+### Nov 17: Tapir
+
+Defined a v2 API using [tapir](https://tapir.softwaremill.com/en/latest/index.html).
