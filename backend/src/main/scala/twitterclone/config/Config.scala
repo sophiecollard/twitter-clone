@@ -29,7 +29,7 @@ object Config {
     } yield Production(postgres, server)
 
   val configValue: ConfigValue[Effect, Config] =
-    env("ENVIRONMENT").as[Environment].flatMap[Effect, Config] {
+    env("ENVIRONMENT").as[Environment].default(Environment.Local).flatMap[Effect, Config] {
       case Environment.Local      => localConfigValue
       case Environment.Production => productionConfigValue
     }
