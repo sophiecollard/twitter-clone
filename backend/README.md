@@ -1,12 +1,12 @@
 # Twitter clone backend
 
-Simple Twitter clone to demo building HTTP APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
+Simple Twitter clone to demo building REST APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
 
 ## Contents
 
   * [Usage](#usage)
-  * [Autumn 2022 mob programming sessions](#autumn-2022-mob-programming-sessions)
   * [Summer 2002 mob programming sessions](#summer-2022-mob-programming-sessions)
+  * [Autumn 2022 mob programming sessions](#autumn-2022-mob-programming-sessions)
 
 ## Usage
 
@@ -35,14 +35,19 @@ with:
 sbt run
 ```
 
-Use the provided [Postman collection](postman/TwitterClone.postman_collection.json) to interact with the server.
+Use the provided [Postman collection](postman/TwitterCloneV1.postman_collection.json) to interact with the server.
 
 
 ### Configuration
 
-The following parameters can be configured before starting the application:
+The application can be configured via the following environment variables:
 
-#### Environment
+| name              | type   | possible values               | default        |
+|-------------------|--------|-------------------------------|----------------|
+| `ENVIRONMENT`     | string | `local`, `prod`               | `local`        |
+| `SERVER_HOST`     | string | Any valid host                | `0.0.0.0`      |
+| `SERVER_PORT`     | int    | Any valid port number         | 8080           |
+| `ALLOWED_ORIGINS` | string | Comma-separated list of hosts | `[localhost]`  |
 
 The environment can be set to either `local` or `prod`.
 
@@ -52,40 +57,6 @@ application on a laptop during development, but can't be used in production beca
 * The application can't be scaled beyond a single instance since there is no mechanism in place for sharing data between multiple instances.
 
 If the environment is set to `prod` instead, the application will attempt to connect to a [PostgreSQL instance](#postgresql-container).
-
-Configuration is done via the `ENVIRONMENT` env var:
-
-```sh
-export ENVIRONMENT="local"
-```
-
-If the `ENVIRONMENT` env var is not set, the environment will default to `local`.
-
-#### Server host and port
-
-The host and port used by the application server can be configured via the `SERVER_HOST` and `SERVER_PORT` env vars:
-
-```sh
-export SERVER_HOST="0.0.0.0"
-export SERVER_PORT=8080
-```
-
-If these are not set, the host and port values will default to `0.0.0.0` (or `localhost`) and `8080`, respectively.
-
-#### Allowed origins
-
-The list of origins from which the application server allows requests is configured via the `ALLOWED_ORIGINS` env var:
-
-```sh
-export ALLOWED_ORIGINS="[http://localhost:8000]"
-```
-
-The value should be a string beginning with `[` and ending with `]` and containing a comma-separated list of allowed
-origins, such as `[http://localhost:3000,http://localhost:8000]`.
-
-If the `ALLOWED_ORIGINS` env var is not set, the application server will default to allowing only requests originating
-from `localhost:8000`, which is the host and port number used by the
-[Elm reactor](https://guide.elm-lang.org/install/elm.html).
 
 ### PostgreSQL container
 
@@ -117,14 +88,6 @@ At then end of a work session, stop and remove the container with:
 ```sh
 docker stop postgres-db && docker rm postgres-db
 ```
-
-## Autumn 2022 mob programming sessions
-
-### Session 1: Endpoints with http4s
-
-#### Instructions
-
-See instructions from this summer's [Session 2](#session-2-endpoints).
 
 ## Summer 2022 mob programming sessions
 
@@ -297,3 +260,9 @@ If you're curious about how the Scala compiler is able to derive instances of `S
 given instances of `SomeTypeclass` for the type of every attribute of `A`,
 [this book](https://underscore.io/books/shapeless-guide/) provides an excellent introduction to automatic typeclass
 derivation using [the Shapeless library](https://github.com/milessabin/shapeless).
+
+## Autumn 2022 mob programming sessions
+
+### Nov 17: Tapir
+
+Defined a v2 API using [tapir](https://tapir.softwaremill.com/en/latest/index.html).

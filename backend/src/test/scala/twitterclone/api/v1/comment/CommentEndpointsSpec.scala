@@ -1,8 +1,8 @@
-package twitterclone.api.comment
+package twitterclone.api.v1.comment
 
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
-import io.circe.{Decoder, Encoder}
+import io.circe.Encoder
 import io.circe.generic.semiauto
 import org.http4s.{Header, Headers, Method, Request, Status, Uri}
 import org.http4s.server.AuthMiddleware
@@ -11,6 +11,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.typelevel.ci.CIString
 import twitterclone.api.authentication.dummyAuthMiddleware
+import twitterclone.api.v1.comment.{CommentEndpoints, PostCommentRequest}
 import twitterclone.fixtures.comment._
 import twitterclone.instances.ioTransactor
 import twitterclone.model.user.User
@@ -23,7 +24,7 @@ import twitterclone.testsyntax.{CirceEntityDecoderOps, CirceEntityEncoderOps}
 import scala.collection.concurrent.TrieMap
 
 class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
-  "The POST /v1/comments endpoint" when {
+  "The POST /comments endpoint" when {
     "the user is authenticated" should {
       "create and return a new comment" in new Fixtures {
         private val repoState = TrieMap.empty[Id[Comment], Comment]
@@ -86,7 +87,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
     }
   }
 
-  "The DELETE /v1/comments/{comment_id} endpoint" when {
+  "The DELETE /comments/{comment_id} endpoint" when {
     "the user is authenticated and is the author of the comment" should {
       "delete the comment" in new Fixtures {
         private val repoState = TrieMap.from((comment.id, comment) :: Nil)
@@ -154,7 +155,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
     }
   }
 
-  "The GET /v1/comments/{comment_id} endpoint" should {
+  "The GET /comments/{comment_id} endpoint" should {
     "return the comment with the specified id" in new Fixtures {
       private val repoState = TrieMap.from((comment.id, comment) :: Nil)
       private val endpoints = newEndpoints(repoState)
@@ -175,7 +176,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
     }
   }
 
-  "The GET /v1/comments?tweet-id={tweet_id}" should {
+  "The GET /comments?tweet-id={tweet_id}" should {
     "return a list of comments for the specified tweet" in new Fixtures {
       private val repoState = TrieMap.from(
         (comment.id, comment) ::
@@ -216,12 +217,7 @@ trait Fixtures {
     CommentEndpoints.create(dummyAuthMiddleware[IO], commentService)
   }
 
-  import twitterclone.api.shared.instances._
-
   implicit val newCommentRequestBodyEncoder: Encoder[PostCommentRequest] =
     semiauto.deriveEncoder
-
-  implicit val commentDecoder: Decoder[Comment] =
-    semiauto.deriveDecoder
 
 }

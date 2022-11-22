@@ -1,4 +1,4 @@
-package twitterclone.api.tweet
+package twitterclone.api.v1.tweet
 
 import cats.effect.Concurrent
 import cats.implicits._
@@ -6,10 +6,9 @@ import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.AuthMiddleware
 import org.http4s.{AuthedRoutes, HttpRoutes}
-import twitterclone.api.shared.extractors.TweetIdVar
-import twitterclone.api.shared.matchers._
 import twitterclone.api.syntax._
-import twitterclone.api.tweet.instances._
+import twitterclone.api.v1.shared.extractors.TweetIdVar
+import twitterclone.api.v1.shared.matchers.{AuthorQueryParamMatcher, PageSizeOptionalQueryParamMatcher, PostedBeforeOptionalQueryParamMatcher}
 import twitterclone.model.user.User
 import twitterclone.model.{Id, TweetPagination}
 import twitterclone.services.tweet.TweetService
