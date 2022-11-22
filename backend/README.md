@@ -35,7 +35,7 @@ with:
 sbt run
 ```
 
-Use the provided [Postman collection](postman/TwitterClone.postman_collection.json) to interact with the server.
+Use the provided [Postman collection](postman/TwitterCloneV1.postman_collection.json) to interact with the server.
 
 
 ### Configuration
