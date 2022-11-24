@@ -7,19 +7,22 @@ import fs2.Stream
 import org.http4s.server.ServerBuilder
 import twitterclone.api.Server
 import twitterclone.api.authentication.dummyAuthMiddleware
-import twitterclone.config.Config
-import twitterclone.instances.ioTransactor
-import repositories.interpreters.postgres.{utils => postgresUtils}
 import twitterclone.api.v1.comment.CommentEndpoints
 import twitterclone.api.v1.tweet.TweetEndpoints
 import twitterclone.api.v2.SwaggerDocsEndpoints
 import twitterclone.api.v2.interpreters.{Http4sCommentEndpoints, Http4sTweetEndpoints}
+import twitterclone.config.Config
+import twitterclone.instances.ioTransactor
 import twitterclone.repositories.interpreters.local.{LocalCommentRepository, LocalTweetRepository}
-import twitterclone.repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository}
+import twitterclone.repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository, utils => postgresUtils}
+import twitterclone.services.analytics.AnalyticsService
+import twitterclone.services.analytics.publishing.InternetPublisher
 import twitterclone.services.comment.CommentService
 import twitterclone.services.tweet.TweetService
 
 object Main extends IOApp {
+
+  val analyticsService = new AnalyticsService(InternetPublisher)
 
   override def run(args: List[String]): IO[ExitCode] = {
     val stream: Stream[IO, ExitCode] = for {
@@ -29,6 +32,7 @@ object Main extends IOApp {
         case c: Config.Local => localServerBuilder(c)
         case c: Config.Production => productionServerBuilder(c)
       }
+      _ = analyticsService.registerEvent(analyticsService.ServerStarted)
       _ <- serverBuilder.serve
     } yield ExitCode.Success
     stream.compile.last.map(_.getOrElse(ExitCode.Error))

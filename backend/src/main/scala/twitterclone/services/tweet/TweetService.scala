@@ -6,6 +6,9 @@ import twitterclone.auth.AuthorizationService
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet, TweetPagination}
 import twitterclone.repositories.domain.TweetRepository
+import twitterclone.services.analytics.AnalyticsService
+import twitterclone.services.analytics.AnalyticsService.Registerable
+import twitterclone.services.analytics.publishing.{FilePublisher}
 import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}
 import twitterclone.services.error.{ServiceError, ServiceErrorOr}
 import twitterclone.services.syntax._
@@ -40,6 +43,17 @@ object TweetService {
   )(implicit transactor: G ~> F): TweetService[F] =
     new TweetService[F] {
       /** Creates a new tweet */
+
+        val analyticsService = new AnalyticsService(FilePublisher)
+
+      case class UserWithIdTweeted(userId: Id[User], tweet: Tweet)
+
+      implicit val registerableUserWithIdTweeted: Registerable[UserWithIdTweeted] =
+        new Registerable[UserWithIdTweeted]{
+        override def registerableInformation(event: UserWithIdTweeted): String =
+          s"User @${event.userId} tweeted ${event.tweet}"
+      }
+
       override def create(contents: String)(userId: Id[User]): F[ServiceErrorOr[Tweet]] = {
         val tweet = Tweet(
           id = Id.random[Tweet],
@@ -48,7 +62,10 @@ object TweetService {
           postedOn = LocalDateTime.now(ZoneId.of("UTC"))
         )
         tweetRepository.create(tweet).map {
-          case 1 => Right(tweet)
+          case 1 =>
+            val event = UserWithIdTweeted(userId, tweet)
+            analyticsService.registerMeaningfulInfo(event)
+            Right(tweet)
           case _ => Left(failedToCreateResource("Tweet"))
         }.transact
       }
