@@ -1,7 +1,8 @@
 package twitterclone.model.graphql
 
 import sangria.schema._
-import twitterclone.model.Tweet
+import twitterclone.model.{CommentPagination, Tweet}
+import twitterclone.model.graphql.arguments.{PageSizeArg, PostedBeforeArg}
 import twitterclone.model.graphql.types.{LocalDateTimeType, UUIDType}
 import twitterclone.repositories.domain.AllRepositories
 
@@ -30,6 +31,20 @@ object TweetType {
           name = "postedOn",
           fieldType = LocalDateTimeType,
           resolve = _.value.postedOn
+        ),
+        Field(
+          name = "comments",
+          fieldType = ListType(CommentType[F]),
+          arguments = PageSizeArg :: PostedBeforeArg :: Nil,
+          resolve = { context =>
+            DeferredType.CommentsByTweetId(
+              id = context.value.id,
+              pagination = CommentPagination(
+                pageSize = (context arg PageSizeArg) getOrElse 20,
+                postedBefore = context arg PostedBeforeArg
+              )
+            )
+          }
         )
       )
     )

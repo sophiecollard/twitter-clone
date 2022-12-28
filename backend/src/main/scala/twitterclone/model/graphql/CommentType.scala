@@ -35,6 +35,13 @@ object CommentType {
           name = "postedOn",
           fieldType = LocalDateTimeType,
           resolve = _.value.postedOn
+        ),
+        Field(
+          name = "tweet",
+          fieldType = OptionType(TweetType[F]),
+          resolve = { context =>
+            DeferredType.TweetById(context.value.tweetId)
+          }
         )
       )
     )
