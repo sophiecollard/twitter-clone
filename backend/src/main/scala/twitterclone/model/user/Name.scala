@@ -1,28 +1,30 @@
 package twitterclone.model.user
 
-import io.circe.Decoder
+import eu.timepit.refined._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.string._
+import io.circe.{Decoder, Encoder}
 
 sealed abstract case class Name(value: String)
 
 object Name {
 
-  private val pattern = "^[a-zA-Z0-9-_ ]{1,36}$".r
+  type Predicate = MatchesRegex[W.`"^[a-zA-Z0-9-_ ]{1,36}$"`.T]
+  type Value = String Refined Predicate
 
-  def fromString(value: String): Either[String, Name] =
-    pattern findFirstIn value match {
-      case Some(nameValue) =>
-        Right(new Name(nameValue) {})
-      case None =>
-        Left(s"$value does not match the following regex: ${pattern.toString}")
-    }
+  def fromString(value: String): Either[String, Value] =
+    refineV[Predicate](value)
 
-  def unsafeFromString(value: String): Name =
+  def unsafeFromString(value: String): Value =
     fromString(value) match {
       case Right(name) => name
-      case Left(error) => throw new RuntimeException(error)
+      case Left(error) => throw new IllegalArgumentException(error)
     }
 
-  implicit val decoder: Decoder[Name] =
+  implicit val encoder: Encoder[Value] =
+    Encoder.encodeString.contramap(_.value)
+
+  implicit val decoder: Decoder[Value] =
     Decoder.decodeString.emap(fromString)
 
 }

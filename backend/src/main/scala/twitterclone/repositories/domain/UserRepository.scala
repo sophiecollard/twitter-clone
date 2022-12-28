@@ -13,8 +13,8 @@ trait UserRepository[F[_]] {
 
   def getMany(ids: List[Id[User]]): F[List[User]]
 
-  def getByHandle(handle: Handle): F[Option[User]]
+  def getByHandle(handle: Handle.Value): F[Option[User]]
 
-  def exists(handle: Handle): F[Boolean]
+  def exists(handle: Handle.Value): F[Boolean]
 
 }

@@ -12,7 +12,7 @@ import twitterclone.services.syntax._
 trait UserService[F[_]] {
 
   /** Creates a new user */
-  def create(handle: Handle, name: Name): F[ServiceErrorOr[User]]
+  def create(handle: Handle.Value, name: Name.Value): F[ServiceErrorOr[User]]
 
   /** Fetches a user */
   def get(id: Id[User]): F[ServiceErrorOr[User]]
@@ -21,7 +21,7 @@ trait UserService[F[_]] {
   def getMany(ids: List[Id[User]]): F[ServiceErrorOr[List[User]]]
 
   /** Fetches a user by its handle */
-  def getByHandle(handle: Handle): F[ServiceErrorOr[User]]
+  def getByHandle(handle: Handle.Value): F[ServiceErrorOr[User]]
 
 }
 
@@ -32,8 +32,8 @@ object UserService {
   )(implicit transactor: G ~> F): UserService[F] =
     new UserService[F] {
       /** Creates a new user */
-      override def create(handle: Handle, name: Name): F[ServiceErrorOr[User]] = {
-        val user = User (
+      override def create(handle: Handle.Value, name: Name.Value): F[ServiceErrorOr[User]] = {
+        val user = User(
           id = Id.random[User],
           handle,
           name,
@@ -76,7 +76,7 @@ object UserService {
           .transact
 
       /** Fetches a user by its handle */
-      override def getByHandle(handle: Handle): F[ServiceErrorOr[User]] =
+      override def getByHandle(handle: Handle.Value): F[ServiceErrorOr[User]] =
         userRepository.getByHandle(handle).map {
           case Some(user) => Right(user)
           case None       => Left(userHandleNotFound(handle))

@@ -1,28 +1,28 @@
 package twitterclone.model.user
 
-import io.circe.Decoder
-
-sealed abstract case class Handle(value: String)
+import eu.timepit.refined._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.string._
+import io.circe.{Decoder, Encoder}
 
 object Handle {
 
-  private val pattern = "^[a-z0-9-_]{1,24}$".r
+  type Predicate = MatchesRegex[W.`"^[a-z0-9-_]{1,24}$"`.T]
+  type Value = String Refined Predicate
 
-  def fromString(value: String): Either[String, Handle] =
-    pattern findFirstIn value match {
-      case Some(handleValue) =>
-        Right(new Handle(handleValue) {})
-      case None =>
-        Left(s"$value does not match the following regex: ${pattern.toString}")
-    }
+  def fromString(value: String): Either[String, Value] =
+    refineV[Predicate](value)
 
-  def unsafeFromString(value: String): Handle =
+  def unsafeFromString(value: String): Value =
     fromString(value) match {
       case Right(handle) => handle
-      case Left(error)   => throw new RuntimeException(error)
+      case Left(error)   => throw new IllegalArgumentException(error)
     }
 
-  implicit val decoder: Decoder[Handle] =
+  implicit val encoder: Encoder[Value] =
+    Encoder.encodeString.contramap(_.value)
+
+  implicit val decoder: Decoder[Value] =
    Decoder.decodeString.emap(fromString)
 
 }

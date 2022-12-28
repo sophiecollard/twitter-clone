@@ -34,14 +34,14 @@ object LocalUserRepository {
           .filter(ids contains _.id)
           .pure[F]
 
-      override def getByHandle(handle: Handle): F[Option[User]] =
+      override def getByHandle(handle: Handle.Value): F[Option[User]] =
         state
           .values
           .toList
           .find(_.handle == handle)
           .pure[F]
 
-      override def exists(handle: Handle): F[Boolean] =
+      override def exists(handle: Handle.Value): F[Boolean] =
         state
           .values
           .exists(_.handle == handle)

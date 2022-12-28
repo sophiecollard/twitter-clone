@@ -9,6 +9,7 @@ object Dependencies {
   private val doobieVersion = "1.0.0-RC1"
   private val http4sVersion = "0.23.12"
   private val http4sJettyServerVersion = "0.23.10"
+  private val refinedVersion = "0.10.1"
   private val scalaTestVersion = "3.2.11"
   private val tapirVersion = "1.2.1"
 
@@ -22,7 +23,8 @@ object Dependencies {
 
   private val circe = List(
     "io.circe" %% "circe-core",
-    "io.circe" %% "circe-generic"
+    "io.circe" %% "circe-generic",
+    "io.circe" %% "circe-refined"
   ).map(_ % circeVersion)
 
   private val ciris = List(
@@ -31,7 +33,8 @@ object Dependencies {
 
   private val doobie = List(
     "org.tpolecat" %% "doobie-core",
-    "org.tpolecat" %% "doobie-postgres"
+    "org.tpolecat" %% "doobie-postgres",
+    "org.tpolecat" %% "doobie-refined"
   ).map(_ % doobieVersion)
 
   private val http4s = List(
@@ -44,6 +47,10 @@ object Dependencies {
   private val http4sJettyServer = List(
     "org.http4s" % "http4s-jetty-server_2.13"
   ).map(_ % http4sJettyServerVersion)
+
+  private val refined = List(
+    "eu.timepit" %% "refined"
+  ).map(_ % refinedVersion)
 
   private val scalaTest = List(
     "org.scalatest" %% "scalatest"
