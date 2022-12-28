@@ -106,7 +106,7 @@ docker stop postgres-db && docker rm postgres-db
 
 ### v1 REST API
 
-The v1 REST API exposes the following endpoints:
+The v1 REST API is implemented using [http4s](https://github.com/http4s/http4s) and exposes the following endpoints:
 
 ```
 GET     /api/v1/tweets/{uuid}
@@ -125,7 +125,9 @@ DELETE  /api/v1/comments/{uuid}
 
 ### v2 REST API
 
-When the application is running, the v2 REST API docs are available at:
+The v2 REST API is implemented using [tapir](https://github.com/softwaremill/tapir) with [http4s](https://tapir.softwaremill.com/en/latest/server/http4s.html) and [Open API](https://tapir.softwaremill.com/en/latest/docs/openapi.html) interpreters.
+
+When the application is running, the API docs are available at:
 
 ```
 http://localhost:8080/api/v2/docs
@@ -133,11 +135,13 @@ http://localhost:8080/api/v2/docs
 
 ### GraphQL API
 
-The GraphQL API is exposed via the following endpoint:
+The GraphQL API is implemented using [Sangria](https://github.com/sangria-graphql/sangria) and exposes the following endpoint:
 
 ```
 POST /api/graphql
 ```
+
+The implementation leans heavily on Rob Norris's [doobie-http4s-sangria-graphql-example](https://github.com/tpolecat/doobie-http4s-sangria-graphql-example).
 
 ## Summer 2022 mob programming sessions
 
