@@ -27,6 +27,8 @@ object error {
           Conflict(error.responseBody)
         case error @ ApiError.ResourceNotFound(_) =>
           NotFound(error.responseBody)
+        case error @ ApiError.GraphQLInterpretationError(_) =>
+          UnprocessableEntity(error.responseBody)
         case error @ ApiError.UnexpectedError =>
           InternalServerError(error.responseBody)
       }
@@ -73,6 +75,13 @@ object error {
       )
     )
 
+    final case class GraphQLInterpretationError(message: String) extends ApiError(
+      responseBody = ErrorResponseBody(
+        code = Code("graphql_interpretation_error"),
+        message = Message(message)
+      )
+    )
+
     case object UnexpectedError extends ApiError(
       responseBody = ErrorResponseBody(
         code = Code("unexpected_error"),
@@ -94,6 +103,8 @@ object error {
           ResourceAlreadyExists(error.message)
         case error @ ServiceError.UserHandleNotFound(_) =>
           ResourceNotFound(error.message)
+        case error @ ServiceError.GraphQLInterpretationError(_) =>
+          GraphQLInterpretationError(error.message)
       }
 
     implicit val encoder: Encoder[ApiError] =
