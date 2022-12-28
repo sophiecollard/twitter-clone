@@ -16,7 +16,7 @@ import twitterclone.api.v1.comment.CommentEndpoints
 import twitterclone.api.v1.tweet.TweetEndpoints
 import twitterclone.api.v2.SwaggerDocsEndpoints
 import twitterclone.api.v2.interpreters.{Http4sCommentEndpoints, Http4sTweetEndpoints}
-import twitterclone.model.graphql.QueryType
+import twitterclone.model.graphql.{GraphQLDeferredResolver, QueryType}
 import twitterclone.repositories.domain.{AllRepositories, CommentRepository, TweetRepository}
 import twitterclone.repositories.interpreters.local.{LocalCommentRepository, LocalTweetRepository}
 import twitterclone.repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository}
@@ -56,7 +56,7 @@ object Main extends IOApp {
     implicit val ior: IORuntime = IORuntime.global
     implicit val ec: ExecutionContext = ior.compute
     val allRepositories = AllRepositories(tweetRepository, commentRepository)
-    val graphQLService = SangriaGraphQLService[IO](QueryType.schema, allRepositories)
+    val graphQLService = SangriaGraphQLService[IO](QueryType.schema, allRepositories, GraphQLDeferredResolver.apply)
     val graphQLEndpoint = GraphQLEndpoint(graphQLService)
     Server.builder(
       config.server,
@@ -90,7 +90,11 @@ object Main extends IOApp {
       tweets = TweetRepository.mapF[ConnectionIO, IO](tweetRepository),
       comments = CommentRepository.mapF[ConnectionIO, IO](commentRepository)
     )
-    val graphQLService = SangriaGraphQLService[IO](schema = QueryType.schema, repositories = allRepositories)
+    val graphQLService = SangriaGraphQLService[IO](
+      schema = QueryType.schema,
+      repositories = allRepositories,
+      deferredResolver = GraphQLDeferredResolver.apply
+    )
     val graphQLEndpoint = GraphQLEndpoint(graphQLService)
     Server.builder(
       config.server,

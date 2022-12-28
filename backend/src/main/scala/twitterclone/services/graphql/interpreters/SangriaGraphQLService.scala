@@ -4,6 +4,7 @@ import cats.effect.kernel.Async
 import cats.implicits._
 import io.circe.Json
 import sangria.execution.Executor
+import sangria.execution.deferred.DeferredResolver
 import sangria.schema._
 import sangria.marshalling.circe._
 import twitterclone.model.graphql.GraphQLQuery
@@ -18,7 +19,8 @@ object SangriaGraphQLService {
 
   def apply[F[_]: Async](
     schema: Schema[AllRepositories[F], Unit],
-    repositories: AllRepositories[F]
+    repositories: AllRepositories[F],
+    deferredResolver: DeferredResolver[AllRepositories[F]]
   )(implicit ec: ExecutionContext): GraphQLService[F] =
     new GraphQLService[F] {
       override def serveQuery(query: GraphQLQuery): F[ServiceErrorOr[Json]] =
@@ -28,6 +30,7 @@ object SangriaGraphQLService {
               schema,
               queryAst = query.ast,
               userContext = repositories,
+              deferredResolver = deferredResolver,
               maxQueryDepth = Some(5)
             )
             jsonFuture.map(_.asRight[ServiceError]).recover[ServiceErrorOr[Json]] { case throwable =>

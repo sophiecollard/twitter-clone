@@ -38,7 +38,7 @@ object TweetType {
           arguments = PageSizeArg :: PostedBeforeArg :: Nil,
           resolve = { context =>
             DeferredType.CommentsByTweetId(
-              id = context.value.id,
+              tweetId = context.value.id,
               pagination = CommentPagination(
                 pageSize = (context arg PageSizeArg) getOrElse 20,
                 postedBefore = context arg PostedBeforeArg

@@ -10,7 +10,7 @@ object DeferredType {
   final case class TweetById(id: Id[Tweet])
     extends Deferred[Option[Tweet]] with DeferredType
 
-  final case class CommentsByTweetId(id: Id[Tweet], pagination: CommentPagination)
+  final case class CommentsByTweetId(tweetId: Id[Tweet], pagination: CommentPagination)
     extends Deferred[List[Comment]] with DeferredType
 
 }
