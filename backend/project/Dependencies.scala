@@ -52,6 +52,11 @@ object Dependencies {
     "eu.timepit" %% "refined"
   ).map(_ % refinedVersion)
 
+  private val sangria = List(
+    "org.sangria-graphql" %% "sangria" % "3.4.1",
+    "org.sangria-graphql" %% "sangria-circe" % "1.3.2"
+  )
+
   private val scalaTest = List(
     "org.scalatest" %% "scalatest"
   ).map( _ % scalaTestVersion % "it,test")
@@ -71,6 +76,7 @@ object Dependencies {
       doobie ++
       http4s ++
       http4sJettyServer ++
+      sangria ++
       scalaTest ++
       tapir
 
