@@ -19,6 +19,6 @@ object matchers {
     extends OptionalQueryParamDecoderMatcher[LocalDateTime]("posted_before")
 
   object TweetIdQueryParamMatcher
-    extends QueryParamDecoderMatcher[Id[Tweet]]("tweet-id")
+    extends QueryParamDecoderMatcher[Id[Tweet]]("tweet_id")
 
 }
