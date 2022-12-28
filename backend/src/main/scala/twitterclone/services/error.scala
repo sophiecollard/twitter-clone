@@ -41,6 +41,11 @@ object error {
         message = s"User with handle [${handle.value}] not found"
       )
 
+    final case class GraphQLInterpretationError(error: String)
+      extends ServiceError(
+        message = s"GraphQL interpretation error: $error"
+      )
+
     def failedToCreateResource(`type`: String): ServiceError =
       FailedToCreateResource(`type`)
 
@@ -58,6 +63,9 @@ object error {
 
     def userHandleNotFound(handle: Handle.Value): ServiceError =
       UserHandleNotFound(handle)
+
+    def graphQLInterpretationError(error: String): ServiceError =
+      GraphQLInterpretationError(error)
 
   }
 
