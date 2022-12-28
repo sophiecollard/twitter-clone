@@ -47,7 +47,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
     "get a comment author's user id" in {
       val state = TrieMap.from((comment.id, comment) :: Nil)
       val repo = LocalCommentRepository.create[CatsId](state)
-      repo.getAuthor(comment.id) shouldBe Some(comment.author)
+      repo.getAuthor(comment.id) shouldBe Some(comment.authorId)
     }
   }
 

@@ -38,14 +38,37 @@ object GraphQLDeferredResolver {
             _ <- tweets.traverse { case (d, tweet) => completeWithSuccess(d, tweet) }
           } yield ()
 
+        def completeTweetsByUserId(ds: List[DeferredType.TweetsByUserId]): IO[Unit] =
+          for {
+            tweets <- ds.traverse(d => ctx.tweets.listBy(d.userId, d.pagination).map(d -> _))
+            _ <- tweets.traverse { case (d, tweets) => completeWithSuccess(d, tweets) }
+          } yield ()
+
         def completeCommentsByTweetId(ds: List[DeferredType.CommentsByTweetId]): IO[Unit] =
           for {
             comments <- ds.traverse(d => ctx.comments.list(d.tweetId, d.pagination).map(d -> _))
             _ <- comments.traverse { case (d, comments) => completeWithSuccess(d, comments) }
           } yield ()
 
+        def completeCommentsByUserId(ds: List[DeferredType.CommentsByUserId]): IO[Unit] =
+          for {
+            comments <- ds.traverse(d => ctx.comments.listBy(d.userId, d.pagination).map(d -> _))
+            _ <- comments.traverse { case (d, comments) => completeWithSuccess(d, comments) }
+          } yield ()
+
+        def completeUserById(ds: List[DeferredType.UserById]): IO[Unit] =
+          for {
+            users <- ds.traverse(d => ctx.users.get(d.id).map(d -> _))
+            _ <- users.traverse { case (d, user) => completeWithSuccess(d, user) }
+          } yield ()
+
+        // WARNING Don't forget to complete ALL the possible deferred values
+        // Otherwise, orphaned promises will just wait forever
         completeTweetById(select[DeferredType.TweetById]).unsafeToFuture()
+        completeTweetsByUserId(select[DeferredType.TweetsByUserId]).unsafeToFuture()
         completeCommentsByTweetId(select[DeferredType.CommentsByTweetId]).unsafeToFuture()
+        completeCommentsByUserId(select[DeferredType.CommentsByUserId]).unsafeToFuture()
+        completeUserById(select[DeferredType.UserById]).unsafeToFuture()
 
         deferred.map(promises(_).future)
       }

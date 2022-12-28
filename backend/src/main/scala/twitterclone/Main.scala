@@ -10,20 +10,23 @@ import twitterclone.api.Server
 import twitterclone.api.authentication.dummyAuthMiddleware
 import twitterclone.config.Config
 import twitterclone.instances.ioTransactor
-import repositories.interpreters.postgres.{utils => postgresUtils}
+import repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository, PostgresUserRepository, utils => postgresUtils}
 import twitterclone.api.graphql.GraphQLEndpoint
 import twitterclone.api.v1.comment.CommentEndpoints
 import twitterclone.api.v1.tweet.TweetEndpoints
 import twitterclone.api.v2.SwaggerDocsEndpoints
 import twitterclone.api.v2.interpreters.{Http4sCommentEndpoints, Http4sTweetEndpoints}
+import twitterclone.model.Id
 import twitterclone.model.graphql.{GraphQLDeferredResolver, QueryType}
-import twitterclone.repositories.domain.{AllRepositories, CommentRepository, TweetRepository}
-import twitterclone.repositories.interpreters.local.{LocalCommentRepository, LocalTweetRepository}
-import twitterclone.repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository}
+import twitterclone.model.user.{Handle, Name, Status, User}
+import twitterclone.repositories.domain.{AllRepositories, CommentRepository, TweetRepository, UserRepository}
+import twitterclone.repositories.interpreters.local.{LocalCommentRepository, LocalTweetRepository, LocalUserRepository}
 import twitterclone.services.comment.CommentService
 import twitterclone.services.graphql.interpreters.SangriaGraphQLService
 import twitterclone.services.tweet.TweetService
 
+import java.util.UUID
+import scala.collection.concurrent.TrieMap
 import scala.concurrent.ExecutionContext
 
 object Main extends IOApp {
@@ -55,7 +58,8 @@ object Main extends IOApp {
     val v2SwaggerDocsEndpoints = SwaggerDocsEndpoints.create[IO]
     implicit val ior: IORuntime = IORuntime.global
     implicit val ec: ExecutionContext = ior.compute
-    val allRepositories = AllRepositories(tweetRepository, commentRepository)
+    val userRepository = LocalUserRepository.create[IO](TrieMap.from(List(testUser.id -> testUser)))
+    val allRepositories = AllRepositories(tweetRepository, commentRepository, userRepository)
     val graphQLService = SangriaGraphQLService[IO](QueryType.schema, allRepositories, GraphQLDeferredResolver.apply)
     val graphQLEndpoint = GraphQLEndpoint(graphQLService)
     Server.builder(
@@ -85,10 +89,12 @@ object Main extends IOApp {
     val tweetService = TweetService.create[IO, ConnectionIO](tweetRepository, tweetAuthService)
     val v1TweetEndpoints = TweetEndpoints.create[IO](dummyAuthMiddleware, tweetService)
     val v2TweetEndpoints = Http4sTweetEndpoints.create[IO](tweetService)
+    val userRepository = PostgresUserRepository.create
     val v2SwaggerDocsEndpoints = SwaggerDocsEndpoints.create[IO]
     val allRepositories = AllRepositories[IO](
       tweets = TweetRepository.mapF[ConnectionIO, IO](tweetRepository),
-      comments = CommentRepository.mapF[ConnectionIO, IO](commentRepository)
+      comments = CommentRepository.mapF[ConnectionIO, IO](commentRepository),
+      users = UserRepository.mapF[ConnectionIO, IO](userRepository)
     )
     val graphQLService = SangriaGraphQLService[IO](
       schema = QueryType.schema,
@@ -106,5 +112,13 @@ object Main extends IOApp {
       graphQLEndpoint
     )
   }
+
+  private val testUser: User =
+    User(
+      id = Id[User](UUID.fromString("0b73e653-5f82-46cd-a232-0166d83ce531")),
+      handle = Handle.unsafeFromString("test_user"),
+      name = Name.unsafeFromString("Test User"),
+      status = Status.Active
+    )
 
 }

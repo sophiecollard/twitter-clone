@@ -51,7 +51,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
 
         private val tweet = response.decodeBodyAs[Tweet].unsafeRunSync().value
 
-        tweet.author shouldBe userId
+        tweet.authorId shouldBe userId
         tweet.contents shouldBe requestBody.contents
         repoState.get(tweet.id) shouldBe Some(tweet)
       }
@@ -91,7 +91,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
         private val request = Request[IO](
           method = Method.DELETE,
           uri = Uri.unsafeFromString(s"/${tweet.id.value.toString}"),
-          headers = Headers(Header.Raw(CIString("x-user-id"), tweet.author.value.toString))
+          headers = Headers(Header.Raw(CIString("x-user-id"), tweet.authorId.value.toString))
         )
 
         private val response = endpoints
@@ -181,7 +181,7 @@ class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
 
       private val request = Request[IO](
         method = Method.GET,
-        uri = Uri.unsafeFromString(s"/?author=${tweet.author.value.toString}")
+        uri = Uri.unsafeFromString(s"/?author=${tweet.authorId.value.toString}")
       )
 
       private val response = endpoints

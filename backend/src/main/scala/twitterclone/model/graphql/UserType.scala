@@ -1,16 +1,17 @@
 package twitterclone.model.graphql
 
 import sangria.schema._
-import twitterclone.model.{CommentPagination, Tweet}
 import twitterclone.model.graphql.arguments.{PageSizeArg, PostedBeforeArg}
-import twitterclone.model.graphql.types.{LocalDateTimeType, UUIDType}
+import twitterclone.model.{CommentPagination, TweetPagination}
+import twitterclone.model.user.User
 import twitterclone.repositories.domain.AllRepositories
+import twitterclone.model.graphql.types.UUIDType
 
-object TweetType {
+object UserType {
 
-  def apply[F[_]]: ObjectType[AllRepositories[F], Tweet] =
+  def apply[F[_]]: ObjectType[AllRepositories[F], User] =
     ObjectType(
-      name = "Tweet",
+      name = "User",
       fieldsFn = () => fields(
         Field(
           name = "id",
@@ -18,25 +19,27 @@ object TweetType {
           resolve = _.value.id.value
         ),
         Field(
-          name = "authorId",
-          fieldType = UUIDType,
-          resolve = _.value.authorId.value
-        ),
-        Field(
-          name = "contents",
+          name = "handle",
           fieldType = StringType,
-          resolve = _.value.contents
+          resolve = _.value.handle.value
         ),
         Field(
-          name = "postedOn",
-          fieldType = LocalDateTimeType,
-          resolve = _.value.postedOn
+          name = "name",
+          fieldType = StringType,
+          resolve = _.value.name.value
         ),
         Field(
-          name = "author",
-          fieldType = OptionType(UserType[F]),
+          name = "tweets",
+          fieldType = ListType(TweetType[F]),
+          arguments = PageSizeArg :: PostedBeforeArg :: Nil,
           resolve = { context =>
-            DeferredType.UserById(context.value.authorId)
+            DeferredType.TweetsByUserId(
+              userId = context.value.id,
+              pagination = TweetPagination(
+                pageSize = (context arg PageSizeArg) getOrElse 20,
+                postedBefore = context arg PostedBeforeArg
+              )
+            )
           }
         ),
         Field(
@@ -44,8 +47,8 @@ object TweetType {
           fieldType = ListType(CommentType[F]),
           arguments = PageSizeArg :: PostedBeforeArg :: Nil,
           resolve = { context =>
-            DeferredType.CommentsByTweetId(
-              tweetId = context.value.id,
+            DeferredType.CommentsByUserId(
+              userId = context.value.id,
               pagination = CommentPagination(
                 pageSize = (context arg PageSizeArg) getOrElse 20,
                 postedBefore = context arg PostedBeforeArg

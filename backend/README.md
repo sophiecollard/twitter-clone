@@ -1,11 +1,24 @@
 # Twitter clone backend
 
-Simple Twitter clone to demo building REST APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
+Simple Twitter clone to demo building REST and GraphQL APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
 
 ## Contents
 
   * [Usage](#usage)
+    * [Running the test suite](#running-the-test-suite)
+    * [Starting the application](#starting-the-application)
+    * [Configuration](#configuration)
+    * [PostgreSQL container](#postgresql-container)
+  * [APIs](#apis)
+    * [v1 REST API](#v1-rest-api)
+    * [v2 REST API](#v2-rest-api)
+    * [GraphQL API](#graphql-api)
   * [Summer 2002 mob programming sessions](#summer-2022-mob-programming-sessions)
+    * [Session 1: Services](#session-1-services)
+    * [Session 2: Endpoints](#session-2-endpoints)
+    * [Session 3: TDD](#session-3-test-driven-development)
+    * [Session 4: PostgreSQL repositories](#session-4-postgresql-repositories)
+    * [Session 5: Typeclasses](#session-5-typeclasses)
   * [Autumn 2022 mob programming sessions](#autumn-2022-mob-programming-sessions)
 
 ## Usage
@@ -68,7 +81,7 @@ Start by setting the following env vars:
 ```sh
 export POSTGRES_DB="postgres"
 export POSTGRES_USER="postgres"
-export POSTGRES_PASSWORD=-"postgres"
+export POSTGRES_PASSWORD="postgres"
 export POSTGRES_PORT=5432
 ```
 
@@ -87,6 +100,43 @@ At then end of a work session, stop and remove the container with:
 
 ```sh
 docker stop postgres-db && docker rm postgres-db
+```
+
+## APIs
+
+### v1 REST API
+
+The v1 REST API exposes the following endpoints:
+
+```
+GET     /api/v1/tweets/{uuid}
+GET     /api/v1/tweets?page_size{int}&posted_before={yyyy-mm-ddTHH:MM:SS}
+GET     /api/v1/tweets?author={uuid}&page_size={int}&posted_before={yyyy-mm-ddTHH:MM:SS}
+POST    /api/v1/tweets
+DELETE  /api/v1/tweets/{uuid}
+```
+
+```
+GET     /api/v1/comments/{uuid}
+GET     /api/v1/comments?tweet_id={uuid}&page_size={int}&posted_before={yyyy-mm-ddTHH:MM:SS}
+POST    /api/v1/comments
+DELETE  /api/v1/comments/{uuid}
+```
+
+### v2 REST API
+
+When the application is running, the v2 REST API docs are available at:
+
+```
+http://localhost:8080/api/v2/docs
+```
+
+### GraphQL API
+
+The GraphQL API is exposed via the following endpoint:
+
+```
+POST /api/graphql
 ```
 
 ## Summer 2022 mob programming sessions

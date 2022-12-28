@@ -23,19 +23,19 @@ object PostgresTweetRepository {
     override def get(id: Id[Tweet]): ConnectionIO[Option[Tweet]] =
       getQuery(id).option
 
-    override def getAuthor(id: Id[Tweet]): ConnectionIO[Option[Id[User]]] =
+    override def getAuthorId(id: Id[Tweet]): ConnectionIO[Option[Id[User]]] =
       getAuthorQuery(id).option
 
     override def list(pagination: TweetPagination): ConnectionIO[List[Tweet]] =
       listQuery(pagination).to[List]
 
-    override def listBy(author: Id[User], pagination: TweetPagination): ConnectionIO[List[Tweet]] =
-      listByQuery(author, pagination).to[List]
+    override def listBy(authorId: Id[User], pagination: TweetPagination): ConnectionIO[List[Tweet]] =
+      listByQuery(authorId, pagination).to[List]
   }
 
   private val createUpdate: Update[Tweet] =
     Update(
-      s"""INSERT INTO tweets (id, author, contents, posted_on)
+      s"""INSERT INTO tweets (id, author_id, contents, posted_on)
          |VALUES (?, ?, ?, ?)
          |ON CONFLICT DO NOTHING
          |""".stripMargin
@@ -48,30 +48,30 @@ object PostgresTweetRepository {
          |""".stripMargin.update
 
   private def getQuery(id: Id[Tweet]): Query0[Tweet] =
-    sql"""SELECT id, author, contents, posted_on
+    sql"""SELECT id, author_id, contents, posted_on
          |FROM tweets
          |WHERE id = $id
          |""".stripMargin.query[Tweet]
 
   private def getAuthorQuery(id: Id[Tweet]): Query0[Id[User]] =
-    sql"""SELECT author
+    sql"""SELECT author_id
          |FROM tweets
          |WHERE id = $id
          |""".stripMargin.query[Id[User]]
 
   private def listQuery(pagination: TweetPagination): Query0[Tweet] =
-    sql"""SELECT id, author, contents, posted_on
+    sql"""SELECT id, author_id, contents, posted_on
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
          |ORDER BY posted_on DESC
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 
-  private def listByQuery(author: Id[User], pagination: TweetPagination): Query0[Tweet] =
-    sql"""SELECT id, author, contents, posted_on
+  private def listByQuery(authorId: Id[User], pagination: TweetPagination): Query0[Tweet] =
+    sql"""SELECT id, author_id, contents, posted_on
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
-         |AND author = $author
+         |AND author_id = $authorId
          |ORDER BY posted_on DESC
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]

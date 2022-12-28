@@ -30,12 +30,21 @@ object LocalCommentRepository {
         state.get(id).pure[F]
 
       override def getAuthor(id: Id[Comment]): F[Option[Id[User]]] =
-        state.get(id).map(_.author).pure[F]
+        state.get(id).map(_.authorId).pure[F]
 
       override def list(tweetId: Id[Tweet], pagination: CommentPagination): F[List[Comment]] =
         state
           .values
           .filter { c => c.tweetId == tweetId && pagination.postedBefore.forall(c.postedOn isBefore _) }
+          .toList
+          .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
+          .take(pagination.pageSize)
+          .pure[F]
+
+      override def listBy(authorId: Id[User], pagination: CommentPagination): F[List[Comment]] =
+        state
+          .values
+          .filter { c => c.authorId == authorId && pagination.postedBefore.forall(c.postedOn isBefore _) }
           .toList
           .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
           .take(pagination.pageSize)

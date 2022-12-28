@@ -29,11 +29,14 @@ object PostgresCommentRepository {
 
       override def list(tweetId: Id[Tweet], pagination: CommentPagination): ConnectionIO[List[Comment]] =
         listQuery(tweetId, pagination).to[List]
+
+      override def listBy(authorId: Id[User], pagination: CommentPagination): ConnectionIO[List[Comment]] =
+        listByQuery(authorId, pagination).to[List]
     }
 
   private val createUpdate: Update[Comment] =
     Update(
-      s"""INSERT INTO comments (id, author, tweet_id, contents, posted_on)
+      s"""INSERT INTO comments (id, author_id, tweet_id, contents, posted_on)
          |VALUES (?, ?, ?, ?, ?)
          |ON CONFLICT DO NOTHING
          |""".stripMargin
@@ -46,24 +49,33 @@ object PostgresCommentRepository {
          |""".stripMargin.update
 
   private def getQuery(id: Id[Comment]): Query0[Comment] =
-    sql"""SELECT id, author, tweet_id, contents, posted_on
+    sql"""SELECT id, author_id, tweet_id, contents, posted_on
          |FROM comments
          |WHERE id= $id
          |""".stripMargin.query[Comment]
 
   private def getAuthorQuery(id: Id[Comment]): Query0[Id[User]] =
-    sql"""SELECT author
+    sql"""SELECT author_id
          |FROM comments
          |WHERE id = $id
          |""".stripMargin.query[Id[User]]
 
   private def listQuery(tweetId: Id[Tweet], pagination: CommentPagination): Query0[Comment] =
-    sql""" SELECT id, author, tweet_id, contents, posted_on
+    sql"""SELECT id, author_id, tweet_id, contents, posted_on
           |FROM comments
           |WHERE tweet_id = $tweetId
           |AND posted_on  < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
           |ORDER BY posted_on DESC
           |LIMIT ${pagination.pageSize}
           |""".stripMargin.query[Comment]
+
+  private def listByQuery(authorId: Id[User], pagination: CommentPagination): Query0[Comment] =
+    sql"""SELECT id, author_id, tweet_id, contents, posted_on
+         |FROM comments
+         |WHERE author_id = $authorId
+         |AND posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
+         |ORDER BY posted_on DESC
+         |LIMIT ${pagination.pageSize}
+         |""".stripMargin.query[Comment]
 
 }

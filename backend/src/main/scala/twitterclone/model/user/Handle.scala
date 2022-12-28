@@ -1,5 +1,6 @@
 package twitterclone.model.user
 
+import doobie.Meta
 import eu.timepit.refined._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.string._
@@ -24,5 +25,8 @@ object Handle {
 
   implicit val decoder: Decoder[Value] =
    Decoder.decodeString.emap(fromString)
+
+  implicit val meta: Meta[Value] =
+    Meta.StringMeta.imap(unsafeFromString)(_.value)
 
 }

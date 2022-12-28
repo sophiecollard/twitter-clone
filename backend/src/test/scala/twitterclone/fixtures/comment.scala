@@ -9,7 +9,7 @@ object comment {
 
   val comment: Comment = Comment(
     id = Id.random[Comment],
-    author = Id.random[User],
+    authorId = Id.random[User],
     tweetId = Id.random[Tweet],
     contents =
       "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes.",
@@ -21,7 +21,7 @@ object comment {
 
   val earlierCommentOnSameTweet: Comment = Comment(
     id = Id.random[Comment],
-    author = Id.random[User],
+    authorId = Id.random[User],
     tweetId = comment.tweetId,
     contents = "Je dis des choses tellement intelligentes que souvent, je ne comprends pas ce que je dis.",
     postedOn = LocalDateTime.of(
@@ -32,7 +32,7 @@ object comment {
 
   val commentOnAnotherTweet: Comment = Comment(
     id = Id.random[Comment],
-    author = comment.author,
+    authorId = comment.authorId,
     tweetId = Id.random[Tweet],
     contents = "S'il n'a a pas de solution, c'est qu'il n'y a pas de problème.",
     postedOn = LocalDateTime.of(

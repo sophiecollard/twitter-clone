@@ -6,7 +6,8 @@ object Dependencies {
   private val catsEffectVersion = "3.3.12"
   private val circeVersion = "0.14.2"
   private val cirisVersion = "2.3.3"
-  private val doobieVersion = "1.0.0-RC1"
+  private val doobieVersion = "1.0.0-RC2"
+  private val enumeratumVersion = "1.7.2"
   private val http4sVersion = "0.23.12"
   private val http4sJettyServerVersion = "0.23.10"
   private val refinedVersion = "0.10.1"
@@ -36,6 +37,12 @@ object Dependencies {
     "org.tpolecat" %% "doobie-postgres",
     "org.tpolecat" %% "doobie-refined"
   ).map(_ % doobieVersion)
+
+  private val enumeratum = List(
+    "com.beachape" %% "enumeratum",
+    "com.beachape" %% "enumeratum-circe",
+    "com.beachape" %% "enumeratum-doobie"
+  ).map(_ % enumeratumVersion)
 
   private val http4s = List(
     "org.http4s" %% "http4s-circe",
@@ -74,6 +81,7 @@ object Dependencies {
       circe ++
       ciris ++
       doobie ++
+      enumeratum ++
       http4s ++
       http4sJettyServer ++
       sangria ++

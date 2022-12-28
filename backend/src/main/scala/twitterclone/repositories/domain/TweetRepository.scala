@@ -13,11 +13,11 @@ trait TweetRepository[F[_]] {
 
   def get(id: Id[Tweet]): F[Option[Tweet]]
 
-  def getAuthor(id: Id[Tweet]): F[Option[Id[User]]]
+  def getAuthorId(id: Id[Tweet]): F[Option[Id[User]]]
 
   def list(pagination: TweetPagination): F[List[Tweet]]
 
-  def listBy(author: Id[User], pagination: TweetPagination): F[List[Tweet]]
+  def listBy(authorId: Id[User], pagination: TweetPagination): F[List[Tweet]]
 
 }
 
@@ -34,14 +34,14 @@ object TweetRepository {
       override def get(id: Id[Tweet]): G[Option[Tweet]] =
         repo.get(id).transact
 
-      override def getAuthor(id: Id[Tweet]): G[Option[Id[User]]] =
-        repo.getAuthor(id).transact
+      override def getAuthorId(id: Id[Tweet]): G[Option[Id[User]]] =
+        repo.getAuthorId(id).transact
 
       override def list(pagination: TweetPagination): G[List[Tweet]] =
         repo.list(pagination).transact
 
-      override def listBy(author: Id[User], pagination: TweetPagination): G[List[Tweet]] =
-        repo.listBy(author, pagination).transact
+      override def listBy(authorId: Id[User], pagination: TweetPagination): G[List[Tweet]] =
+        repo.listBy(authorId, pagination).transact
     }
 
 }

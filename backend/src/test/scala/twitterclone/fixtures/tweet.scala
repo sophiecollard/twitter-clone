@@ -9,7 +9,7 @@ object tweet {
 
   val tweet: Tweet = Tweet(
     id = Id.random[Tweet],
-    author = Id.random[User],
+    authorId = Id.random[User],
     contents =
       "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes.",
     postedOn = LocalDateTime.of(
@@ -20,7 +20,7 @@ object tweet {
 
   val earlierTweetFromSameAuthor: Tweet = Tweet(
     id = Id.random[Tweet],
-    author = tweet.author,
+    authorId = tweet.authorId,
     contents = "Je dis des choses tellement intelligentes que souvent, je ne comprends pas ce que je dis.",
     postedOn = LocalDateTime.of(
       LocalDate.of(1968, 4, 29),
@@ -30,7 +30,7 @@ object tweet {
 
   val tweetFromAnotherAuthor: Tweet = Tweet(
     id = Id.random[Tweet],
-    author = Id.random[User],
+    authorId = Id.random[User],
     contents = "S'il n'a a pas de solution, c'est qu'il n'y a pas de problème.",
     postedOn = LocalDateTime.of(
       LocalDate.of(1968, 1, 1),

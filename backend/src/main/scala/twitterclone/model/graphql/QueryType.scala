@@ -5,6 +5,7 @@ import cats.effect.unsafe.IORuntime
 import sangria.schema._
 import twitterclone.model.{Comment, CommentPagination, Id, Tweet, TweetPagination}
 import twitterclone.model.graphql.arguments.{PageSizeArg, PostedBeforeArg, TweetIdArg, UUIDArg}
+import twitterclone.model.user.User
 import twitterclone.repositories.domain.AllRepositories
 
 object QueryType {
@@ -58,6 +59,16 @@ object QueryType {
               postedBefore = context arg PostedBeforeArg
             )
             context.ctx.comments.list(tweetId, pagination).unsafeToFuture()
+          }
+        ),
+        Field(
+          name = "user",
+          description = Some("Returns the user with the specified `id`"),
+          fieldType = OptionType(UserType[IO]),
+          arguments = UUIDArg :: Nil,
+          resolve = { context =>
+            val userId = Id[User](context arg UUIDArg)
+            context.ctx.users.get(userId).unsafeToFuture()
           }
         )
       )

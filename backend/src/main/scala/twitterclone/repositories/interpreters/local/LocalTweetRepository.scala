@@ -29,8 +29,8 @@ object LocalTweetRepository {
       override def get(id: Id[Tweet]): F[Option[Tweet]] =
         state.get(id).pure[F]
 
-      override def getAuthor(id: Id[Tweet]): F[Option[Id[User]]] =
-        state.get(id).map(_.author).pure[F]
+      override def getAuthorId(id: Id[Tweet]): F[Option[Id[User]]] =
+        state.get(id).map(_.authorId).pure[F]
 
       override def list(pagination: TweetPagination): F[List[Tweet]] =
         state
@@ -41,10 +41,10 @@ object LocalTweetRepository {
           .take(pagination.pageSize)
           .pure[F]
 
-      override def listBy(author: Id[User], pagination: TweetPagination): F[List[Tweet]] =
+      override def listBy(authorId: Id[User], pagination: TweetPagination): F[List[Tweet]] =
         state
           .values
-          .filter { t => t.author == author && pagination.postedBefore.forall(t.postedOn isBefore _) }
+          .filter { t => t.authorId == authorId && pagination.postedBefore.forall(t.postedOn isBefore _) }
           .toList
           .sortBy(_.postedOn)(Ordering[LocalDateTime].reverse)
           .take(pagination.pageSize)

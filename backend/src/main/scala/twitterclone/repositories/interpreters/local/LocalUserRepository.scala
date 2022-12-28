@@ -27,13 +27,6 @@ object LocalUserRepository {
       override def get(id: Id[User]): F[Option[User]] =
         state.get(id).pure[F]
 
-      override def getMany(ids: List[Id[User]]): F[List[User]] =
-        state
-          .values
-          .toList
-          .filter(ids contains _.id)
-          .pure[F]
-
       override def getByHandle(handle: Handle.Value): F[Option[User]] =
         state
           .values
