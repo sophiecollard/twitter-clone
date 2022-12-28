@@ -4,6 +4,7 @@ import sangria.schema.ScalarType
 import sangria.validation.ValueCoercionViolation
 
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import scala.util.{Failure, Success, Try}
 
@@ -12,7 +13,8 @@ object types {
   val UUIDType: ScalarType[UUID] = ScalarType[UUID](
     name = "UUID",
     description = Some("UUID"),
-    coerceOutput = { case (value, _) => value },
+    // Value must be converted to String before marshalling
+    coerceOutput = { case (value, _) => value.toString },
     coerceUserInput = {
       case s: String =>
         Try(UUID.fromString(s)) match {
@@ -36,7 +38,8 @@ object types {
   val LocalDateTimeType: ScalarType[LocalDateTime] = ScalarType[LocalDateTime](
     name = "LocalDateTime",
     description = Some("Local date and time information, must conform to the yyyy-mm-ddTHH:MM:SS pattern"),
-    coerceOutput = { case (value, _) => value },
+    // Value must be converted to String before marshalling
+    coerceOutput = { case (value, _) => DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value) },
     coerceUserInput = {
       case s: String =>
         Try(LocalDateTime.parse(s)) match {
