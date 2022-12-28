@@ -3,11 +3,11 @@ package twitterclone.model.graphql
 import sangria.schema._
 import twitterclone.model.Comment
 import twitterclone.model.graphql.types.{LocalDateTimeType, UUIDType}
-import twitterclone.services.AllServices
+import twitterclone.repositories.domain.AllRepositories
 
 object CommentType {
 
-  def apply[F[_]]: ObjectType[AllServices[F], Comment] =
+  def apply[F[_]]: ObjectType[AllRepositories[F], Comment] =
     ObjectType(
       name = "Comment",
       fieldsFn = () => fields(
