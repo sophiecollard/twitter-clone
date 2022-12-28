@@ -17,7 +17,7 @@ object auth {
     tweetRepository: TweetRepository[F]
   ): AuthorizationService[F, (Id[User], Id[Tweet]), ByAuthor] =
     AuthorizationService.create { case (userId, tweetId) =>
-      tweetRepository.getAuthor(tweetId).map {
+      tweetRepository.getAuthorId(tweetId).map {
         case Some(author) if author == userId =>
           Right(())
         case _ =>

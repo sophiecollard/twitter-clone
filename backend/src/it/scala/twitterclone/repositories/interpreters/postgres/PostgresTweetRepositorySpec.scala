@@ -51,7 +51,7 @@ class PostgresTweetRepositorySpec
   "The getAuthor method" should {
     "get a tweet author's user id" in {
       insert(tweet).unsafe
-      repo.getAuthor(tweet.id).unsafe shouldBe Some(tweet.author)
+      repo.getAuthorId(tweet.id).unsafe shouldBe Some(tweet.authorId)
     }
   }
 
@@ -66,7 +66,7 @@ class PostgresTweetRepositorySpec
   "The listBy method" should {
     "list tweets by a given author by decreasing 'postedOn' timestamp" in {
       insertMany(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor).unsafe
-      repo.listBy(tweet.author, TweetPagination.default).unsafe shouldBe List(tweet, earlierTweetFromSameAuthor)
+      repo.listBy(tweet.authorId, TweetPagination.default).unsafe shouldBe List(tweet, earlierTweetFromSameAuthor)
     }
   }
 
@@ -97,7 +97,7 @@ trait PostgresTweetRepositorySetup {
   def createTable: ConnectionIO[Int] =
     sql"""CREATE TABLE IF NOT EXISTS tweets (
          |  id        TEXT PRIMARY KEY,
-         |  author    TEXT NOT NULL,
+         |  author_id TEXT NOT NULL,
          |  contents  TEXT NOT NULL,
          |  posted_on TIMESTAMP NOT NULL
          |);""".stripMargin.update.run
@@ -107,7 +107,7 @@ trait PostgresTweetRepositorySetup {
 
   private val insertUpdate: Update[Tweet] =
     Update(
-      """INSERT INTO tweets (id, author, contents, posted_on)
+      """INSERT INTO tweets (id, author_id, contents, posted_on)
         |VALUES (?, ?, ?, ?)
         |""".stripMargin
     )
@@ -119,7 +119,7 @@ trait PostgresTweetRepositorySetup {
     insertUpdate.updateMany(tweets)
 
   def get(id: Id[Tweet]): ConnectionIO[Option[Tweet]] =
-    sql"""SELECT id, author, contents, posted_on
+    sql"""SELECT id, author_id, contents, posted_on
          |FROM tweets
          |WHERE id = $id
          |""".stripMargin.query[Tweet].option

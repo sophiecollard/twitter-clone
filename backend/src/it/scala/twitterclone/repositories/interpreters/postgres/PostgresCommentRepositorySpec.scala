@@ -51,7 +51,7 @@ class PostgresCommentRepositorySpec
   "The getAuthor method" should {
     "get a comment author's user id" in {
       insert(comment).unsafe
-      repo.getAuthor(comment.id).unsafe shouldBe Some(comment.author)
+      repo.getAuthor(comment.id).unsafe shouldBe Some(comment.authorId)
     }
   }
 
@@ -89,7 +89,7 @@ trait PostgresCommentRepositorySetup {
   def createTable: ConnectionIO[Int] =
     sql"""CREATE TABLE IF NOT EXISTS comments (
           |  id        TEXT PRIMARY KEY,
-          |  author    TEXT NOT NULL,
+          |  author_id TEXT NOT NULL,
           |  tweet_id  TEXT NOT NULL,
           |  contents  TEXT NOT NULL,
           |  posted_on TIMESTAMP NOT NULL
@@ -100,7 +100,7 @@ trait PostgresCommentRepositorySetup {
 
   private val insertUpdate: Update[Comment] =
     Update(
-      """INSERT INTO comments (id, author, tweet_id, contents, posted_on)
+      """INSERT INTO comments (id, author_id, tweet_id, contents, posted_on)
         |VALUES (?, ?, ?, ?, ?)
         |""".stripMargin
     )
@@ -112,7 +112,7 @@ trait PostgresCommentRepositorySetup {
     insertUpdate.updateMany(comments)
 
   def get(id: Id[Comment]): ConnectionIO[Option[Comment]] =
-    sql"""SELECT id, author, tweet_id, contents, posted_on
+    sql"""SELECT id, author_id, tweet_id, contents, posted_on
          |FROM comments
          |WHERE id = $id
          |""".stripMargin.query[Comment].option

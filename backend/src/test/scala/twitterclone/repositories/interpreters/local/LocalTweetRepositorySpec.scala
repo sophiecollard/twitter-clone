@@ -47,7 +47,7 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
     "get a tweet author's user id" in {
       val state = TrieMap.from((tweet.id, tweet) :: Nil)
       val repo = LocalTweetRepository.create[CatsId](state)
-      repo.getAuthor(tweet.id) shouldBe Some(tweet.author)
+      repo.getAuthorId(tweet.id) shouldBe Some(tweet.authorId)
     }
   }
 
@@ -75,7 +75,7 @@ class LocalTweetRepositorySpec extends AnyWordSpec with Matchers {
       )
       val repo = LocalTweetRepository.create[CatsId](state)
       val pagination = TweetPagination.default
-      repo.listBy(tweet.author, pagination) shouldBe List(tweet, earlierTweetFromSameAuthor)
+      repo.listBy(tweet.authorId, pagination) shouldBe List(tweet, earlierTweetFromSameAuthor)
     }
   }
 }

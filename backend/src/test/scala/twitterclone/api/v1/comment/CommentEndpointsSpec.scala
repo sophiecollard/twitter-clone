@@ -53,7 +53,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
 
         private val comment = response.decodeBodyAs[Comment].unsafeRunSync().value
 
-        comment.author shouldBe userId
+        comment.authorId shouldBe userId
         comment.tweetId shouldBe tweetId
         comment.contents shouldBe requestBody.contents
         repoState.get(comment.id) shouldBe Some(comment)
@@ -96,7 +96,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
         private val request = Request[IO](
           method = Method.DELETE,
           uri = Uri.unsafeFromString(s"/${comment.id.value.toString}"),
-          headers = Headers(Header.Raw(CIString("x-user-id"), comment.author.value.toString))
+          headers = Headers(Header.Raw(CIString("x-user-id"), comment.authorId.value.toString))
         )
 
         private val response = endpoints

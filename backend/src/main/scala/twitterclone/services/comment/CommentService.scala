@@ -40,7 +40,7 @@ object CommentService {
       override def create(tweetId: Id[Tweet], contents: String)(userId: Id[User]): F[ServiceErrorOr[Comment]] = {
         val comment = Comment (
           id = Id.random[Comment],
-          author = userId,
+          authorId = userId,
           tweetId,
           contents,
           postedOn = LocalDateTime.now(ZoneId.of("UTC"))

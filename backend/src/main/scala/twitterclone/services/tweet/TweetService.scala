@@ -28,7 +28,7 @@ trait TweetService[F[_]] {
   def list(pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
 
   /** Fetches tweets from a given author */
-  def listBy(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
+  def listBy(authorId: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
 
 }
 
@@ -43,7 +43,7 @@ object TweetService {
       override def create(contents: String)(userId: Id[User]): F[ServiceErrorOr[Tweet]] = {
         val tweet = Tweet(
           id = Id.random[Tweet],
-          author = userId,
+          authorId = userId,
           contents,
           postedOn = LocalDateTime.now(ZoneId.of("UTC"))
         )
@@ -77,9 +77,9 @@ object TweetService {
           .transact
 
       /** Fetches tweets from a given author */
-      override def listBy(author: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
+      override def listBy(authorId: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
         tweetRepository
-          .listBy(author, pagination)
+          .listBy(authorId, pagination)
           .map(_.asRight[ServiceError])
           .transact
     }

@@ -17,9 +17,6 @@ trait UserService[F[_]] {
   /** Fetches a user */
   def get(id: Id[User]): F[ServiceErrorOr[User]]
 
-  /** Fetches a list of users */
-  def getMany(ids: List[Id[User]]): F[ServiceErrorOr[List[User]]]
-
   /** Fetches a user by its handle */
   def getByHandle(handle: Handle.Value): F[ServiceErrorOr[User]]
 
@@ -59,21 +56,6 @@ object UserService {
           case Some(user) => Right(user)
           case None       => Left(resourceNotFound(id, "User"))
         }.transact
-
-      /** Fetches a list of users */
-      override def getMany(ids: List[Id[User]]): F[ServiceErrorOr[List[User]]] =
-        userRepository
-          .getMany(ids)
-          .map { users =>
-            val returnedUserIds = users.map(_.id)
-            if (ids.forall(returnedUserIds contains _)) {
-              Right(users)
-            } else {
-              val missingUserIds = ids.filterNot(returnedUserIds contains _)
-              Left(resourcesNotFound(missingUserIds, "User"))
-            }
-          }
-          .transact
 
       /** Fetches a user by its handle */
       override def getByHandle(handle: Handle.Value): F[ServiceErrorOr[User]] =

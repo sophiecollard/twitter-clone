@@ -17,6 +17,8 @@ trait CommentRepository[F[_]] {
 
   def list(tweetId: Id[Tweet], pagination: CommentPagination): F[List[Comment]]
 
+  def listBy(authorId: Id[User], pagination: CommentPagination): F[List[Comment]]
+
 }
 
 object CommentRepository {
@@ -37,6 +39,9 @@ object CommentRepository {
 
       override def list(tweetId: Id[Tweet], pagination: CommentPagination): G[List[Comment]] =
         repo.list(tweetId, pagination).transact
+
+      override def listBy(authorId: Id[User], pagination: CommentPagination): G[List[Comment]] =
+        repo.listBy(authorId, pagination).transact
     }
 
 }

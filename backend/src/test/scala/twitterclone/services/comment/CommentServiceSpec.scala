@@ -26,7 +26,7 @@ class CommentServiceSpec extends AnyWordSpec with Matchers {
         "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
 
       withNoServiceError(service.create(tweetId, contents)(userId)) { comment =>
-        comment.author shouldBe userId
+        comment.authorId shouldBe userId
         comment.tweetId shouldBe tweetId
         comment.contents shouldBe contents
         repoState.get(comment.id) shouldBe Some(comment)
@@ -40,7 +40,7 @@ class CommentServiceSpec extends AnyWordSpec with Matchers {
         private val repoState = TrieMap.from((comment.id, comment) :: Nil)
         private val service = newService(repoState)
 
-        withSuccessfulAuthorization(service.delete(comment.id)(comment.author)) {
+        withSuccessfulAuthorization(service.delete(comment.id)(comment.authorId)) {
           withNoServiceError(_) { _ =>
             repoState.get(comment.id) shouldBe None
           }

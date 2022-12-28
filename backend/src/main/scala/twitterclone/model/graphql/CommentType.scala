@@ -17,9 +17,9 @@ object CommentType {
           resolve = _.value.id.value
         ),
         Field(
-          name = "author",
+          name = "authorId",
           fieldType = UUIDType,
-          resolve = _.value.author.value
+          resolve = _.value.authorId.value
         ),
         Field(
           name = "tweetId",
@@ -41,6 +41,13 @@ object CommentType {
           fieldType = OptionType(TweetType[F]),
           resolve = { context =>
             DeferredType.TweetById(context.value.tweetId)
+          }
+        ),
+        Field(
+          name = "author",
+          fieldType = OptionType(UserType[F]),
+          resolve = { context =>
+            DeferredType.UserById(context.value.authorId)
           }
         )
       )

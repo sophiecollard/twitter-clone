@@ -25,7 +25,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
 
       withNoServiceError(service.create(contents)(userId)) { tweet =>
-        tweet.author shouldBe userId
+        tweet.authorId shouldBe userId
         tweet.contents shouldBe contents
         repoState.get(tweet.id) shouldBe Some(tweet)
       }
@@ -38,7 +38,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
         private val service = newService(repoState)
 
-        withSuccessfulAuthorization(service.delete(tweet.id)(tweet.author)) {
+        withSuccessfulAuthorization(service.delete(tweet.id)(tweet.authorId)) {
           withNoServiceError(_) { _ =>
             repoState.get(tweet.id) shouldBe None
           }
@@ -147,7 +147,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
             (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
 
-        withNoServiceError(service.listBy(tweet.author)) { tweets =>
+        withNoServiceError(service.listBy(tweet.authorId)) { tweets =>
           tweets.size shouldBe 2
           tweets should contain theSameElementsAs List(tweet, earlierTweetFromSameAuthor)
           tweets should not contain tweetFromAnotherAuthor
@@ -162,7 +162,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val service = newService(repoState)
         private val pagination = TweetPagination(pageSize = 1, postedBefore = None)
 
-        withNoServiceError(service.listBy(tweet.author, pagination)) { tweets =>
+        withNoServiceError(service.listBy(tweet.authorId, pagination)) { tweets =>
           tweets.size shouldBe 1
           tweets should contain (tweet)
         }
@@ -176,7 +176,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
         private val service = newService(repoState)
         private val pagination = TweetPagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
 
-        withNoServiceError(service.listBy(tweet.author, pagination)) { tweets =>
+        withNoServiceError(service.listBy(tweet.authorId, pagination)) { tweets =>
           tweets.size shouldBe 1
           tweets should contain (earlierTweetFromSameAuthor)
           tweets should not contain tweet
