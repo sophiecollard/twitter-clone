@@ -6,7 +6,6 @@ import doobie.postgres.implicits._
 import doobie.refined.implicits._
 import twitterclone.model.Id
 import twitterclone.model.user.Handle
-//import twitterclone.model.user.Handle.meta
 import twitterclone.model.user.Name.meta
 import twitterclone.model.user.User
 import twitterclone.repositories.domain.UserRepository
