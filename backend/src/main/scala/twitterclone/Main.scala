@@ -3,12 +3,13 @@ package twitterclone
 import cats.arrow.FunctionK
 import cats.effect.unsafe.IORuntime
 import cats.effect.{ExitCode, IO, IOApp}
+import cats.implicits._
 import doobie.ConnectionIO
 import fs2.Stream
 import org.http4s.server.ServerBuilder
 import twitterclone.api.Server
 import twitterclone.api.authentication.dummyAuthMiddleware
-import twitterclone.config.Config
+import twitterclone.config.{Config, PostgresConfig}
 import twitterclone.instances.ioTransactor
 import repositories.interpreters.postgres.{PostgresCommentRepository, PostgresTweetRepository, PostgresUserRepository, utils => postgresUtils}
 import twitterclone.api.graphql.GraphQLEndpoint
@@ -35,16 +36,16 @@ object Main extends IOApp {
     val stream: Stream[IO, ExitCode] = for {
       config <- Stream.eval(Config.configValue.load[IO])
       _ = println(s"Loaded application configuration: $config")
-      serverBuilder = config match {
+      serverBuilder <- Stream.eval(config match {
         case c: Config.Local => localServerBuilder(c)
         case c: Config.Production => productionServerBuilder(c)
-      }
+      })
       _ <- serverBuilder.serve
     } yield ExitCode.Success
     stream.compile.last.map(_.getOrElse(ExitCode.Error))
   }
 
-  private def localServerBuilder(config: Config.Local): ServerBuilder[IO] = {
+  private def localServerBuilder(config: Config.Local): IO[ServerBuilder[IO]] = {
     val commentRepository = LocalCommentRepository.create[IO]()
     val commentAuthService = services.comment.auth.byAuthor(commentRepository)
     val commentService = CommentService.create(commentRepository, commentAuthService)
@@ -70,10 +71,10 @@ object Main extends IOApp {
       v2TweetEndpoints,
       v2SwaggerDocsEndpoints,
       graphQLEndpoint
-    )
+    ).pure[IO]
   }
 
-  private def productionServerBuilder(config: Config.Production): ServerBuilder[IO] = {
+  private def productionServerBuilder(config: Config.Production): IO[ServerBuilder[IO]] = {
     implicit val ior: IORuntime = IORuntime.global
     implicit val ec: ExecutionContext = ior.compute
     val xa = postgresUtils.getTransactor[IO](config.postgres)
@@ -102,16 +103,28 @@ object Main extends IOApp {
       deferredResolver = GraphQLDeferredResolver.apply
     )
     val graphQLEndpoint = GraphQLEndpoint(graphQLService)
-    Server.builder(
-      config.server,
-      v1CommentEndpoints,
-      v1TweetEndpoints,
-      v2CommentEndpoints,
-      v2TweetEndpoints,
-      v2SwaggerDocsEndpoints,
-      graphQLEndpoint
-    )
+
+    runMigrations(config.postgres).map { _ =>
+      Server.builder(
+        config.server,
+        v1CommentEndpoints,
+        v1TweetEndpoints,
+        v2CommentEndpoints,
+        v2TweetEndpoints,
+        v2SwaggerDocsEndpoints,
+        graphQLEndpoint
+      )
+    }
   }
+
+  private def runMigrations(postgresConfig: PostgresConfig): IO[Unit] =
+    postgresUtils.runMigrations[IO](postgresConfig).flatMap { migrateResult =>
+      if (migrateResult.success)
+        IO.delay(println(s"INFO Successfully ran ${migrateResult.migrationsExecuted} migrations"))
+      else
+        // TODO Abort service start if a migration fails
+        IO.delay(println("ERROR Failed to execute migrations"))
+    }
 
   private val testUser: User =
     User(

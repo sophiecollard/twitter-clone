@@ -14,6 +14,7 @@ import twitterclone.model.{Id, Tweet, TweetPagination}
 import twitterclone.repositories.domain.TweetRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 import twitterclone.repositories.interpreters.postgres.testinstances._
+import twitterclone.repositories.interpreters.postgres.utils.runMigrations
 
 class PostgresTweetRepositorySpec
   extends AnyWordSpec
@@ -72,7 +73,7 @@ class PostgresTweetRepositorySpec
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    createTable.unsafe
+    runMigrations[IO](postgresConfig).unsafeRunSync()
     ()
   }
 
@@ -93,14 +94,6 @@ trait PostgresTweetRepositorySetup {
   implicit val xa: Transactor[IO] = utils.getTransactor[IO](postgresConfig)
 
   val repo: TweetRepository[ConnectionIO] = PostgresTweetRepository.create
-
-  def createTable: ConnectionIO[Int] =
-    sql"""CREATE TABLE IF NOT EXISTS tweets (
-         |  id        TEXT PRIMARY KEY,
-         |  author_id TEXT NOT NULL,
-         |  contents  TEXT NOT NULL,
-         |  posted_on TIMESTAMP NOT NULL
-         |);""".stripMargin.update.run
 
   def truncateTable: ConnectionIO[Int] =
     sql"""TRUNCATE tweets;""".update.run

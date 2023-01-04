@@ -14,6 +14,7 @@ import twitterclone.model.{Comment, CommentPagination, Id}
 import twitterclone.repositories.domain.CommentRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 import twitterclone.repositories.interpreters.postgres.testinstances._
+import twitterclone.repositories.interpreters.postgres.utils.runMigrations
 
 class PostgresCommentRepositorySpec
   extends AnyWordSpec
@@ -64,7 +65,7 @@ class PostgresCommentRepositorySpec
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    createTable.unsafe
+    runMigrations[IO](postgresConfig).unsafeRunSync()
     ()
   }
 
@@ -85,15 +86,6 @@ trait PostgresCommentRepositorySetup {
   implicit val xa: Transactor[IO] = utils.getTransactor[IO](postgresConfig)
 
   val repo: CommentRepository[ConnectionIO] = PostgresCommentRepository.create
-
-  def createTable: ConnectionIO[Int] =
-    sql"""CREATE TABLE IF NOT EXISTS comments (
-          |  id        TEXT PRIMARY KEY,
-          |  author_id TEXT NOT NULL,
-          |  tweet_id  TEXT NOT NULL,
-          |  contents  TEXT NOT NULL,
-          |  posted_on TIMESTAMP NOT NULL
-          |);""".stripMargin.update.run
 
   def truncateTable: ConnectionIO[Int] =
     sql"""TRUNCATE comments;""".update.run
