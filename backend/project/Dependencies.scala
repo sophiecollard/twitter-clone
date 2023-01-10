@@ -8,6 +8,7 @@ object Dependencies {
   private val cirisVersion = "2.3.3"
   private val doobieVersion = "1.0.0-RC2"
   private val enumeratumVersion = "1.7.2"
+  private val flywayVersion = "9.10.1"
   private val http4sVersion = "0.23.12"
   private val http4sJettyServerVersion = "0.23.10"
   private val refinedVersion = "0.10.1"
@@ -43,6 +44,10 @@ object Dependencies {
     "com.beachape" %% "enumeratum-circe",
     "com.beachape" %% "enumeratum-doobie"
   ).map(_ % enumeratumVersion)
+
+  private val flyway = List(
+    "org.flywaydb" % "flyway-core"
+  ).map(_ % flywayVersion)
 
   private val http4s = List(
     "org.http4s" %% "http4s-circe",
@@ -82,6 +87,7 @@ object Dependencies {
       ciris ++
       doobie ++
       enumeratum ++
+      flyway ++
       http4s ++
       http4sJettyServer ++
       sangria ++
