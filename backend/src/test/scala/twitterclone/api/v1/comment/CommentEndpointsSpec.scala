@@ -186,7 +186,7 @@ class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
 
       private val request = Request[IO](
         method = Method.GET,
-        uri = Uri.unsafeFromString(s"/?tweet-id=${comment.tweetId.value.toString}")
+        uri = Uri.unsafeFromString(s"/?tweet_id=${comment.tweetId.value.toString}")
       )
 
       private val response = endpoints
