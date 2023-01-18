@@ -13,22 +13,25 @@ object Name {
   type Predicate = MatchesRegex[W.`"^[a-zA-Z0-9-_ ]{1,36}$"`.T]
   type Value = String Refined Predicate
 
+  def apply(value: Value): Value =
+    value
+
   def fromString(value: String): Either[String, Value] =
     refineV[Predicate](value)
 
-  def unsafeFromString(value: String): Value =
+  private def unsafeFromString(value: String): Value =
     fromString(value) match {
       case Right(name) => name
       case Left(error) => throw new IllegalArgumentException(error)
     }
+
+  implicit val meta: Meta[Value] =
+    Meta.StringMeta.imap(unsafeFromString)(_.value)
 
   implicit val encoder: Encoder[Value] =
     Encoder.encodeString.contramap(_.value)
 
   implicit val decoder: Decoder[Value] =
     Decoder.decodeString.emap(fromString)
-
-  implicit val meta: Meta[Value] =
-    Meta.StringMeta.imap(unsafeFromString)(_.value)
 
 }

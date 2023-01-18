@@ -1,6 +1,7 @@
 package twitterclone.services.user
 
 import cats.{Id => CatsId}
+import eu.timepit.refined.auto._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.fixtures.user._
@@ -19,8 +20,8 @@ class UserServiceSpec extends AnyWordSpec with Matchers {
       "create and return a new user with status 'PendingActivation'" in new Fixtures {
         private val repoState = TrieMap.empty[Id[User], User]
         private val service = newService(repoState)
-        private val handle = Handle.unsafeFromString("anna")
-        private val name = Name.unsafeFromString("Anna11")
+        private val handle = Handle("anna")
+        private val name = Name("Anna11")
 
         withNoServiceError(service.create(handle, name)) { returnedUser =>
           returnedUser.handle.value shouldBe "anna"
@@ -34,7 +35,7 @@ class UserServiceSpec extends AnyWordSpec with Matchers {
       "return an error" in new Fixtures {
         private val repoState = TrieMap.from((activeUser.id, activeUser) :: Nil)
         private val service = newService(repoState)
-        private val name = Name.unsafeFromString("Anna11")
+        private val name = Name("Anna11")
 
         withServiceError(service.create(activeUser.handle, name)) { error =>
           error shouldBe UserHandleAlreadyExists(activeUser.handle)
@@ -84,7 +85,7 @@ class UserServiceSpec extends AnyWordSpec with Matchers {
       "return an error" in new Fixtures {
         private val repoState = TrieMap.from((activeUser.id, activeUser) :: Nil)
         private val service = newService(repoState)
-        private val unknownUserHandle = Handle.unsafeFromString("martin")
+        private val unknownUserHandle = Handle("martin")
 
         withServiceError(service.getByHandle(unknownUserHandle)) { error =>
           error shouldBe UserHandleNotFound(unknownUserHandle)

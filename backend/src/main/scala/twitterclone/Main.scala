@@ -5,6 +5,7 @@ import cats.effect.unsafe.IORuntime
 import cats.effect.{ExitCode, IO, IOApp}
 import cats.implicits._
 import doobie.ConnectionIO
+import eu.timepit.refined.auto._
 import fs2.Stream
 import org.http4s.server.ServerBuilder
 import twitterclone.api.Server
@@ -129,8 +130,8 @@ object Main extends IOApp {
   private val testUser: User =
     User(
       id = Id[User](UUID.fromString("0b73e653-5f82-46cd-a232-0166d83ce531")),
-      handle = Handle.unsafeFromString("test_user"),
-      name = Name.unsafeFromString("Test User"),
+      handle = Handle("test_user"),
+      name = Name("Test User"),
       status = Status.Active
     )
 
