@@ -13,14 +13,14 @@ import twitterclone.model.user.User
 import twitterclone.model.{CommentPagination, Id}
 import twitterclone.services.comment.CommentService
 
-final case class CommentEndpoints[F[_]](httpRoutes: HttpRoutes[F])
+final case class CommentApiEndpoints[F[_]](httpRoutes: HttpRoutes[F])
 
-object CommentEndpoints {
+object CommentApiEndpoints {
 
-  def create[F[_]: Concurrent](
+  def apply[F[_]: Concurrent](
     authMiddleware: AuthMiddleware[F, Id[User]],
     service: CommentService[F]
-  ): CommentEndpoints[F] = {
+  ): CommentApiEndpoints[F] = {
     object dsl extends Http4sDsl[F]
     import dsl._
 
@@ -61,7 +61,7 @@ object CommentEndpoints {
         }
     }
 
-    CommentEndpoints(publicRoutes <+> authMiddleware(privateRoutes))
+    CommentApiEndpoints(publicRoutes <+> authMiddleware(privateRoutes))
   }
 
 }

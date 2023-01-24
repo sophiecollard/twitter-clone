@@ -6,24 +6,24 @@ import org.http4s.HttpRoutes
 import sttp.tapir.server.ServerEndpoint
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import twitterclone.api.error.ApiError
-import twitterclone.api.v2.domain.TweetEndpoints
+import twitterclone.api.v2.domain.TweetApiEndpoints
 import twitterclone.services.tweet.TweetService
 
-final case class Http4sTweetEndpoints[F[_]](httpRoutes: HttpRoutes[F])
+final case class Http4sTweetApiEndpoints[F[_]](httpRoutes: HttpRoutes[F])
 
-object Http4sTweetEndpoints {
+object Http4sTweetApiEndpoints {
 
-  def create[F[_] : Async](tweetService: TweetService[F]): Http4sTweetEndpoints[F] = {
+  def apply[F[_] : Async](tweetService: TweetService[F]): Http4sTweetApiEndpoints[F] = {
 
     val getTweetEndpoint: ServerEndpoint[Any, F] =
-      TweetEndpoints
+      TweetApiEndpoints
         .getTweetEndpoint
         .serverLogic(id => tweetService.get(id).map(_.leftMap(ApiError.fromServiceError)))
 
     val publicRoutes: HttpRoutes[F] =
       Http4sServerInterpreter[F]().toRoutes(getTweetEndpoint :: Nil)
 
-    Http4sTweetEndpoints(publicRoutes)
+    Http4sTweetApiEndpoints(publicRoutes)
   }
 
 }

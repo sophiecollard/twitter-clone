@@ -11,7 +11,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.typelevel.ci.CIString
 import twitterclone.api.authentication.dummyAuthMiddleware
-import twitterclone.api.v1.tweet.{PostTweetRequest, TweetEndpoints}
+import twitterclone.api.v1.tweet.{PostTweetRequest, TweetApiEndpoints}
 import twitterclone.fixtures.tweet._
 import twitterclone.instances.ioTransactor
 import twitterclone.model.user.User
@@ -23,7 +23,7 @@ import twitterclone.testsyntax.{CirceEntityDecoderOps, CirceEntityEncoderOps}
 
 import scala.collection.concurrent.TrieMap
 
-class TweetEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
+class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
   "The POST /tweets endpoint" when {
     "the user is authenticated" should {
       "create and return a new tweet" in new Fixtures {
@@ -232,11 +232,11 @@ trait Fixtures {
 
   val authMiddleware: AuthMiddleware[IO, Id[User]] = dummyAuthMiddleware
 
-  def newEndpoints(repoState: TrieMap[Id[Tweet], Tweet]): TweetEndpoints[IO] = {
+  def newEndpoints(repoState: TrieMap[Id[Tweet], Tweet]): TweetApiEndpoints[IO] = {
     val tweetRepository = LocalTweetRepository.create[IO](repoState)
     val authByAuthorService = byAuthor(tweetRepository)
     val tweetService = TweetService.create[IO, IO](tweetRepository, authByAuthorService)
-    TweetEndpoints.create(dummyAuthMiddleware[IO], tweetService)
+    TweetApiEndpoints(dummyAuthMiddleware[IO], tweetService)
   }
 
   implicit val newTweetRequestBodyEncoder: Encoder[PostTweetRequest] =

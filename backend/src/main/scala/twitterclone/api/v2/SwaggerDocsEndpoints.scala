@@ -7,16 +7,16 @@ import sttp.tapir.AnyEndpoint
 import sttp.tapir.server.ServerEndpoint
 import sttp.tapir.server.http4s.Http4sServerInterpreter
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
-import twitterclone.api.v2.domain.{CommentEndpoints, TweetEndpoints}
+import twitterclone.api.v2.domain.{CommentApiEndpoints, TweetApiEndpoints}
 
 final case class SwaggerDocsEndpoints[F[_]](httpRoutes: HttpRoutes[F])
 
 object SwaggerDocsEndpoints {
 
-  def create[F[_]: Async]: SwaggerDocsEndpoints[F] = {
+  def apply[F[_]: Async]: SwaggerDocsEndpoints[F] = {
 
     val allEndpoints: List[AnyEndpoint] =
-      CommentEndpoints.allEndpoints ++ TweetEndpoints.allTweetEndpoints
+      CommentApiEndpoints.allEndpoints ++ TweetApiEndpoints.allTweetEndpoints
 
     val customiseDocsModel: OpenAPI => OpenAPI = { openApi =>
       val prefixedPathItems = openApi.paths.pathItems.map { case (key, value) =>

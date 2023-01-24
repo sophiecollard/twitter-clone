@@ -13,14 +13,14 @@ import twitterclone.model.user.User
 import twitterclone.model.{Id, TweetPagination}
 import twitterclone.services.tweet.TweetService
 
-final case class TweetEndpoints[F[_]](httpRoutes: HttpRoutes[F])
+final case class TweetApiEndpoints[F[_]](httpRoutes: HttpRoutes[F])
 
-object TweetEndpoints {
+object TweetApiEndpoints {
 
-  def create[F[_]: Concurrent](
+  def apply[F[_]: Concurrent](
     authMiddleware: AuthMiddleware[F, Id[User]],
     service: TweetService[F]
-  ): TweetEndpoints[F] = {
+  ): TweetApiEndpoints[F] = {
     object dsl extends Http4sDsl[F]
     import dsl._
 
@@ -69,7 +69,7 @@ object TweetEndpoints {
         }
     }
 
-    TweetEndpoints(publicRoutes <+> authMiddleware(privateRoutes))
+    TweetApiEndpoints(publicRoutes <+> authMiddleware(privateRoutes))
   }
 
 }

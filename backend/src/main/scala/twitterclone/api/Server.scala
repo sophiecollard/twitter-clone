@@ -7,10 +7,10 @@ import org.http4s.jetty.server.JettyBuilder
 import org.http4s.server.{DefaultServiceErrorHandler, Router, ServerBuilder}
 import org.http4s.{Http, HttpRoutes}
 import twitterclone.api.graphql.GraphQLEndpoint
-import twitterclone.api.v1.comment.CommentEndpoints
-import twitterclone.api.v1.tweet.TweetEndpoints
+import twitterclone.api.v1.comment.CommentApiEndpoints
+import twitterclone.api.v1.tweet.TweetApiEndpoints
 import twitterclone.api.v2.SwaggerDocsEndpoints
-import twitterclone.api.v2.interpreters.{Http4sCommentEndpoints, Http4sTweetEndpoints}
+import twitterclone.api.v2.interpreters.{Http4sCommentApiEndpoints, Http4sTweetApiEndpoints}
 import twitterclone.config.ServerConfig
 
 import scala.concurrent.duration._
@@ -19,10 +19,10 @@ object Server {
 
   def builder[F[_]: Async](
     config: ServerConfig,
-    v1CommentEndpoints: CommentEndpoints[F],
-    v1TweetEndpoints: TweetEndpoints[F],
-    v2CommentEnpoints: Http4sCommentEndpoints[F],
-    v2TweetEndpoints: Http4sTweetEndpoints[F],
+    v1CommentApiEndpoints: CommentApiEndpoints[F],
+    v1TweetApiEndpoints: TweetApiEndpoints[F],
+    v2CommentApiEndpoints: Http4sCommentApiEndpoints[F],
+    v2TweetApiEndpoints: Http4sTweetApiEndpoints[F],
     v2SwaggerDocsEndpoints: SwaggerDocsEndpoints[F],
     graphQLEndpoint: GraphQLEndpoint[F]
   ): ServerBuilder[F] = {
@@ -31,10 +31,10 @@ object Server {
 
     val httpApp: Http[F, F] = Router[F](mappings =
       "/api/ping" -> HttpRoutes.of[F] { case GET -> Root => Ok("pong") },
-      "/api/v1/comments" -> v1CommentEndpoints.httpRoutes,
-      "/api/v1/tweets" -> v1TweetEndpoints.httpRoutes,
-      "/api/v2" -> v2CommentEnpoints.httpRoutes,
-      "/api/v2" -> v2TweetEndpoints.httpRoutes,
+      "/api/v1/comments" -> v1CommentApiEndpoints.httpRoutes,
+      "/api/v1/tweets" -> v1TweetApiEndpoints.httpRoutes,
+      "/api/v2" -> v2CommentApiEndpoints.httpRoutes,
+      "/api/v2" -> v2TweetApiEndpoints.httpRoutes,
       "/api/v2" -> v2SwaggerDocsEndpoints.httpRoutes,
       "/api/graphql" -> graphQLEndpoint.httpRoutes
     ).orNotFound

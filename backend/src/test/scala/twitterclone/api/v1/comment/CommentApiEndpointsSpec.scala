@@ -11,7 +11,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.typelevel.ci.CIString
 import twitterclone.api.authentication.dummyAuthMiddleware
-import twitterclone.api.v1.comment.{CommentEndpoints, PostCommentRequest}
+import twitterclone.api.v1.comment.{CommentApiEndpoints, PostCommentRequest}
 import twitterclone.fixtures.comment._
 import twitterclone.instances.ioTransactor
 import twitterclone.model.user.User
@@ -23,7 +23,7 @@ import twitterclone.testsyntax.{CirceEntityDecoderOps, CirceEntityEncoderOps}
 
 import scala.collection.concurrent.TrieMap
 
-class CommentEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
+class CommentApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
   "The POST /comments endpoint" when {
     "the user is authenticated" should {
       "create and return a new comment" in new Fixtures {
@@ -210,11 +210,11 @@ trait Fixtures {
 
   val authMiddleware: AuthMiddleware[IO, Id[User]] = dummyAuthMiddleware
 
-  def newEndpoints(repoState: TrieMap[Id[Comment], Comment]): CommentEndpoints[IO] = {
+  def newEndpoints(repoState: TrieMap[Id[Comment], Comment]): CommentApiEndpoints[IO] = {
     val commentRepository = LocalCommentRepository.create[IO](repoState)
     val authByAuthorService = byAuthor(commentRepository)
     val commentService = CommentService.create[IO, IO](commentRepository, authByAuthorService)
-    CommentEndpoints.create(dummyAuthMiddleware[IO], commentService)
+    CommentApiEndpoints(dummyAuthMiddleware[IO], commentService)
   }
 
   implicit val newCommentRequestBodyEncoder: Encoder[PostCommentRequest] =

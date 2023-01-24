@@ -7,7 +7,7 @@ import instances.commentIdCodec
 import twitterclone.api.error.ApiError
 import twitterclone.model.{Comment, Id}
 
-object CommentEndpoints {
+object CommentApiEndpoints {
 
   lazy val getCommentEndpoint: PublicEndpoint[Id[Comment], ApiError, Comment, Any] =
     endpoint.get

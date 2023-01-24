@@ -7,7 +7,7 @@ import instances.tweetIdCodec
 import twitterclone.api.error.ApiError
 import twitterclone.model.{Id, Tweet}
 
-object TweetEndpoints {
+object TweetApiEndpoints {
 
   lazy val getTweetEndpoint: PublicEndpoint[Id[Tweet], ApiError, Tweet, Any] =
     endpoint.get
