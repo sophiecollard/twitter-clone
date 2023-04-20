@@ -7,6 +7,7 @@ import io.circe.{Decoder, Encoder, Json}
 import org.http4s.Response
 import org.http4s.circe.CirceEntityEncoder._
 import org.http4s.dsl.Http4sDsl
+import twitterclone.auth.error.AuthorizationError
 import twitterclone.services.error.ServiceError
 
 object error {
@@ -17,6 +18,8 @@ object error {
       import dsl._
 
       this match {
+        case error @ ApiError.Forbidden(_) =>
+          Forbidden(error.responseBody)
         case error @ ApiError.FailedToCreateResource(_) =>
           InternalServerError(error.responseBody)
         case error @ ApiError.FailedToDeleteResource(_) =>
@@ -36,6 +39,14 @@ object error {
   }
 
   object ApiError {
+
+    final case class Forbidden(message: String) extends ApiError(
+      responseBody = ErrorResponseBody(
+        code = Code("forbidden"),
+        message = Message(message),
+        help = None
+      )
+    )
 
     final case class FailedToCreateResource(resourceName: String) extends ApiError(
       responseBody = ErrorResponseBody(
@@ -88,6 +99,14 @@ object error {
         message = Message("An unexpected server error occurred.")
       )
     )
+
+    def fromAuthorizationError(authError: AuthorizationError): ApiError =
+      authError match {
+        case AuthorizationError.NotTheCommentsAuthor(userId, commentId) =>
+          Forbidden(s"User with ID [$userId] is not the author of Comment with ID [$commentId]")
+        case AuthorizationError.NotTheTweetsAuthor(userId, tweetId) =>
+          Forbidden(s"User with ID [$userId] is not the author of Tweet with ID [$tweetId]")
+      }
 
     def fromServiceError(serviceError: ServiceError): ApiError =
       serviceError match {

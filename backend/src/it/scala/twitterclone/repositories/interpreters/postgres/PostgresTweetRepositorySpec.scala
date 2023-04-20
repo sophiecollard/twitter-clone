@@ -10,7 +10,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.config.PostgresConfig
 import twitterclone.fixtures.tweet._
-import twitterclone.model.{Id, Tweet, TweetPagination}
+import twitterclone.model.{Id, Tweet, Pagination}
 import twitterclone.repositories.domain.TweetRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 import twitterclone.repositories.interpreters.postgres.testinstances._
@@ -59,7 +59,7 @@ class PostgresTweetRepositorySpec
   "The list method" should {
     "list tweets by decreasing 'postedOn' date" in {
       insertMany(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor).unsafe
-      repo.list(TweetPagination.default).unsafe shouldBe
+      repo.list(Pagination.default).unsafe shouldBe
         List(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor)
     }
   }
@@ -67,7 +67,7 @@ class PostgresTweetRepositorySpec
   "The listBy method" should {
     "list tweets by a given author by decreasing 'postedOn' timestamp" in {
       insertMany(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor).unsafe
-      repo.listBy(tweet.authorId, TweetPagination.default).unsafe shouldBe List(tweet, earlierTweetFromSameAuthor)
+      repo.listBy(tweet.authorId, Pagination.default).unsafe shouldBe List(tweet, earlierTweetFromSameAuthor)
     }
   }
 

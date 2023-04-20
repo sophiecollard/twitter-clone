@@ -1,22 +1,41 @@
 package twitterclone.api.v2.domain
 
+import instances.commentIdCodec
+import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.generic.auto._
 import sttp.tapir.json.circe.jsonBody
-import instances.commentIdCodec
 import twitterclone.api.error.ApiError
+import twitterclone.api.model.PostCommentRequest
+import twitterclone.model.user.User
 import twitterclone.model.{Comment, Id}
 
 object CommentApiEndpoints {
 
+  lazy val postCommentEndpoint: Endpoint[Id[User], PostCommentRequest, ApiError, Comment, Any] =
+    endpoint.post
+      .securityIn(header[Id[User]]("x-user-id"))
+      .in("comments")
+      .in(jsonBody[PostCommentRequest])
+      .out(jsonBody[Comment] and statusCode(StatusCode.Created))
+      .errorOut(jsonBody[ApiError])
+      .description("Post a new comment")
+
+  lazy val deleteCommentEndpoint: Endpoint[Id[User], Id[Comment], ApiError, Unit, Any] =
+    endpoint.delete
+      .securityIn(header[Id[User]]("x-user-id"))
+      .in("comments" / path[Id[Comment]]("commentId"))
+      .errorOut(jsonBody[ApiError])
+      .description("Delete the comment with the specified ID")
+
   lazy val getCommentEndpoint: PublicEndpoint[Id[Comment], ApiError, Comment, Any] =
     endpoint.get
-      .in("comments" / path[Id[Comment]])
+      .in("comments" / path[Id[Comment]]("commentId"))
       .out(jsonBody[Comment])
       .errorOut(jsonBody[ApiError])
-      .description("Fetch a comment by its id")
+      .description("Fetch the comment with the specified ID")
 
   lazy val allEndpoints: List[AnyEndpoint] =
-    List(getCommentEndpoint).map(_.tag("Comments"))
+    List(postCommentEndpoint, deleteCommentEndpoint, getCommentEndpoint).map(_.tag("Comments"))
 
 }

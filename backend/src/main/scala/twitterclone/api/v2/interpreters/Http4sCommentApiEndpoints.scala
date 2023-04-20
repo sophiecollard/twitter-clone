@@ -15,13 +15,23 @@ object Http4sCommentApiEndpoints {
 
   def apply[F[_]: Async](commentService: CommentService[F]): Http4sCommentApiEndpoints[F] = {
 
+    val postCommentEndpoint: ServerEndpoint[Any, F] =
+      CommentApiEndpoints
+        .postCommentEndpoint
+        .serverSecurityLogicPure(_.asRight)
+        .serverLogic { userId => request =>
+          commentService
+            .create(tweetId = request.tweetId, request.contents)(userId)
+            .map(_.leftMap(ApiError.fromServiceError))
+        }
+
     val getCommentEndpoint: ServerEndpoint[Any, F] =
       CommentApiEndpoints
         .getCommentEndpoint
         .serverLogic(id => commentService.get(id).map(_.leftMap(ApiError.fromServiceError)))
 
     val publicRoutes: HttpRoutes[F] =
-      Http4sServerInterpreter[F]().toRoutes(getCommentEndpoint :: Nil)
+      Http4sServerInterpreter[F]().toRoutes(postCommentEndpoint :: getCommentEndpoint :: Nil)
 
     Http4sCommentApiEndpoints(publicRoutes)
   }

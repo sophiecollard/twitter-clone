@@ -4,7 +4,7 @@ import cats.{Monad, ~>}
 import cats.implicits._
 import twitterclone.auth.AuthorizationService
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet, TweetPagination}
+import twitterclone.model.{Id, Tweet, Pagination}
 import twitterclone.repositories.domain.TweetRepository
 import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}
 import twitterclone.services.error.{ServiceError, ServiceErrorOr}
@@ -25,10 +25,10 @@ trait TweetService[F[_]] {
   def get(id: Id[Tweet]): F[ServiceErrorOr[Tweet]]
 
   /** Fetches tweets from any author */
-  def list(pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
+  def list(pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]]
 
   /** Fetches tweets from a given author */
-  def listBy(authorId: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]]
+  def listBy(authorId: Id[User], pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]]
 
 }
 
@@ -70,14 +70,14 @@ object TweetService {
         }.transact
 
       /** Fetches tweets from any author */
-      override def list(pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
+      override def list(pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]] =
         tweetRepository
           .list(pagination)
           .map(_.asRight[ServiceError])
           .transact
 
       /** Fetches tweets from a given author */
-      override def listBy(authorId: Id[User], pagination: TweetPagination = TweetPagination.default): F[ServiceErrorOr[List[Tweet]]] =
+      override def listBy(authorId: Id[User], pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]] =
         tweetRepository
           .listBy(authorId, pagination)
           .map(_.asRight[ServiceError])

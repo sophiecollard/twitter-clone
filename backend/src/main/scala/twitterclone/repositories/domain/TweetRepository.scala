@@ -2,7 +2,7 @@ package twitterclone.repositories.domain
 
 import cats.~>
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet, TweetPagination}
+import twitterclone.model.{Id, Tweet, Pagination}
 import twitterclone.services.syntax.Transactable
 
 trait TweetRepository[F[_]] {
@@ -15,9 +15,9 @@ trait TweetRepository[F[_]] {
 
   def getAuthorId(id: Id[Tweet]): F[Option[Id[User]]]
 
-  def list(pagination: TweetPagination): F[List[Tweet]]
+  def list(pagination: Pagination): F[List[Tweet]]
 
-  def listBy(authorId: Id[User], pagination: TweetPagination): F[List[Tweet]]
+  def listBy(authorId: Id[User], pagination: Pagination): F[List[Tweet]]
 
 }
 
@@ -37,10 +37,10 @@ object TweetRepository {
       override def getAuthorId(id: Id[Tweet]): G[Option[Id[User]]] =
         repo.getAuthorId(id).transact
 
-      override def list(pagination: TweetPagination): G[List[Tweet]] =
+      override def list(pagination: Pagination): G[List[Tweet]] =
         repo.list(pagination).transact
 
-      override def listBy(authorId: Id[User], pagination: TweetPagination): G[List[Tweet]] =
+      override def listBy(authorId: Id[User], pagination: Pagination): G[List[Tweet]] =
         repo.listBy(authorId, pagination).transact
     }
 

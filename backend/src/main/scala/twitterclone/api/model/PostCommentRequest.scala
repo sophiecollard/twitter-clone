@@ -1,6 +1,6 @@
-package twitterclone.api.v1.comment
+package twitterclone.api.model
 
-import io.circe.Decoder
+import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto
 import twitterclone.model.{Id, Tweet}
 
@@ -10,6 +10,11 @@ final case class PostCommentRequest(
 )
 
 object PostCommentRequest {
+
   implicit val decoder: Decoder[PostCommentRequest] =
     semiauto.deriveDecoder
+
+  implicit val encoder: Encoder[PostCommentRequest] =
+    semiauto.deriveEncoder
+
 }

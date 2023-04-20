@@ -6,11 +6,12 @@ import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.AuthMiddleware
 import org.http4s.{AuthedRoutes, HttpRoutes}
+import twitterclone.api.model.PostCommentRequest
 import twitterclone.api.syntax._
 import twitterclone.api.v1.shared.extractors.CommentIdVar
 import twitterclone.api.v1.shared.matchers.{PageSizeOptionalQueryParamMatcher, PostedBeforeOptionalQueryParamMatcher, TweetIdQueryParamMatcher}
 import twitterclone.model.user.User
-import twitterclone.model.{CommentPagination, Id}
+import twitterclone.model.{Id, Pagination}
 import twitterclone.services.comment.CommentService
 
 final case class CommentApiEndpoints[F[_]](httpRoutes: HttpRoutes[F])
@@ -35,7 +36,7 @@ object CommentApiEndpoints {
         TweetIdQueryParamMatcher(tweetId) +&
           PageSizeOptionalQueryParamMatcher(pageSize) +&
           PostedBeforeOptionalQueryParamMatcher(postedBefore) =>
-            service.list(tweetId, CommentPagination(pageSize.getOrElse(10), postedBefore)).flatMap {
+            service.list(tweetId, Pagination(pageSize.getOrElse(10), postedBefore)).flatMap {
               withNoServiceError { comments =>
                 Ok(comments)
               }

@@ -4,7 +4,7 @@ import doobie.implicits._
 import doobie.implicits.javatimedrivernative._
 import doobie.{ConnectionIO, Query0, Update, Update0}
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet, TweetPagination}
+import twitterclone.model.{Id, Tweet, Pagination}
 import twitterclone.repositories.domain.TweetRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 
@@ -26,10 +26,10 @@ object PostgresTweetRepository {
     override def getAuthorId(id: Id[Tweet]): ConnectionIO[Option[Id[User]]] =
       getAuthorQuery(id).option
 
-    override def list(pagination: TweetPagination): ConnectionIO[List[Tweet]] =
+    override def list(pagination: Pagination): ConnectionIO[List[Tweet]] =
       listQuery(pagination).to[List]
 
-    override def listBy(authorId: Id[User], pagination: TweetPagination): ConnectionIO[List[Tweet]] =
+    override def listBy(authorId: Id[User], pagination: Pagination): ConnectionIO[List[Tweet]] =
       listByQuery(authorId, pagination).to[List]
   }
 
@@ -59,7 +59,7 @@ object PostgresTweetRepository {
          |WHERE id = $id
          |""".stripMargin.query[Id[User]]
 
-  private def listQuery(pagination: TweetPagination): Query0[Tweet] =
+  private def listQuery(pagination: Pagination): Query0[Tweet] =
     sql"""SELECT id, author_id, contents, posted_on
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
@@ -67,7 +67,7 @@ object PostgresTweetRepository {
          |LIMIT ${pagination.pageSize}
          |""".stripMargin.query[Tweet]
 
-  private def listByQuery(authorId: Id[User], pagination: TweetPagination): Query0[Tweet] =
+  private def listByQuery(authorId: Id[User], pagination: Pagination): Query0[Tweet] =
     sql"""SELECT id, author_id, contents, posted_on
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}

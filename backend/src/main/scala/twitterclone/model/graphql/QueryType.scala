@@ -3,7 +3,7 @@ package twitterclone.model.graphql
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
 import sangria.schema._
-import twitterclone.model.{Comment, CommentPagination, Id, Tweet, TweetPagination}
+import twitterclone.model.{Comment, Id, Pagination, Tweet}
 import twitterclone.model.graphql.arguments.{PageSizeArg, PostedBeforeArg, TweetIdArg, UUIDArg}
 import twitterclone.model.user.User
 import twitterclone.repositories.domain.AllRepositories
@@ -30,7 +30,7 @@ object QueryType {
           fieldType = ListType(TweetType[IO]),
           arguments = PageSizeArg :: PostedBeforeArg :: Nil,
           resolve = { context =>
-            val pagination = TweetPagination(
+            val pagination = Pagination(
               pageSize = (context arg PageSizeArg) getOrElse 20,
               postedBefore = context arg PostedBeforeArg
             )
@@ -54,7 +54,7 @@ object QueryType {
           arguments = TweetIdArg :: PageSizeArg :: PostedBeforeArg :: Nil,
           resolve = { context =>
             val tweetId = Id[Tweet](context arg TweetIdArg)
-            val pagination = CommentPagination(
+            val pagination = Pagination(
               pageSize = (context arg PageSizeArg) getOrElse 20,
               postedBefore = context arg PostedBeforeArg
             )

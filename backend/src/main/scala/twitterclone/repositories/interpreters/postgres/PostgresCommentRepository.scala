@@ -4,7 +4,7 @@ import doobie.implicits._
 import doobie.implicits.javatimedrivernative._
 import doobie.{ConnectionIO, Query0, Update, Update0}
 import twitterclone.model.user.User
-import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
+import twitterclone.model.{Comment, Id, Pagination, Tweet}
 import twitterclone.repositories.domain.CommentRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 
@@ -27,10 +27,10 @@ object PostgresCommentRepository {
       override def getAuthor(id: Id[Comment]): ConnectionIO[Option[Id[User]]] =
         getAuthorQuery(id).option
 
-      override def list(tweetId: Id[Tweet], pagination: CommentPagination): ConnectionIO[List[Comment]] =
+      override def list(tweetId: Id[Tweet], pagination: Pagination): ConnectionIO[List[Comment]] =
         listQuery(tweetId, pagination).to[List]
 
-      override def listBy(authorId: Id[User], pagination: CommentPagination): ConnectionIO[List[Comment]] =
+      override def listBy(authorId: Id[User], pagination: Pagination): ConnectionIO[List[Comment]] =
         listByQuery(authorId, pagination).to[List]
     }
 
@@ -60,7 +60,7 @@ object PostgresCommentRepository {
          |WHERE id = $id
          |""".stripMargin.query[Id[User]]
 
-  private def listQuery(tweetId: Id[Tweet], pagination: CommentPagination): Query0[Comment] =
+  private def listQuery(tweetId: Id[Tweet], pagination: Pagination): Query0[Comment] =
     sql"""SELECT id, author_id, tweet_id, contents, posted_on
           |FROM comments
           |WHERE tweet_id = $tweetId
@@ -69,7 +69,7 @@ object PostgresCommentRepository {
           |LIMIT ${pagination.pageSize}
           |""".stripMargin.query[Comment]
 
-  private def listByQuery(authorId: Id[User], pagination: CommentPagination): Query0[Comment] =
+  private def listByQuery(authorId: Id[User], pagination: Pagination): Query0[Comment] =
     sql"""SELECT id, author_id, tweet_id, contents, posted_on
          |FROM comments
          |WHERE author_id = $authorId

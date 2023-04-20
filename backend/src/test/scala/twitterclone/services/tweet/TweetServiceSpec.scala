@@ -6,7 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.auth.error.AuthorizationError.NotTheTweetsAuthor
 import twitterclone.fixtures.tweet._
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet, TweetPagination}
+import twitterclone.model.{Id, Tweet, Pagination}
 import twitterclone.repositories.interpreters.local.LocalTweetRepository
 import twitterclone.services.error.ServiceError.ResourceNotFound
 import twitterclone.services.tweet.auth.byAuthor
@@ -117,7 +117,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
           (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
           (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
       private val service = newService(repoState)
-      private val pagination = TweetPagination(pageSize = 1, postedBefore = None)
+      private val pagination = Pagination(pageSize = 1, postedBefore = None)
 
       withNoServiceError(service.list(pagination)) { tweets =>
         tweets shouldEqual List(tweet)
@@ -130,7 +130,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
           (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
           (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
       private val service = newService(repoState)
-      private val pagination = TweetPagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
+      private val pagination = Pagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
 
       withNoServiceError(service.list(pagination)) { tweets =>
         tweets shouldEqual List(earlierTweetFromSameAuthor, tweetFromAnotherAuthor)
@@ -160,7 +160,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
             (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
             (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
-        private val pagination = TweetPagination(pageSize = 1, postedBefore = None)
+        private val pagination = Pagination(pageSize = 1, postedBefore = None)
 
         withNoServiceError(service.listBy(tweet.authorId, pagination)) { tweets =>
           tweets.size shouldBe 1
@@ -174,7 +174,7 @@ class TweetServiceSpec extends AnyWordSpec with Matchers {
             (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
             (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
         private val service = newService(repoState)
-        private val pagination = TweetPagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
+        private val pagination = Pagination(pageSize = 10, postedBefore = Some(tweet.postedOn))
 
         withNoServiceError(service.listBy(tweet.authorId, pagination)) { tweets =>
           tweets.size shouldBe 1

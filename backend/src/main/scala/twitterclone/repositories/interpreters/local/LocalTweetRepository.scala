@@ -3,7 +3,7 @@ package twitterclone.repositories.interpreters.local
 import cats.Applicative
 import cats.implicits._
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet, TweetPagination}
+import twitterclone.model.{Id, Tweet, Pagination}
 import twitterclone.repositories.domain.TweetRepository
 
 import java.time.LocalDateTime
@@ -32,7 +32,7 @@ object LocalTweetRepository {
       override def getAuthorId(id: Id[Tweet]): F[Option[Id[User]]] =
         state.get(id).map(_.authorId).pure[F]
 
-      override def list(pagination: TweetPagination): F[List[Tweet]] =
+      override def list(pagination: Pagination): F[List[Tweet]] =
         state
           .values
           .filter { t => pagination.postedBefore.forall(t.postedOn isBefore _) }
@@ -41,7 +41,7 @@ object LocalTweetRepository {
           .take(pagination.pageSize)
           .pure[F]
 
-      override def listBy(authorId: Id[User], pagination: TweetPagination): F[List[Tweet]] =
+      override def listBy(authorId: Id[User], pagination: Pagination): F[List[Tweet]] =
         state
           .values
           .filter { t => t.authorId == authorId && pagination.postedBefore.forall(t.postedOn isBefore _) }

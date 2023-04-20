@@ -2,14 +2,14 @@ package twitterclone.model
 
 import java.time.LocalDateTime
 
-final case class CommentPagination(
+final case class Pagination(
   pageSize: Int,
   postedBefore: Option[LocalDateTime]
 )
 
-object CommentPagination {
-  def default: CommentPagination =
-    CommentPagination(
+object Pagination {
+  lazy val default: Pagination =
+    Pagination(
       pageSize = 10,
       postedBefore = None
     )

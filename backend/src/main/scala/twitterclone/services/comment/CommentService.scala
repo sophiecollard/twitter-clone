@@ -4,7 +4,7 @@ import cats.implicits.{catsSyntaxEitherId, toFunctorOps}
 import cats.{Monad, ~>}
 import twitterclone.auth.AuthorizationService
 import twitterclone.model.user.User
-import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
+import twitterclone.model.{Comment, Id, Pagination, Tweet}
 import twitterclone.repositories.domain.CommentRepository
 import twitterclone.services.comment.auth.{ByAuthor, WithAuthorizationByAuthor}
 import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}
@@ -25,7 +25,7 @@ trait CommentService[F[_]] {
   def get(id: Id[Comment]): F[ServiceErrorOr[Comment]]
 
   /** Fetches comments for a given tweet */
-  def list(tweetId: Id[Tweet], pagination: CommentPagination = CommentPagination.default): F[ServiceErrorOr[List[Comment]]]
+  def list(tweetId: Id[Tweet], pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Comment]]]
 
 }
 
@@ -69,7 +69,7 @@ object CommentService {
 
 
       /** Fetches comments for a given tweet */
-      override def list(tweetId: Id[Tweet], pagination: CommentPagination = CommentPagination.default): F[ServiceErrorOr[List[Comment]]] =
+      override def list(tweetId: Id[Tweet], pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Comment]]] =
         commentRepository
           .list(tweetId, pagination)
           .map(_.asRight[ServiceError])

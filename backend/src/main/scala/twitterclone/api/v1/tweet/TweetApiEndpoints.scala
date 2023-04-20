@@ -6,11 +6,12 @@ import org.http4s.circe.CirceEntityCodec._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.AuthMiddleware
 import org.http4s.{AuthedRoutes, HttpRoutes}
+import twitterclone.api.model.PostTweetRequest
 import twitterclone.api.syntax._
 import twitterclone.api.v1.shared.extractors.TweetIdVar
 import twitterclone.api.v1.shared.matchers.{AuthorQueryParamMatcher, PageSizeOptionalQueryParamMatcher, PostedBeforeOptionalQueryParamMatcher}
 import twitterclone.model.user.User
-import twitterclone.model.{Id, TweetPagination}
+import twitterclone.model.{Id, Pagination}
 import twitterclone.services.tweet.TweetService
 
 final case class TweetApiEndpoints[F[_]](httpRoutes: HttpRoutes[F])
@@ -35,7 +36,7 @@ object TweetApiEndpoints {
         AuthorQueryParamMatcher(author) +&
           PageSizeOptionalQueryParamMatcher(pageSize) +&
           PostedBeforeOptionalQueryParamMatcher(postedBefore) =>
-        service.listBy(author, TweetPagination(pageSize.getOrElse(10), postedBefore)).flatMap {
+        service.listBy(author, Pagination(pageSize.getOrElse(10), postedBefore)).flatMap {
           withNoServiceError { tweets =>
             Ok(tweets)
           }
@@ -43,7 +44,7 @@ object TweetApiEndpoints {
       case GET -> Root :?
         PageSizeOptionalQueryParamMatcher(pageSize) +&
           PostedBeforeOptionalQueryParamMatcher(postedBefore) =>
-        service.list(TweetPagination(pageSize.getOrElse(10), postedBefore = postedBefore)).flatMap {
+        service.list(Pagination(pageSize.getOrElse(10), postedBefore = postedBefore)).flatMap {
           withNoServiceError { tweets =>
             Ok(tweets)
           }

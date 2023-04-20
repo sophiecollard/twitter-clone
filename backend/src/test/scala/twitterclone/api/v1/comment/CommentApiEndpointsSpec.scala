@@ -11,7 +11,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.typelevel.ci.CIString
 import twitterclone.api.authentication.dummyAuthMiddleware
-import twitterclone.api.v1.comment.{CommentApiEndpoints, PostCommentRequest}
+import twitterclone.api.model.PostCommentRequest
+import twitterclone.api.v1.comment.CommentApiEndpoints
 import twitterclone.fixtures.comment._
 import twitterclone.instances.ioTransactor
 import twitterclone.model.user.User

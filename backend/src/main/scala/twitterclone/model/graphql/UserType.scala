@@ -2,7 +2,7 @@ package twitterclone.model.graphql
 
 import sangria.schema._
 import twitterclone.model.graphql.arguments.{PageSizeArg, PostedBeforeArg}
-import twitterclone.model.{CommentPagination, TweetPagination}
+import twitterclone.model.Pagination
 import twitterclone.model.user.User
 import twitterclone.repositories.domain.AllRepositories
 import twitterclone.model.graphql.types.UUIDType
@@ -35,7 +35,7 @@ object UserType {
           resolve = { context =>
             DeferredType.TweetsByUserId(
               userId = context.value.id,
-              pagination = TweetPagination(
+              pagination = Pagination(
                 pageSize = (context arg PageSizeArg) getOrElse 20,
                 postedBefore = context arg PostedBeforeArg
               )
@@ -49,7 +49,7 @@ object UserType {
           resolve = { context =>
             DeferredType.CommentsByUserId(
               userId = context.value.id,
-              pagination = CommentPagination(
+              pagination = Pagination(
                 pageSize = (context arg PageSizeArg) getOrElse 20,
                 postedBefore = context arg PostedBeforeArg
               )

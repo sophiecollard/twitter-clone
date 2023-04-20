@@ -4,7 +4,7 @@ import cats.{Id => CatsId}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.fixtures.comment._
-import twitterclone.model.{Comment, CommentPagination, Id}
+import twitterclone.model.{Comment, Id, Pagination}
 
 import scala.collection.concurrent.TrieMap
 
@@ -61,7 +61,7 @@ class LocalCommentRepositorySpec extends AnyWordSpec with Matchers {
           Nil
       )
       val repo = LocalCommentRepository.create[CatsId](state)
-      val pagination = CommentPagination.default
+      val pagination = Pagination.default
       repo.list(comment.tweetId, pagination) shouldBe List(comment, earlierCommentOnSameTweet)
     }
   }

@@ -6,7 +6,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.auth.error.AuthorizationError.NotTheCommentsAuthor
 import twitterclone.fixtures.comment._
 import twitterclone.model.user.User
-import twitterclone.model.{Comment, CommentPagination, Id, Tweet}
+import twitterclone.model.{Comment, Id, Pagination, Tweet}
 import twitterclone.repositories.interpreters.local.LocalCommentRepository
 import twitterclone.services.comment.auth.byAuthor
 import twitterclone.services.error.ServiceError.ResourceNotFound
@@ -122,7 +122,7 @@ class CommentServiceSpec extends AnyWordSpec with Matchers {
             (earlierCommentOnSameTweet.id, earlierCommentOnSameTweet) ::
             (commentOnAnotherTweet.id, commentOnAnotherTweet) :: Nil)
         private val service = newService(repoState)
-        private val pagination = CommentPagination(pageSize = 1, postedBefore = None)
+        private val pagination = Pagination(pageSize = 1, postedBefore = None)
 
         withNoServiceError(service.list(comment.tweetId, pagination)) { comments =>
           comments.size shouldBe 1
@@ -136,7 +136,7 @@ class CommentServiceSpec extends AnyWordSpec with Matchers {
             (earlierCommentOnSameTweet.id, earlierCommentOnSameTweet) ::
             (commentOnAnotherTweet.id, commentOnAnotherTweet) :: Nil)
         private val service = newService(repoState)
-        private val pagination = CommentPagination(pageSize = 10, postedBefore = Some(comment.postedOn))
+        private val pagination = Pagination(pageSize = 10, postedBefore = Some(comment.postedOn))
 
         withNoServiceError(service.list(comment.tweetId, pagination)) { comments =>
           comments.size shouldBe 1
