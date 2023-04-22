@@ -8,6 +8,7 @@ import Page
 import Request
 import Shared
 import View exposing (View)
+import ViewUtils.Hero as Hero
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -107,7 +108,8 @@ viewBody model =
             [ text "Failed to load Tweet" ]
 
         Success tweet ->
-            [ p [] [ text ("Author ID: " ++ tweet.authorId) ]
+            [ Hero.view
+            , p [] [ text ("Author ID: " ++ tweet.authorId) ]
             , p [] [ text ("Contents: " ++ tweet.contents) ]
             , p [] [ text ("Posted on: " ++ tweet.postedOn) ]
             ]
