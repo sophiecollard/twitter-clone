@@ -1,7 +1,7 @@
 module Frame exposing (apply)
 
-import Html exposing (Html, div, p, section, text)
-import Html.Attributes exposing (class)
+import Html exposing (Html, br, div, p, section, text)
+import Html.Attributes exposing (class, style)
 
 
 apply : List (Html msg) -> List (Html msg)
@@ -12,5 +12,6 @@ apply contents =
             , p [ class "subtitle" ] [ text "The bird is freed" ]
             ]
         ]
-    , div [ class "container" ] contents
+    , br [] []
+    , div [ class "container", style "max-width" "600px" ] contents
     ]

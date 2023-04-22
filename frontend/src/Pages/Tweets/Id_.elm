@@ -4,7 +4,7 @@ import Frame
 import Gen.Params.Tweets.Id_ exposing (Params)
 import Html exposing (Html, p, text)
 import Http
-import Json.Decode exposing (Decoder)
+import Model.Tweets exposing (Tweet, tweetDecoder, viewTweet)
 import Page
 import Request
 import Shared
@@ -39,23 +39,6 @@ init req =
         , expect = Http.expectJson GotResponse tweetDecoder
         }
     )
-
-
-type alias Tweet =
-    { id : String
-    , authorId : String
-    , contents : String
-    , postedOn : String
-    }
-
-
-tweetDecoder : Decoder Tweet
-tweetDecoder =
-    Json.Decode.map4 Tweet
-        (Json.Decode.field "id" Json.Decode.string)
-        (Json.Decode.field "authorId" Json.Decode.string)
-        (Json.Decode.field "contents" Json.Decode.string)
-        (Json.Decode.field "postedOn" Json.Decode.string)
 
 
 
@@ -109,7 +92,4 @@ viewBody model =
 
         Success tweet ->
             Frame.apply
-                [ p [] [ text ("Author ID: " ++ tweet.authorId) ]
-                , p [] [ text ("Contents: " ++ tweet.contents) ]
-                , p [] [ text ("Posted on: " ++ tweet.postedOn) ]
-                ]
+                [ viewTweet tweet ]
