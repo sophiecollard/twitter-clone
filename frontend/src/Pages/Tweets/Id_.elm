@@ -1,5 +1,6 @@
 module Pages.Tweets.Id_ exposing (Model, Msg, page)
 
+import Frame
 import Gen.Params.Tweets.Id_ exposing (Params)
 import Html exposing (Html, p, text)
 import Http
@@ -8,7 +9,6 @@ import Page
 import Request
 import Shared
 import View exposing (View)
-import ViewUtils.Hero as Hero
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -102,14 +102,14 @@ viewBody : Model -> List (Html Msg)
 viewBody model =
     case model of
         Loading ->
-            [ text "Loading Tweet ... " ]
+            Frame.apply [ text "Loading Tweet ... " ]
 
         Failure ->
-            [ text "Failed to load Tweet" ]
+            Frame.apply [ text "Failed to load Tweet" ]
 
         Success tweet ->
-            [ Hero.view
-            , p [] [ text ("Author ID: " ++ tweet.authorId) ]
-            , p [] [ text ("Contents: " ++ tweet.contents) ]
-            , p [] [ text ("Posted on: " ++ tweet.postedOn) ]
-            ]
+            Frame.apply
+                [ p [] [ text ("Author ID: " ++ tweet.authorId) ]
+                , p [] [ text ("Contents: " ++ tweet.contents) ]
+                , p [] [ text ("Posted on: " ++ tweet.postedOn) ]
+                ]
