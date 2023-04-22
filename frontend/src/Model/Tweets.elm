@@ -1,6 +1,6 @@
 module Model.Tweets exposing (Tweet, tweetDecoder, viewTweet)
 
-import Html exposing (Html, div, figure, img, p, text)
+import Html exposing (Html, button, div, figure, img, p, span, strong, text)
 import Html.Attributes exposing (class, src)
 import Json.Decode exposing (Decoder)
 
@@ -50,4 +50,17 @@ viewTweet tweet =
                 , p [ class "subtitle is-6" ] [ text tweet.postedOn ]
                 ]
             ]
+        , div [ class "card-footer" ]
+            [ p [ class "card-footer-item" ] [ span [] [ strong [] [ text "0" ], text " Likes" ] ]
+            , p [ class "card-footer-item" ] [ viewLikeButton False ]
+            ]
         ]
+
+
+viewLikeButton : Bool -> Html msg
+viewLikeButton liked =
+    if liked then
+        button [ class "button is-info is-fullwidth" ] [ text "Unlike" ]
+
+    else
+        button [ class "button is-info is-outlined is-fullwidth" ] [ text "Like" ]
