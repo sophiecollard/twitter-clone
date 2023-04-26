@@ -2,7 +2,8 @@ package twitterclone.repositories.interpreters.postgres
 
 import doobie.implicits._
 import doobie.implicits.javatimedrivernative._
-import doobie.{ConnectionIO, Query0, Update, Update0}
+import doobie.refined.implicits._
+import doobie.{ConnectionIO, Query0, Update0}
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet, Pagination}
 import twitterclone.repositories.domain.TweetRepository
@@ -15,7 +16,7 @@ object PostgresTweetRepository {
 
   def create: TweetRepository[ConnectionIO] = new TweetRepository[ConnectionIO] {
     override def create(tweet: Tweet): ConnectionIO[Int] =
-      createUpdate.run(tweet)
+      createTweet(tweet).run
 
     override def delete(id: Id[Tweet]): ConnectionIO[Int] =
       deleteUpdate(id).run
@@ -33,13 +34,11 @@ object PostgresTweetRepository {
       listByQuery(authorId, pagination).to[List]
   }
 
-  private val createUpdate: Update[Tweet] =
-    Update(
-      s"""INSERT INTO tweets (id, author_id, contents, posted_on)
-         |VALUES (?, ?, ?, ?)
+  private def createTweet(tweet: Tweet): Update0 =
+    sql"""INSERT INTO tweets (id, author_id, contents, posted_on)
+         |VALUES (${tweet.id}, ${tweet.authorId}, ${tweet.contents}, ${tweet.postedOn})
          |ON CONFLICT DO NOTHING
-         |""".stripMargin
-    )
+         |""".stripMargin.update
 
   private def deleteUpdate(id: Id[Tweet]): Update0 =
     sql"""DELETE
@@ -48,7 +47,7 @@ object PostgresTweetRepository {
          |""".stripMargin.update
 
   private def getQuery(id: Id[Tweet]): Query0[Tweet] =
-    sql"""SELECT id, author_id, contents, posted_on
+    sql"""SELECT id, author_id, contents, posted_on, 0
          |FROM tweets
          |WHERE id = $id
          |""".stripMargin.query[Tweet]
@@ -60,7 +59,7 @@ object PostgresTweetRepository {
          |""".stripMargin.query[Id[User]]
 
   private def listQuery(pagination: Pagination): Query0[Tweet] =
-    sql"""SELECT id, author_id, contents, posted_on
+    sql"""SELECT id, author_id, contents, posted_on, 0
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
          |ORDER BY posted_on DESC
@@ -68,7 +67,7 @@ object PostgresTweetRepository {
          |""".stripMargin.query[Tweet]
 
   private def listByQuery(authorId: Id[User], pagination: Pagination): Query0[Tweet] =
-    sql"""SELECT id, author_id, contents, posted_on
+    sql"""SELECT id, author_id, contents, posted_on, 0
          |FROM tweets
          |WHERE posted_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
          |AND author_id = $authorId

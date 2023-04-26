@@ -4,17 +4,21 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import doobie.implicits._
 import doobie.implicits.javatimedrivernative._
+import doobie.refined.implicits._
 import doobie.{ConnectionIO, Transactor, Update}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.config.PostgresConfig
 import twitterclone.fixtures.tweet._
-import twitterclone.model.{Id, Tweet, Pagination}
+import twitterclone.model.user.User
+import twitterclone.model.{Id, Pagination, Tweet}
 import twitterclone.repositories.domain.TweetRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 import twitterclone.repositories.interpreters.postgres.testinstances._
 import twitterclone.repositories.interpreters.postgres.utils.runMigrations
+
+import java.time.LocalDateTime
 
 class PostgresTweetRepositorySpec
   extends AnyWordSpec
@@ -98,21 +102,24 @@ trait PostgresTweetRepositorySetup {
   def truncateTable: ConnectionIO[Int] =
     sql"""TRUNCATE tweets;""".update.run
 
-  private val insertUpdate: Update[Tweet] =
+  private val insertUpdate: Update[(Id[Tweet], Id[User], String, LocalDateTime)] =
     Update(
       """INSERT INTO tweets (id, author_id, contents, posted_on)
         |VALUES (?, ?, ?, ?)
         |""".stripMargin
     )
 
+  def tupled(tweet: Tweet): (Id[Tweet], Id[User], String, LocalDateTime) =
+    (tweet.id, tweet.authorId, tweet.contents, tweet.postedOn)
+
   def insert(tweet: Tweet): ConnectionIO[Int] =
-    insertUpdate.run(tweet)
+    insertUpdate.run(tupled(tweet))
 
   def insertMany(tweets: Tweet*): ConnectionIO[Int] =
-    insertUpdate.updateMany(tweets)
+    insertUpdate.updateMany(tweets.map(tupled))
 
   def get(id: Id[Tweet]): ConnectionIO[Option[Tweet]] =
-    sql"""SELECT id, author_id, contents, posted_on
+    sql"""SELECT id, author_id, contents, posted_on, 0
          |FROM tweets
          |WHERE id = $id
          |""".stripMargin.query[Tweet].option

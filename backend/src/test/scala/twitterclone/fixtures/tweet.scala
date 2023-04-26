@@ -1,5 +1,6 @@
 package twitterclone.fixtures
 
+import eu.timepit.refined.auto._
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet}
 
@@ -15,7 +16,8 @@ object tweet {
     postedOn = LocalDateTime.of(
       LocalDate.of(1968, 4, 30),
       LocalTime.of(19, 30)
-    )
+    ),
+    likeCount = 0
   )
 
   val earlierTweetFromSameAuthor: Tweet = Tweet(
@@ -25,7 +27,8 @@ object tweet {
     postedOn = LocalDateTime.of(
       LocalDate.of(1968, 4, 29),
       LocalTime.of(19, 30)
-    )
+    ),
+    likeCount = 0
   )
 
   val tweetFromAnotherAuthor: Tweet = Tweet(
@@ -35,7 +38,8 @@ object tweet {
     postedOn = LocalDateTime.of(
       LocalDate.of(1968, 1, 1),
       LocalTime.of(19, 30)
-    )
+    ),
+    likeCount = 0
   )
 
 }

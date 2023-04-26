@@ -2,6 +2,7 @@ package twitterclone.services.tweet
 
 import cats.{Monad, ~>}
 import cats.implicits._
+import eu.timepit.refined.auto._
 import twitterclone.auth.AuthorizationService
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet, Pagination}
@@ -45,7 +46,8 @@ object TweetService {
           id = Id.random[Tweet],
           authorId = userId,
           contents,
-          postedOn = LocalDateTime.now(ZoneId.of("UTC"))
+          postedOn = LocalDateTime.now(ZoneId.of("UTC")),
+          likeCount = 0
         )
         tweetRepository.create(tweet).map {
           case 1 => Right(tweet)
