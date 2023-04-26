@@ -45,24 +45,16 @@ object TweetApiEndpoints {
       } (pagination => (Some(pagination.pageSize), pagination.postedBefore))
     )
 
-  lazy val listTweetsByAuthorEndpoint: PublicEndpoint[(Id[User], Pagination), ApiError, List[Tweet], Any] =
+  lazy val listTweetsEndpoint: PublicEndpoint[(Option[Id[User]], Pagination), ApiError, List[Tweet], Any] =
     endpoint.get
       .in("tweets")
-      .in(query[Id[User]]("authorId") and paginationInput)
-      .out(jsonBody[List[Tweet]])
-      .errorOut(jsonBody[ApiError])
-      .description("Fetch a list of the latest tweets by the specified author")
-
-  lazy val listTweetsEndpoints: PublicEndpoint[Pagination, ApiError, List[Tweet], Any] =
-    endpoint.get
-      .in("tweets")
-      .in(paginationInput)
+      .in(query[Option[Id[User]]]("authorId") and paginationInput)
       .out(jsonBody[List[Tweet]])
       .errorOut(jsonBody[ApiError])
       .description("Fetch a list of the latest tweets")
 
   lazy val allTweetEndpoints: List[AnyEndpoint] =
-    List(postTweetEndpoint, deleteTweetEndpoint, getTweetEndpoint, listTweetsByAuthorEndpoint, listTweetsEndpoints)
+    List(postTweetEndpoint, deleteTweetEndpoint, getTweetEndpoint, listTweetsEndpoint)
       .map(_.tag("Tweets"))
 
 }

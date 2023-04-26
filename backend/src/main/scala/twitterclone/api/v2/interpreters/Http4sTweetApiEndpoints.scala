@@ -40,9 +40,19 @@ object Http4sTweetApiEndpoints {
         .getTweetEndpoint
         .serverLogic(id => tweetService.get(id).map(_.leftMap(ApiError.fromServiceError)))
 
+    val listTweetsEndpoint: ServerEndpoint[Any, F] =
+      TweetApiEndpoints
+        .listTweetsEndpoint
+        .serverLogic {
+          case (Some(authorId), pagination) =>
+            tweetService.listBy(authorId, pagination).map(_.leftMap(ApiError.fromServiceError))
+          case (None, pagination) =>
+            tweetService.list(pagination).map(_.leftMap(ApiError.fromServiceError))
+        }
+
     val publicRoutes: HttpRoutes[F] =
       Http4sServerInterpreter[F]()
-        .toRoutes(postTweetEndpoint :: deleteTweetEndpoint :: getTweetEndpoint :: Nil)
+        .toRoutes(postTweetEndpoint :: deleteTweetEndpoint :: getTweetEndpoint :: listTweetsEndpoint :: Nil)
 
     Http4sTweetApiEndpoints(publicRoutes)
   }
