@@ -10,7 +10,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.wordspec.AnyWordSpec
 import twitterclone.config.PostgresConfig
 import twitterclone.fixtures.comment._
-import twitterclone.model.{Comment, CommentPagination, Id}
+import twitterclone.model.{Comment, Id, Pagination}
 import twitterclone.repositories.domain.CommentRepository
 import twitterclone.repositories.interpreters.postgres.instances._
 import twitterclone.repositories.interpreters.postgres.testinstances._
@@ -59,7 +59,7 @@ class PostgresCommentRepositorySpec
   "The list method" should {
     "list comments for a given tweet by decreasing 'postedOn' timestamp" in {
       insertMany(comment, earlierCommentOnSameTweet, commentOnAnotherTweet).unsafe
-      repo.list(comment.tweetId,CommentPagination.default).unsafe shouldBe List(comment, earlierCommentOnSameTweet)
+      repo.list(comment.tweetId, Pagination.default).unsafe shouldBe List(comment, earlierCommentOnSameTweet)
     }
   }
 
