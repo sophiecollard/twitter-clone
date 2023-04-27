@@ -38,17 +38,22 @@ object Http4sTweetApiEndpoints {
     val getTweetEndpoint: ServerEndpoint[Any, F] =
       TweetApiEndpoints
         .getTweetEndpoint
-        .serverLogic(id => tweetService.get(id).map(_.leftMap(ApiError.fromServiceError)))
+        .serverSecurityLogicPure(_.asRight)
+        .serverLogic { maybeUserId => id =>
+          // FIXME Take the user ID into account if provided
+          tweetService.get(id)(maybeUserId).map(_.leftMap(ApiError.fromServiceError))
+        }
 
     val listTweetsEndpoint: ServerEndpoint[Any, F] =
       TweetApiEndpoints
         .listTweetsEndpoint
-        .serverLogic {
+        .serverSecurityLogicPure(_.asRight)
+        .serverLogic { maybeUserId => {
           case (Some(authorId), pagination) =>
-            tweetService.listBy(authorId, pagination).map(_.leftMap(ApiError.fromServiceError))
+            tweetService.listBy(authorId, pagination)(maybeUserId).map(_.asRight[ApiError])
           case (None, pagination) =>
-            tweetService.list(pagination).map(_.leftMap(ApiError.fromServiceError))
-        }
+            tweetService.list(pagination)(maybeUserId).map(_.asRight[ApiError])
+        }}
 
     val publicRoutes: HttpRoutes[F] =
       Http4sServerInterpreter[F]()

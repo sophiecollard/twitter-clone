@@ -1,14 +1,15 @@
 package twitterclone.services.tweet
 
-import cats.{Monad, ~>}
+import cats.{Monad, Parallel, ~>}
 import cats.implicits._
 import eu.timepit.refined.auto._
 import twitterclone.auth.AuthorizationService
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet, Pagination}
-import twitterclone.repositories.domain.TweetRepository
+import twitterclone.model.{Id, Pagination, Tweet}
+import twitterclone.repositories.domain.{LikeRepository, TweetRepository}
+import twitterclone.repositories.domain.TweetRepository.TweetData
 import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}
-import twitterclone.services.error.{ServiceError, ServiceErrorOr}
+import twitterclone.services.error.ServiceErrorOr
 import twitterclone.services.syntax._
 import twitterclone.services.tweet.auth.{ByAuthor, WithAuthorizationByAuthor}
 
@@ -23,34 +24,34 @@ trait TweetService[F[_]] {
   def delete(id: Id[Tweet])(userId: Id[User]): F[WithAuthorizationByAuthor[ServiceErrorOr[Unit]]]
 
   /** Fetches a tweet */
-  def get(id: Id[Tweet]): F[ServiceErrorOr[Tweet]]
+  def get(id: Id[Tweet])(userId: Option[Id[User]]): F[ServiceErrorOr[Tweet]]
 
   /** Fetches tweets from any author */
-  def list(pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]]
+  def list(pagination: Pagination = Pagination.default)(userId: Option[Id[User]]): F[List[Tweet]]
 
   /** Fetches tweets from a given author */
-  def listBy(authorId: Id[User], pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]]
+  def listBy(authorId: Id[User], pagination: Pagination = Pagination.default)(userId: Option[Id[User]]): F[List[Tweet]]
 
 }
 
 object TweetService {
 
-  def create[F[_], G[_]: Monad](
+  def create[F[_] : Monad : Parallel, G[_] : Monad](
     tweetRepository: TweetRepository[G],
+    likeRepository: LikeRepository[G],
     authByAuthorService: AuthorizationService[G, (Id[User], Id[Tweet]), ByAuthor]
   )(implicit transactor: G ~> F): TweetService[F] =
     new TweetService[F] {
       /** Creates a new tweet */
       override def create(contents: String)(userId: Id[User]): F[ServiceErrorOr[Tweet]] = {
-        val tweet = Tweet(
+        val tweet = TweetData(
           id = Id.random[Tweet],
           authorId = userId,
           contents,
-          postedOn = LocalDateTime.now(ZoneId.of("UTC")),
-          likeCount = 0
+          postedOn = LocalDateTime.now(ZoneId.of("UTC"))
         )
         tweetRepository.create(tweet).map {
-          case 1 => Right(tweet)
+          case 1 => Right(tweet.constructTweet(likeCount = 0, didUserLike = Some(false)))
           case _ => Left(failedToCreateResource("Tweet"))
         }.transact
       }
@@ -65,25 +66,65 @@ object TweetService {
         }.transact
 
       /** Fetches a tweet */
-      override def get(id: Id[Tweet]): F[ServiceErrorOr[Tweet]] =
-        tweetRepository.get(id).map {
-          case Some(tweet) => Right(tweet)
-          case None        => Left(resourceNotFound(id, "Tweet"))
-        }.transact
+      override def get(id: Id[Tweet])(maybeUserId: Option[Id[User]]): F[ServiceErrorOr[Tweet]] =
+        maybeUserId match {
+          case Some(userId) => getTweetForAuthedUser(id, userId)
+          case None         => getTweetForGuestUser(id)
+        }
+
+      private def getTweetForGuestUser(id: Id[Tweet]): F[ServiceErrorOr[Tweet]] = {
+        (tweetRepository.get(id).transact, likeRepository.getLikeCount(id).transact).parMapN {
+          case (Some(tweet), likeCount) =>
+            Right(tweet.constructTweet(likeCount, None))
+          case (None, _) =>
+            Left(resourceNotFound(id, "Tweet"))
+        }
+      }
+
+      private def getTweetForAuthedUser(id: Id[Tweet], userId: Id[User]): F[ServiceErrorOr[Tweet]] = {
+        (
+          tweetRepository.get(id).transact,
+          likeRepository.getLikeCount(id).transact,
+          likeRepository.didUserLike(id, userId).transact
+          ).parMapN {
+          case (Some(tweet), likeCount, didUserLike) =>
+            Right(tweet.constructTweet(likeCount, Some(didUserLike)))
+          case (None, _, _) =>
+            Left(resourceNotFound(id, "Tweet"))
+        }
+      }
 
       /** Fetches tweets from any author */
-      override def list(pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]] =
-        tweetRepository
-          .list(pagination)
-          .map(_.asRight[ServiceError])
-          .transact
+      override def list(pagination: Pagination = Pagination.default)(maybeUserId: Option[Id[User]]): F[List[Tweet]] = {
+        val tweetDataF = tweetRepository.list(pagination).transact
+
+        maybeUserId match {
+          case Some(userId) => tweetDataF.flatMap(_.parTraverse(enrichForAuthedUser(_, userId)))
+          case None         => tweetDataF.flatMap(_.parTraverse(enrichTweetForGuestUser))
+        }
+      }
 
       /** Fetches tweets from a given author */
-      override def listBy(authorId: Id[User], pagination: Pagination = Pagination.default): F[ServiceErrorOr[List[Tweet]]] =
+      override def listBy(authorId: Id[User], pagination: Pagination = Pagination.default)(maybeUserId: Option[Id[User]]): F[List[Tweet]] =
         tweetRepository
           .listBy(authorId, pagination)
-          .map(_.asRight[ServiceError])
           .transact
+          .flatMap(_.parTraverse(enrichTweetForGuestUser))
+
+      private def enrichTweetForGuestUser(tweetData: TweetData): F[Tweet] =
+        likeRepository
+          .getLikeCount(tweetData.id)
+          .map(tweetData.constructTweet(_, None))
+          .transact
+
+      private def enrichForAuthedUser(tweetData: TweetData, userId: Id[User]): F[Tweet] =
+        (
+          likeRepository.getLikeCount(tweetData.id).transact,
+          likeRepository.didUserLike(tweetData.id, userId).transact
+        ).parMapN {
+          case (likeCount, didUserLike) =>
+            tweetData.constructTweet(likeCount, Some(didUserLike))
+        }
     }
 
 }

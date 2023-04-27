@@ -30,8 +30,9 @@ object TweetApiEndpoints {
       .errorOut(jsonBody[ApiError])
       .description("Delete the tweet with the specified ID")
 
-  lazy val getTweetEndpoint: PublicEndpoint[Id[Tweet], ApiError, Tweet, Any] =
+  lazy val getTweetEndpoint: Endpoint[Option[Id[User]], Id[Tweet], ApiError, Tweet, Any] =
     endpoint.get
+      .securityIn(header[Option[Id[User]]]("x-user-id"))
       .in("tweets" / path[Id[Tweet]]("tweetId"))
       .out(jsonBody[Tweet])
       .errorOut(jsonBody[ApiError])
@@ -45,8 +46,9 @@ object TweetApiEndpoints {
       } (pagination => (Some(pagination.pageSize), pagination.postedBefore))
     )
 
-  lazy val listTweetsEndpoint: PublicEndpoint[(Option[Id[User]], Pagination), ApiError, List[Tweet], Any] =
+  lazy val listTweetsEndpoint: Endpoint[Option[Id[User]], (Option[Id[User]], Pagination), ApiError, List[Tweet], Any] =
     endpoint.get
+      .securityIn(header[Option[Id[User]]]("x-user-id"))
       .in("tweets")
       .in(query[Option[Id[User]]]("authorId") and paginationInput)
       .out(jsonBody[List[Tweet]])

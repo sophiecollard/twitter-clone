@@ -3,8 +3,9 @@ package twitterclone.repositories.interpreters.local
 import cats.Applicative
 import cats.implicits._
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet, Pagination}
+import twitterclone.model.{Id, Pagination, Tweet}
 import twitterclone.repositories.domain.TweetRepository
+import twitterclone.repositories.domain.TweetRepository.TweetData
 
 import java.time.LocalDateTime
 import scala.collection.concurrent.TrieMap
@@ -12,9 +13,9 @@ import scala.collection.concurrent.TrieMap
 /** An implementation of TweetRepository which stores data in memory. */
 object LocalTweetRepository {
 
-  def create[F[_]: Applicative](state: TrieMap[Id[Tweet], Tweet] = TrieMap.empty): TweetRepository[F] =
+  def create[F[_]: Applicative](state: TrieMap[Id[Tweet], TweetData] = TrieMap.empty): TweetRepository[F] =
     new TweetRepository[F] {
-      override def create(tweet: Tweet): F[Int] =
+      override def create(tweet: TweetData): F[Int] =
         if (state.contains(tweet.id))
           0.pure[F]
         else
@@ -26,13 +27,13 @@ object LocalTweetRepository {
         else
           0.pure[F]
 
-      override def get(id: Id[Tweet]): F[Option[Tweet]] =
+      override def get(id: Id[Tweet]): F[Option[TweetData]] =
         state.get(id).pure[F]
 
       override def getAuthorId(id: Id[Tweet]): F[Option[Id[User]]] =
         state.get(id).map(_.authorId).pure[F]
 
-      override def list(pagination: Pagination): F[List[Tweet]] =
+      override def list(pagination: Pagination): F[List[TweetData]] =
         state
           .values
           .filter { t => pagination.postedBefore.forall(t.postedOn isBefore _) }
@@ -41,7 +42,7 @@ object LocalTweetRepository {
           .take(pagination.pageSize)
           .pure[F]
 
-      override def listBy(authorId: Id[User], pagination: Pagination): F[List[Tweet]] =
+      override def listBy(authorId: Id[User], pagination: Pagination): F[List[TweetData]] =
         state
           .values
           .filter { t => t.authorId == authorId && pagination.postedBefore.forall(t.postedOn isBefore _) }

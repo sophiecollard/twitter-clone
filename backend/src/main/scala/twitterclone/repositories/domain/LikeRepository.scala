@@ -4,7 +4,7 @@ import eu.timepit.refined.types.numeric.NonNegInt
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet}
 
-trait LikesRepository[F[_]] {
+trait LikeRepository[F[_]] {
 
   def likeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Unit]
 
