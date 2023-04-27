@@ -6,21 +6,19 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.types.numeric.NonNegInt
 import twitterclone.model.{Id, Tweet}
 import twitterclone.model.user.User
-import twitterclone.repositories.domain.LikesRepository
+import twitterclone.repositories.domain.LikeRepository
 
 import scala.collection.mutable
 
-object LocalLikesRepository{
+object LocalLikeRepository{
 
-  final case class Like(tweetId: Id[Tweet], userId: Id[User])
-
-  def apply[F[_]: Applicative](state: mutable.Set[Like] = mutable.Set.empty): LikesRepository[F] =
-    new LikesRepository[F] {
+  def apply[F[_]: Applicative](state: mutable.Set[Entry] = mutable.Set.empty): LikeRepository[F] =
+    new LikeRepository[F] {
       override def likeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Unit] =
-        state.add(Like(tweetId, userId)).pure[F].void
+        state.add(Entry(tweetId, userId)).pure[F].void
 
       override def unlikeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Unit] =
-        state.remove(Like(tweetId, userId)).pure[F].void
+        state.remove(Entry(tweetId, userId)).pure[F].void
 
       override def getLikeCount(tweetId: Id[Tweet]): F[NonNegInt] =
         NonNegInt
@@ -29,7 +27,9 @@ object LocalLikesRepository{
           .pure[F]
 
       override def didUserLike(tweetId: Id[Tweet], userId: Id[User]): F[Boolean] =
-        state.contains(Like(tweetId, userId)).pure[F]
+        state.contains(Entry(tweetId, userId)).pure[F]
     }
+
+  final case class Entry(tweetId: Id[Tweet], userId: Id[User])
 
 }

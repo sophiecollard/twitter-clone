@@ -2,6 +2,7 @@ package twitterclone.model.graphql
 
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
+import eu.timepit.refined.auto._
 import sangria.schema._
 import twitterclone.model.{Comment, Id, Pagination, Tweet}
 import twitterclone.model.graphql.arguments.{PageSizeArg, PostedBeforeArg, TweetIdArg, UUIDArg}
@@ -21,7 +22,10 @@ object QueryType {
           arguments = UUIDArg :: Nil,
           resolve = { context =>
             val tweetId = Id[Tweet](context arg UUIDArg)
-            context.ctx.tweets.get(tweetId).unsafeToFuture()
+            context.ctx.tweets.get(tweetId).map { maybeTweetData =>
+              // FIXME Fetch the number of likes for the Tweet? Or defer it to later?
+              maybeTweetData.map(_.constructTweet(0))
+            }.unsafeToFuture()
           }
         ),
         Field(
@@ -34,7 +38,10 @@ object QueryType {
               pageSize = (context arg PageSizeArg) getOrElse 20,
               postedBefore = context arg PostedBeforeArg
             )
-            context.ctx.tweets.list(pagination).unsafeToFuture()
+            context.ctx.tweets.list(pagination).map { tweetsData =>
+              // FIXME Fetch the number of likes for each Tweet? Or defer it to later?
+              tweetsData.map(_.constructTweet(0))
+            }.unsafeToFuture()
           }
         ),
         Field(

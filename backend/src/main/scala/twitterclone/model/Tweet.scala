@@ -13,7 +13,7 @@ final case class Tweet(
   authorId: Id[User],
   contents: String,
   postedOn: LocalDateTime,
-  likeCount: NonNegInt
+  likeCount: NonNegInt,
 )
 
 object Tweet {
