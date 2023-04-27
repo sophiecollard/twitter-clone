@@ -18,7 +18,7 @@ npm install --location=global elm elm-spa
 ## Usage
 
 ```bash
-elm-spa server  # starts this app at http:/localhost:1234
+elm-spa server # starts this app at http://localhost:1234
 elm-spa add    # add a new page to the application
 elm-spa build  # production build
 elm-spa watch  # runs build as you code (without the server)
