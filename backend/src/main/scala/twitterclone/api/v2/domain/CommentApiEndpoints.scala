@@ -1,6 +1,5 @@
 package twitterclone.api.v2.domain
 
-import instances.commentIdCodec
 import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.generic.auto._
@@ -8,7 +7,7 @@ import sttp.tapir.json.circe.jsonBody
 import twitterclone.api.error.ApiError
 import twitterclone.api.model.PostCommentRequest
 import twitterclone.model.user.User
-import twitterclone.model.{Comment, Id}
+import twitterclone.model.{Comment, Id, Pagination, Tweet}
 
 object CommentApiEndpoints {
 
@@ -35,7 +34,16 @@ object CommentApiEndpoints {
       .errorOut(jsonBody[ApiError])
       .description("Fetch the comment with the specified ID")
 
+  lazy val listCommentsEndpoint: PublicEndpoint[(Id[Tweet], Pagination), ApiError, List[Comment], Any] =
+    endpoint.get
+      .in("comments")
+      .in(query[Id[Tweet]]("tweetId") and paginationInput)
+      .out(jsonBody[List[Comment]])
+      .errorOut(jsonBody[ApiError])
+      .description("Fetch a list of the latest comments for a given tweet")
+
   lazy val allEndpoints: List[AnyEndpoint] =
-    List(postCommentEndpoint, deleteCommentEndpoint, getCommentEndpoint).map(_.tag("Comments"))
+    List(postCommentEndpoint, deleteCommentEndpoint, getCommentEndpoint, listCommentsEndpoint)
+      .map(_.tag("Comments"))
 
 }

@@ -27,7 +27,7 @@ object Http4sTweetApiEndpoints {
     val deleteTweetEndpoint: ServerEndpoint[Any, F] =
       TweetApiEndpoints
         .deleteTweetEndpoint
-        .serverSecurityLogicPure(_.asRight)
+        .serverSecurityLogicPure(_.asRight) // FIXME Don't this in a real-world app!
         .serverLogic { userId => id =>
           tweetService.delete(id)(userId).map {
             case Success(result) => result.leftMap(ApiError.fromServiceError)

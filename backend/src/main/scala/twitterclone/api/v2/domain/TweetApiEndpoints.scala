@@ -1,6 +1,5 @@
 package twitterclone.api.v2.domain
 
-import instances.tweetIdCodec
 import sttp.model.StatusCode
 import sttp.tapir._
 import sttp.tapir.generic.auto._
@@ -9,8 +8,6 @@ import twitterclone.api.error.ApiError
 import twitterclone.api.model.PostTweetRequest
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Pagination, Tweet}
-
-import java.time.LocalDateTime
 
 object TweetApiEndpoints {
 
@@ -36,14 +33,6 @@ object TweetApiEndpoints {
       .out(jsonBody[Tweet])
       .errorOut(jsonBody[ApiError])
       .description("Fetch the tweet with the specified ID")
-
-  lazy val paginationInput: EndpointInput[Pagination] =
-    (query[Option[Int]]("pageSize") and query[Option[LocalDateTime]]("postedBefore")).map(
-      Mapping.from[(Option[Int], Option[LocalDateTime]), Pagination] {
-        case (maybePage, postedBefore) =>
-          Pagination(pageSize = maybePage.getOrElse(10), postedBefore)
-      } (pagination => (Some(pagination.pageSize), pagination.postedBefore))
-    )
 
   lazy val listTweetsEndpoint: PublicEndpoint[(Option[Id[User]], Pagination), ApiError, List[Tweet], Any] =
     endpoint.get
