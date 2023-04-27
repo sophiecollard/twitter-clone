@@ -64,17 +64,17 @@ The application can be configured via the following environment variables:
 
 The environment can be set to either `local` or `prod`.
 
-When set to `local`, the application will use an in-memory database. This is great for running a single instance of the
-application on a laptop during development, but can't be used in production because:
+When set to `local`, the application will use mutable collections as an in-memory database. This is great for running a
+single instance of the application on a laptop during development, but can't be used in production because:
 * The data is not persisted to disk and is lost when the application is stopped.
 * The application can't be scaled beyond a single instance since there is no mechanism in place for sharing data between multiple instances.
 
-If the environment is set to `prod` instead, the application will attempt to connect to a [PostgreSQL instance](#postgresql-container).
+If the environment is set to `prod` instead, the application will attempt to connect to a [PostgreSQL database](#postgresql-container).
 
 ### PostgreSQL container
 
 To run the integration tests or to start the server with `ENVIRONMENT` set to `prod`, you must provide a PostgreSQL
-instance for the application to use.
+database for the application to use.
 
 Start by setting the following env vars:
 
