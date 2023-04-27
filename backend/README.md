@@ -1,6 +1,7 @@
 # Twitter clone backend
 
-Simple Twitter clone to demo building REST and GraphQL APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/) stack.
+Simple Twitter clone to demo building REST and GraphQL APIs with Scala 2.13 and the [Typelevel](https://typelevel.org/)
+stack.
 
 ## Contents
 
@@ -13,13 +14,12 @@ Simple Twitter clone to demo building REST and GraphQL APIs with Scala 2.13 and 
     * [v1 REST API](#v1-rest-api)
     * [v2 REST API](#v2-rest-api)
     * [GraphQL API](#graphql-api)
-  * [Summer 2002 mob programming sessions](#summer-2022-mob-programming-sessions)
+  * [Summer 2022 mob programming sessions](#summer-2022-mob-programming-sessions)
     * [Session 1: Services](#session-1-services)
     * [Session 2: Endpoints](#session-2-endpoints)
     * [Session 3: TDD](#session-3-test-driven-development)
     * [Session 4: PostgreSQL repositories](#session-4-postgresql-repositories)
     * [Session 5: Typeclasses](#session-5-typeclasses)
-  * [Autumn 2022 mob programming sessions](#autumn-2022-mob-programming-sessions)
 
 ## Usage
 
@@ -37,7 +37,7 @@ Run the integration tests with:
 sbt it:test
 ```
 
-Note that the latter require access to a [PostgreSQL instance](#postgresql-container).
+Note that the latter require access to a [PostgreSQL database](#postgresql-container).
 
 ### Starting the application
 
@@ -314,9 +314,3 @@ If you're curious about how the Scala compiler is able to derive instances of `S
 given instances of `SomeTypeclass` for the type of every attribute of `A`,
 [this book](https://underscore.io/books/shapeless-guide/) provides an excellent introduction to automatic typeclass
 derivation using [the Shapeless library](https://github.com/milessabin/shapeless).
-
-## Autumn 2022 mob programming sessions
-
-### Nov 17: Tapir
-
-Defined a v2 API using [tapir](https://tapir.softwaremill.com/en/latest/index.html).
