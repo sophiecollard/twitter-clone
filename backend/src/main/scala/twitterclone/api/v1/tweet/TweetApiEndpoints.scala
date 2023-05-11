@@ -36,18 +36,14 @@ object TweetApiEndpoints {
         AuthorQueryParamMatcher(author) +&
           PageSizeOptionalQueryParamMatcher(pageSize) +&
           PostedBeforeOptionalQueryParamMatcher(postedBefore) =>
-        service.listBy(author, Pagination(pageSize.getOrElse(10), postedBefore)).flatMap {
-          withNoServiceError { tweets =>
-            Ok(tweets)
-          }
+        service.listBy(author, Pagination(pageSize.getOrElse(10), postedBefore)).flatMap { tweets =>
+          Ok(tweets)
         }
       case GET -> Root :?
         PageSizeOptionalQueryParamMatcher(pageSize) +&
           PostedBeforeOptionalQueryParamMatcher(postedBefore) =>
-        service.list(Pagination(pageSize.getOrElse(10), postedBefore = postedBefore)).flatMap {
-          withNoServiceError { tweets =>
-            Ok(tweets)
-          }
+        service.list(Pagination(pageSize.getOrElse(10), postedBefore = postedBefore)).flatMap { tweets =>
+          Ok(tweets)
         }
     }
 

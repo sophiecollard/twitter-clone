@@ -45,9 +45,9 @@ object Http4sTweetApiEndpoints {
         .listTweetsEndpoint
         .serverLogic {
           case (Some(authorId), pagination) =>
-            tweetService.listBy(authorId, pagination).map(_.leftMap(ApiError.fromServiceError))
+            tweetService.listBy(authorId, pagination).map(_.asRight[ApiError])
           case (None, pagination) =>
-            tweetService.list(pagination).map(_.leftMap(ApiError.fromServiceError))
+            tweetService.list(pagination).map(_.asRight[ApiError])
         }
 
     val publicRoutes: HttpRoutes[F] =

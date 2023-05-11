@@ -17,19 +17,22 @@ import twitterclone.fixtures.tweet._
 import twitterclone.instances.ioTransactor
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet}
-import twitterclone.repositories.interpreters.local.LocalTweetRepository
+import twitterclone.repositories.domain.TweetRepository.TweetData
+import twitterclone.repositories.interpreters.local.{LocalLikeRepository, LocalTweetRepository}
 import twitterclone.services.tweet.TweetService
 import twitterclone.services.tweet.auth.byAuthor
 import twitterclone.testsyntax.{CirceEntityDecoderOps, CirceEntityEncoderOps}
 
 import scala.collection.concurrent.TrieMap
+import scala.collection.mutable.Set
 
 class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers {
   "The POST /tweets endpoint" when {
     "the user is authenticated" should {
       "create and return a new tweet" in new Fixtures {
-        private val repoState = TrieMap.empty[Id[Tweet], Tweet]
-        private val endpoints = newEndpoints(repoState)
+        private val repoState = TrieMap.empty[Id[Tweet], TweetData]
+        private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+        private val endpoints = newEndpoints(repoState, likeRepoState)
         private val userId = Id.random[User]
         private val requestBody = PostTweetRequest(
           "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
@@ -60,8 +63,9 @@ class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers 
 
     "the user is not authenticated" should {
       "respond with an unauthorized error" in new Fixtures {
-        private val repoState = TrieMap.empty[Id[Tweet], Tweet]
-        private val endpoints = newEndpoints(repoState)
+        private val repoState = TrieMap.empty[Id[Tweet], TweetData]
+        private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+        private val endpoints = newEndpoints(repoState, likeRepoState)
         private val requestBody = PostTweetRequest(
           "Mieux vaut mobiliser son intelligence sur des betises que mobiliser sa betise sur des choses intelligentes."
         )
@@ -86,8 +90,9 @@ class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers 
   "The DELETE /tweets/{tweet_id} endpoint" when {
     "the user is authenticated and is the author of the tweet" should {
       "delete the tweet" in new Fixtures {
-        private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
-        private val endpoints = newEndpoints(repoState)
+        private val repoState = TrieMap.from((tweet.id, tweetData) :: Nil)
+        private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+        private val endpoints = newEndpoints(repoState, likeRepoState)
 
         private val request = Request[IO](
           method = Method.DELETE,
@@ -108,8 +113,9 @@ class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers 
 
     "the user is authenticated but is not the author of the tweet" should {
       "respond with an unauthorized error" in new Fixtures {
-        private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
-        private val endpoints = newEndpoints(repoState)
+        private val repoState = TrieMap.from((tweet.id, tweetData) :: Nil)
+        private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+        private val endpoints = newEndpoints(repoState, likeRepoState)
         private val userId = Id.random[User]
 
         private val request = Request[IO](
@@ -131,8 +137,9 @@ class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers 
 
     "the user is not authenticated" should {
       "respond with an unauthorized error" in new Fixtures {
-        private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
-        private val endpoints = newEndpoints(repoState)
+        private val repoState = TrieMap.from((tweet.id, tweetData) :: Nil)
+        private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+        private val endpoints = newEndpoints(repoState, likeRepoState)
 
         private val request = Request[IO](
           method = Method.DELETE,
@@ -153,8 +160,9 @@ class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers 
 
   "The GET /tweets/{tweet_id} endpoint" should {
     "return the tweet with the specified id" in new Fixtures {
-      private val repoState = TrieMap.from((tweet.id, tweet) :: Nil)
-      private val endpoints = newEndpoints(repoState)
+      private val repoState = TrieMap.from((tweet.id, tweetData) :: Nil)
+      private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+      private val endpoints = newEndpoints(repoState, likeRepoState)
 
       private val request = Request[IO](
         method = Method.GET,
@@ -175,10 +183,11 @@ class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers 
   "The GET /tweets?author={user_id} endpoint" should {
     "return a list of tweets from the specified author" in new Fixtures {
       private val repoState = TrieMap.from(
-        (tweet.id, tweet) ::
-          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
-          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
-      private val endpoints = newEndpoints(repoState)
+        (tweet.id, tweetData) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthorData) ::
+          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthorData) :: Nil)
+      private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+      private val endpoints = newEndpoints(repoState, likeRepoState)
 
       private val request = Request[IO](
         method = Method.GET,
@@ -201,11 +210,12 @@ class TweetApiEndpointsSpec extends AnyWordSpec with EitherValues with Matchers 
 
   "The GET /tweets endpoint" should {
     "return a list of tweets" in new Fixtures {
-      private val repoState = TrieMap.from(
-        (tweet.id, tweet) ::
-          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthor) ::
-          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthor) :: Nil)
-      private val endpoints = newEndpoints(repoState)
+      private val tweetRepoState = TrieMap.from(
+        (tweet.id, tweetData) ::
+          (earlierTweetFromSameAuthor.id, earlierTweetFromSameAuthorData) ::
+          (tweetFromAnotherAuthor.id, tweetFromAnotherAuthorData) :: Nil)
+      private val likeRepoState = Set.empty[LocalLikeRepository.Entry]
+      private val endpoints = newEndpoints(tweetRepoState, likeRepoState)
 
       private val request = Request[IO](
         method = Method.GET,
@@ -233,10 +243,14 @@ trait Fixtures {
 
   val authMiddleware: AuthMiddleware[IO, Id[User]] = dummyAuthMiddleware
 
-  def newEndpoints(repoState: TrieMap[Id[Tweet], Tweet]): TweetApiEndpoints[IO] = {
-    val tweetRepository = LocalTweetRepository.create[IO](repoState)
+  def newEndpoints(
+    tweetRepoState: TrieMap[Id[Tweet], TweetData],
+    likeRepoState: Set[LocalLikeRepository.Entry]
+  ): TweetApiEndpoints[IO] = {
+    val tweetRepository = LocalTweetRepository.create[IO](tweetRepoState)
+    val likeRepository = LocalLikeRepository[IO](likeRepoState)
     val authByAuthorService = byAuthor(tweetRepository)
-    val tweetService = TweetService.create[IO, IO](tweetRepository, authByAuthorService)
+    val tweetService = TweetService.create[IO, IO](tweetRepository, likeRepository, authByAuthorService)
     TweetApiEndpoints(dummyAuthMiddleware[IO], tweetService)
   }
 
