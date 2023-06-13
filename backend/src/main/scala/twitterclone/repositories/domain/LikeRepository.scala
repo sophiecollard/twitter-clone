@@ -6,9 +6,9 @@ import twitterclone.model.{Id, Tweet, TweetReaction}
 
 trait LikeRepository[F[_]] {
 
-  def likeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Unit]
+  def likeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Int]
 
-  def unlikeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Unit]
+  def unlikeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Int]
 
   def getLikeCount(tweetId: Id[Tweet]): F[NonNegInt]
 

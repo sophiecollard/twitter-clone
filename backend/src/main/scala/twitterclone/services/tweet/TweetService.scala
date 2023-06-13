@@ -132,9 +132,9 @@ object TweetService {
       def react(id: Id[Tweet], reaction: TweetReaction)(userId: Id[User]): F[Unit] =
         reaction match {
           case TweetReaction.Liked =>
-            likeRepository.likeTweet(id, userId).transact
+            likeRepository.likeTweet(id, userId).transact.void
           case TweetReaction.NoReaction =>
-            likeRepository.unlikeTweet(id, userId).transact
+            likeRepository.unlikeTweet(id, userId).transact.void
         }
     }
 

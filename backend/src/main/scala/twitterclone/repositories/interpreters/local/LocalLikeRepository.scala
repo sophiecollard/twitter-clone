@@ -14,11 +14,15 @@ object LocalLikeRepository{
 
   def apply[F[_]: Applicative](state: mutable.Set[Entry] = mutable.Set.empty): LikeRepository[F] =
     new LikeRepository[F] {
-      override def likeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Unit] =
-        state.add(Entry(tweetId, userId)).pure[F].void
+      override def likeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Int] =
+        state.add(Entry(tweetId, userId)).pure[F].map { created =>
+          if (created) 1 else 0
+        }
 
-      override def unlikeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Unit] =
-        state.remove(Entry(tweetId, userId)).pure[F].void
+      override def unlikeTweet(tweetId: Id[Tweet], userId: Id[User]): F[Int] =
+        state.remove(Entry(tweetId, userId)).pure[F].map { deleted =>
+          if (deleted) 1 else 0
+        }
 
       override def getLikeCount(tweetId: Id[Tweet]): F[NonNegInt] =
         NonNegInt
