@@ -8,7 +8,7 @@ import sttp.tapir.json.circe.jsonBody
 import twitterclone.api.error.ApiError
 import twitterclone.api.model.PostTweetRequest
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Pagination, Tweet}
+import twitterclone.model.{Id, Pagination, Tweet, TweetReaction}
 
 import java.time.LocalDateTime
 
@@ -55,8 +55,16 @@ object TweetApiEndpoints {
       .errorOut(jsonBody[ApiError])
       .description("Fetch a list of the latest tweets")
 
+  lazy val reactToTweetEndpoint: Endpoint[Id[User], (Id[Tweet], TweetReaction), ApiError, Unit, Any] =
+    endpoint.post
+      .securityIn(header[Id[User]]("x-user-id"))
+      .in("tweets" / path[Id[Tweet]]("tweetId") / "reactions")
+      .in(jsonBody[TweetReaction])
+      .errorOut(jsonBody[ApiError])
+      .description("React to the specified Tweet")
+
   lazy val allTweetEndpoints: List[AnyEndpoint] =
-    List(postTweetEndpoint, deleteTweetEndpoint, getTweetEndpoint, listTweetsEndpoint)
+    List(postTweetEndpoint, deleteTweetEndpoint, getTweetEndpoint, listTweetsEndpoint, reactToTweetEndpoint)
       .map(_.tag("Tweets"))
 
 }

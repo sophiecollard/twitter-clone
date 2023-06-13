@@ -14,16 +14,58 @@ type alias Tweet =
     , authorId : String
     , contents : String
     , postedOn : String
+    , likeCount : Int
+    , userReaction : UserReaction TweetReaction
     }
 
 
 tweetDecoder : Decoder Tweet
 tweetDecoder =
-    Json.Decode.map4 Tweet
+    Json.Decode.map6 Tweet
         (Json.Decode.field "id" Json.Decode.string)
         (Json.Decode.field "authorId" Json.Decode.string)
         (Json.Decode.field "contents" Json.Decode.string)
         (Json.Decode.field "postedOn" Json.Decode.string)
+        (Json.Decode.field "likeCount" Json.Decode.int)
+        (Json.Decode.field "userReaction" (userReactionDecoder decodeTweetReaction))
+
+
+type UserReaction a
+    = AuthedUserReaction a
+    | UserNotAuthenticated
+
+
+userReactionDecoder : (String -> Decoder a) -> Decoder (UserReaction a)
+userReactionDecoder decoderA =
+    let
+        decodeUserReaction : String -> Decoder (UserReaction a)
+        decodeUserReaction str =
+            case String.toLower str of
+                "usernotauthenticated" ->
+                    Json.Decode.succeed UserNotAuthenticated
+
+                other ->
+                    Json.Decode.map AuthedUserReaction (decoderA other)
+    in
+    Json.Decode.string |> Json.Decode.andThen decodeUserReaction
+
+
+type TweetReaction
+    = Liked
+    | NoReaction
+
+
+decodeTweetReaction : String -> Decoder TweetReaction
+decodeTweetReaction str =
+    case String.toLower str of
+        "liked" ->
+            Json.Decode.succeed Liked
+
+        "noreaction" ->
+            Json.Decode.succeed NoReaction
+
+        other ->
+            Json.Decode.fail ("Failed to decode TweetReaction from '" ++ other ++ "'")
 
 
 
@@ -51,7 +93,8 @@ viewTweet tweet =
                 ]
             ]
         , div [ class "card-footer" ]
-            [ p [ class "card-footer-item" ] [ span [] [ strong [] [ text "0" ], text " Likes" ] ]
+            [ p [ class "card-footer-item" ] [ span [] [ strong []
+                [ text (String.fromInt tweet.likeCount) ], text " Likes" ] ]
             , p [ class "card-footer-item" ] [ viewLikeButton False ]
             ]
         ]

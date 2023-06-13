@@ -14,7 +14,7 @@ final case class Tweet(
   contents: String,
   postedOn: LocalDateTime,
   likeCount: NonNegInt,
-  didUserLike: Option[Boolean]
+  userReaction: UserReaction[TweetReaction]
 )
 
 object Tweet {

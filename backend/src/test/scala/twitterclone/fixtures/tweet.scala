@@ -1,6 +1,7 @@
 package twitterclone.fixtures
 
 import eu.timepit.refined.auto._
+import twitterclone.model.UserReaction.UserNotAuthenticated
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Tweet}
 import twitterclone.repositories.domain.TweetRepository.TweetData
@@ -21,7 +22,7 @@ object tweet {
   )
 
   val tweet: Tweet =
-    tweetData.constructTweet(0, None)
+    tweetData.constructTweet(0, UserNotAuthenticated)
 
   val earlierTweetFromSameAuthorData: TweetData = TweetData(
     id = Id.random[Tweet],
@@ -34,7 +35,7 @@ object tweet {
   )
 
   val earlierTweetFromSameAuthor: Tweet =
-    earlierTweetFromSameAuthorData.constructTweet(0, None)
+    earlierTweetFromSameAuthorData.constructTweet(0, UserNotAuthenticated)
 
   val tweetFromAnotherAuthorData: TweetData = TweetData(
     id = Id.random[Tweet],
@@ -47,6 +48,6 @@ object tweet {
   )
 
   val tweetFromAnotherAuthor: Tweet =
-    tweetFromAnotherAuthorData.constructTweet(0, None)
+    tweetFromAnotherAuthorData.constructTweet(0, UserNotAuthenticated)
 
 }

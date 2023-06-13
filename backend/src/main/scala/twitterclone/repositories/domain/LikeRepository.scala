@@ -2,7 +2,7 @@ package twitterclone.repositories.domain
 
 import eu.timepit.refined.types.numeric.NonNegInt
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Tweet}
+import twitterclone.model.{Id, Tweet, TweetReaction}
 
 trait LikeRepository[F[_]] {
 
@@ -12,6 +12,6 @@ trait LikeRepository[F[_]] {
 
   def getLikeCount(tweetId: Id[Tweet]): F[NonNegInt]
 
-  def didUserLike(tweetId: Id[Tweet], userId: Id[User]): F[Boolean]
+  def getUserReaction(tweetId: Id[Tweet], userId: Id[User]): F[TweetReaction]
 
 }

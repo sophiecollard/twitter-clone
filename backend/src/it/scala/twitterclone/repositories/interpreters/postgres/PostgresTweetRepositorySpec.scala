@@ -14,6 +14,7 @@ import twitterclone.fixtures.tweet._
 import twitterclone.model.user.User
 import twitterclone.model.{Id, Pagination, Tweet}
 import twitterclone.repositories.domain.TweetRepository
+import twitterclone.repositories.domain.TweetRepository.TweetData
 import twitterclone.repositories.interpreters.postgres.instances._
 import twitterclone.repositories.interpreters.postgres.testinstances._
 import twitterclone.repositories.interpreters.postgres.utils.runMigrations
@@ -28,19 +29,19 @@ class PostgresTweetRepositorySpec
     with BeforeAndAfterEach {
   "The create method" should {
     "create a new tweet and return 1" in {
-      repo.create(tweet).unsafe shouldBe 1
-      get(tweet.id).unsafe shouldBe Some(tweet)
+      repo.create(tweetData).unsafe shouldBe 1
+      get(tweet.id).unsafe shouldBe Some(tweetData)
     }
 
     "not override an existing tweet" in {
-      insert(tweet).unsafe
-      repo.create(tweet).unsafe shouldBe 0
+      insert(tweetData).unsafe
+      repo.create(tweetData).unsafe shouldBe 0
     }
   }
 
   "The delete method" should {
     "delete a tweet" in {
-      insert(tweet).unsafe
+      insert(tweetData).unsafe
       repo.delete(tweet.id).unsafe shouldBe 1
       get(tweet.id).unsafe shouldBe None
     }
@@ -48,30 +49,30 @@ class PostgresTweetRepositorySpec
 
   "The get method" should {
     "get a tweet" in {
-      insert(tweet).unsafe
-      repo.get(tweet.id).unsafe shouldBe Some(tweet)
+      insert(tweetData).unsafe
+      repo.get(tweet.id).unsafe shouldBe Some(tweetData)
     }
   }
 
   "The getAuthor method" should {
     "get a tweet author's user id" in {
-      insert(tweet).unsafe
+      insert(tweetData).unsafe
       repo.getAuthorId(tweet.id).unsafe shouldBe Some(tweet.authorId)
     }
   }
 
   "The list method" should {
     "list tweets by decreasing 'postedOn' date" in {
-      insertMany(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor).unsafe
+      insertMany(tweetData, earlierTweetFromSameAuthorData, tweetFromAnotherAuthorData).unsafe
       repo.list(Pagination.default).unsafe shouldBe
-        List(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor)
+        List(tweetData, earlierTweetFromSameAuthorData, tweetFromAnotherAuthorData)
     }
   }
 
   "The listBy method" should {
     "list tweets by a given author by decreasing 'postedOn' timestamp" in {
-      insertMany(tweet, earlierTweetFromSameAuthor, tweetFromAnotherAuthor).unsafe
-      repo.listBy(tweet.authorId, Pagination.default).unsafe shouldBe List(tweet, earlierTweetFromSameAuthor)
+      insertMany(tweetData, earlierTweetFromSameAuthorData, tweetFromAnotherAuthorData).unsafe
+      repo.listBy(tweet.authorId, Pagination.default).unsafe shouldBe List(tweetData, earlierTweetFromSameAuthorData)
     }
   }
 
@@ -109,19 +110,19 @@ trait PostgresTweetRepositorySetup {
         |""".stripMargin
     )
 
-  def tupled(tweet: Tweet): (Id[Tweet], Id[User], String, LocalDateTime) =
-    (tweet.id, tweet.authorId, tweet.contents, tweet.postedOn)
+  def tupled(tweetData: TweetData): (Id[Tweet], Id[User], String, LocalDateTime) =
+    (tweetData.id, tweetData.authorId, tweetData.contents, tweetData.postedOn)
 
-  def insert(tweet: Tweet): ConnectionIO[Int] =
-    insertUpdate.run(tupled(tweet))
+  def insert(tweetData: TweetData): ConnectionIO[Int] =
+    insertUpdate.run(tupled(tweetData))
 
-  def insertMany(tweets: Tweet*): ConnectionIO[Int] =
-    insertUpdate.updateMany(tweets.map(tupled))
+  def insertMany(tweetData: TweetData*): ConnectionIO[Int] =
+    insertUpdate.updateMany(tweetData.map(tupled))
 
-  def get(id: Id[Tweet]): ConnectionIO[Option[Tweet]] =
-    sql"""SELECT id, author_id, contents, posted_on, 0
+  def get(id: Id[Tweet]): ConnectionIO[Option[TweetData]] =
+    sql"""SELECT id, author_id, contents, posted_on
          |FROM tweets
          |WHERE id = $id
-         |""".stripMargin.query[Tweet].option
+         |""".stripMargin.query[TweetData].option
 
 }

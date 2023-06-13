@@ -4,8 +4,9 @@ import cats.{Monad, Parallel, ~>}
 import cats.implicits._
 import eu.timepit.refined.auto._
 import twitterclone.auth.AuthorizationService
+import twitterclone.model.UserReaction.{AuthedUserReaction, UserNotAuthenticated}
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Pagination, Tweet}
+import twitterclone.model.{Id, Pagination, Tweet, TweetReaction}
 import twitterclone.repositories.domain.{LikeRepository, TweetRepository}
 import twitterclone.repositories.domain.TweetRepository.TweetData
 import twitterclone.services.error.ServiceError.{failedToCreateResource, failedToDeleteResource, resourceNotFound}
@@ -32,6 +33,8 @@ trait TweetService[F[_]] {
   /** Fetches tweets from a given author */
   def listBy(authorId: Id[User], pagination: Pagination = Pagination.default)(userId: Option[Id[User]]): F[List[Tweet]]
 
+  def react(id: Id[Tweet], reaction: TweetReaction)(userId: Id[User]): F[Unit]
+
 }
 
 object TweetService {
@@ -51,7 +54,7 @@ object TweetService {
           postedOn = LocalDateTime.now(ZoneId.of("UTC"))
         )
         tweetRepository.create(tweet).map {
-          case 1 => Right(tweet.constructTweet(likeCount = 0, didUserLike = Some(false)))
+          case 1 => Right(tweet.constructTweet(likeCount = 0, AuthedUserReaction(TweetReaction.NoReaction)))
           case _ => Left(failedToCreateResource("Tweet"))
         }.transact
       }
@@ -75,7 +78,7 @@ object TweetService {
       private def getTweetForGuestUser(id: Id[Tweet]): F[ServiceErrorOr[Tweet]] = {
         (tweetRepository.get(id).transact, likeRepository.getLikeCount(id).transact).parMapN {
           case (Some(tweet), likeCount) =>
-            Right(tweet.constructTweet(likeCount, None))
+            Right(tweet.constructTweet(likeCount, UserNotAuthenticated))
           case (None, _) =>
             Left(resourceNotFound(id, "Tweet"))
         }
@@ -85,10 +88,10 @@ object TweetService {
         (
           tweetRepository.get(id).transact,
           likeRepository.getLikeCount(id).transact,
-          likeRepository.didUserLike(id, userId).transact
+          likeRepository.getUserReaction(id, userId).transact
           ).parMapN {
-          case (Some(tweet), likeCount, didUserLike) =>
-            Right(tweet.constructTweet(likeCount, Some(didUserLike)))
+          case (Some(tweet), likeCount, userReaction) =>
+            Right(tweet.constructTweet(likeCount, AuthedUserReaction(userReaction)))
           case (None, _, _) =>
             Left(resourceNotFound(id, "Tweet"))
         }
@@ -114,16 +117,24 @@ object TweetService {
       private def enrichTweetForGuestUser(tweetData: TweetData): F[Tweet] =
         likeRepository
           .getLikeCount(tweetData.id)
-          .map(tweetData.constructTweet(_, None))
+          .map(tweetData.constructTweet(_, UserNotAuthenticated))
           .transact
 
       private def enrichForAuthedUser(tweetData: TweetData, userId: Id[User]): F[Tweet] =
         (
           likeRepository.getLikeCount(tweetData.id).transact,
-          likeRepository.didUserLike(tweetData.id, userId).transact
+          likeRepository.getUserReaction(tweetData.id, userId).transact
         ).parMapN {
-          case (likeCount, didUserLike) =>
-            tweetData.constructTweet(likeCount, Some(didUserLike))
+          case (likeCount, userReaction) =>
+            tweetData.constructTweet(likeCount, AuthedUserReaction(userReaction))
+        }
+
+      def react(id: Id[Tweet], reaction: TweetReaction)(userId: Id[User]): F[Unit] =
+        reaction match {
+          case TweetReaction.Liked =>
+            likeRepository.likeTweet(id, userId).transact
+          case TweetReaction.NoReaction =>
+            likeRepository.unlikeTweet(id, userId).transact
         }
     }
 

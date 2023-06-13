@@ -4,6 +4,7 @@ import cats.effect.IO
 import cats.effect.unsafe.IORuntime
 import eu.timepit.refined.auto._
 import sangria.schema._
+import twitterclone.model.UserReaction.UserNotAuthenticated
 import twitterclone.model.{Comment, Id, Pagination, Tweet}
 import twitterclone.model.graphql.arguments.{PageSizeArg, PostedBeforeArg, TweetIdArg, UUIDArg}
 import twitterclone.model.user.User
@@ -24,7 +25,7 @@ object QueryType {
             val tweetId = Id[Tweet](context arg UUIDArg)
             context.ctx.tweets.get(tweetId).map { maybeTweetData =>
               // FIXME Fetch the number of likes for the Tweet? Or defer it to later?
-              maybeTweetData.map(_.constructTweet(0, None))
+              maybeTweetData.map(_.constructTweet(0, UserNotAuthenticated))
             }.unsafeToFuture()
           }
         ),
@@ -40,7 +41,7 @@ object QueryType {
             )
             context.ctx.tweets.list(pagination).map { tweetsData =>
               // FIXME Fetch the number of likes for each Tweet? Or defer it to later?
-              tweetsData.map(_.constructTweet(0, None))
+              tweetsData.map(_.constructTweet(0, UserNotAuthenticated))
             }.unsafeToFuture()
           }
         ),

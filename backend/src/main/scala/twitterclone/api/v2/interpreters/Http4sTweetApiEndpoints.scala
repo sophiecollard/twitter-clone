@@ -40,7 +40,6 @@ object Http4sTweetApiEndpoints {
         .getTweetEndpoint
         .serverSecurityLogicPure(_.asRight)
         .serverLogic { maybeUserId => id =>
-          // FIXME Take the user ID into account if provided
           tweetService.get(id)(maybeUserId).map(_.leftMap(ApiError.fromServiceError))
         }
 
@@ -55,9 +54,18 @@ object Http4sTweetApiEndpoints {
             tweetService.list(pagination)(maybeUserId).map(_.asRight[ApiError])
         }}
 
+    val reactToTweetEndpoint: ServerEndpoint[Any, F] =
+      TweetApiEndpoints
+        .reactToTweetEndpoint
+        .serverSecurityLogicPure(_.asRight)
+        .serverLogic { userId => {
+          case (id, userReaction) =>
+            tweetService.react(id, userReaction)(userId).map(_.asRight)
+        }}
+
     val publicRoutes: HttpRoutes[F] =
       Http4sServerInterpreter[F]()
-        .toRoutes(postTweetEndpoint :: deleteTweetEndpoint :: getTweetEndpoint :: listTweetsEndpoint :: Nil)
+        .toRoutes(postTweetEndpoint :: deleteTweetEndpoint :: getTweetEndpoint :: listTweetsEndpoint :: reactToTweetEndpoint :: Nil)
 
     Http4sTweetApiEndpoints(publicRoutes)
   }

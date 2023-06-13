@@ -4,7 +4,7 @@ import cats.Applicative
 import cats.implicits._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.types.numeric.NonNegInt
-import twitterclone.model.{Id, Tweet}
+import twitterclone.model.{Id, Tweet, TweetReaction}
 import twitterclone.model.user.User
 import twitterclone.repositories.domain.LikeRepository
 
@@ -26,8 +26,11 @@ object LocalLikeRepository{
           .getOrElse[NonNegInt](0)
           .pure[F]
 
-      override def didUserLike(tweetId: Id[Tweet], userId: Id[User]): F[Boolean] =
-        state.contains(Entry(tweetId, userId)).pure[F]
+      override def getUserReaction(tweetId: Id[Tweet], userId: Id[User]): F[TweetReaction] = {
+        val interaction = if (state.contains(Entry(tweetId, userId))) TweetReaction.Liked
+        else TweetReaction.NoReaction
+        interaction.pure[F]
+      }
     }
 
   final case class Entry(tweetId: Id[Tweet], userId: Id[User])

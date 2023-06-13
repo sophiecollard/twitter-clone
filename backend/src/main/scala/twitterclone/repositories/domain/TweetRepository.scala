@@ -3,7 +3,7 @@ package twitterclone.repositories.domain
 import cats.~>
 import eu.timepit.refined.types.numeric.NonNegInt
 import twitterclone.model.user.User
-import twitterclone.model.{Id, Pagination, Tweet}
+import twitterclone.model.{Id, Pagination, Tweet, TweetReaction, UserReaction}
 import twitterclone.services.syntax.Transactable
 
 import java.time.LocalDateTime
@@ -54,8 +54,8 @@ object TweetRepository {
     contents: String,
     postedOn: LocalDateTime,
   ){
-    def constructTweet(likeCount: NonNegInt, didUserLike: Option[Boolean]): Tweet =
-      Tweet(id, authorId, contents, postedOn, likeCount, didUserLike)
+    def constructTweet(likeCount: NonNegInt, userReaction: UserReaction[TweetReaction]): Tweet =
+      Tweet(id, authorId, contents, postedOn, likeCount, userReaction)
   }
 
 }
