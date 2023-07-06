@@ -17,7 +17,7 @@ import twitterclone.api.graphql.GraphQLEndpoint
 import twitterclone.api.v1.comment.CommentApiEndpoints
 import twitterclone.api.v1.tweet.TweetApiEndpoints
 import twitterclone.api.v2.SwaggerDocsEndpoints
-import twitterclone.api.v2.interpreters.{Http4sCommentApiEndpoints, Http4sTweetApiEndpoints}
+import twitterclone.api.v2.interpreters.{Http4sCommentApiEndpoints, Http4sTweetApiEndpoints, Http4sUserApiEndpoints}
 import twitterclone.model.Id
 import twitterclone.model.graphql.{GraphQLDeferredResolver, QueryType}
 import twitterclone.model.user.{Handle, Name, Status, User}
@@ -26,6 +26,7 @@ import twitterclone.repositories.interpreters.local.{LocalCommentRepository, Loc
 import twitterclone.services.comment.CommentService
 import twitterclone.services.graphql.interpreters.SangriaGraphQLService
 import twitterclone.services.tweet.TweetService
+import twitterclone.services.user.UserService
 
 import java.util.UUID
 import scala.collection.concurrent.TrieMap
@@ -57,10 +58,12 @@ object Main extends IOApp {
     val tweetService = TweetService.create(tweetRepository, tweetAuthService)
     val v1TweetApiEndpoints = TweetApiEndpoints[IO](dummyAuthMiddleware[IO], tweetService)
     val v2TweetApiEndpoints = Http4sTweetApiEndpoints[IO](tweetService)
+    val userRepository = LocalUserRepository.create[IO](TrieMap.from(List(testUser.id -> testUser)))
+    val userService = UserService.create[IO, IO](userRepository)
+    val v2UserApiEndpoints = Http4sUserApiEndpoints[IO](userService)
     val v2SwaggerDocsEndpoints = SwaggerDocsEndpoints[IO]
     implicit val ior: IORuntime = IORuntime.global
     implicit val ec: ExecutionContext = ior.compute
-    val userRepository = LocalUserRepository.create[IO](TrieMap.from(List(testUser.id -> testUser)))
     val allRepositories = AllRepositories(tweetRepository, commentRepository, userRepository)
     val graphQLService = SangriaGraphQLService[IO](QueryType.schema, allRepositories, GraphQLDeferredResolver.apply)
     val graphQLEndpoint = GraphQLEndpoint(graphQLService)
@@ -70,6 +73,7 @@ object Main extends IOApp {
       v1TweetApiEndpoints,
       v2CommentApiEndpoints,
       v2TweetApiEndpoints,
+      v2UserApiEndpoints,
       v2SwaggerDocsEndpoints,
       graphQLEndpoint
     ).pure[IO]
@@ -92,6 +96,8 @@ object Main extends IOApp {
     val v1TweetEndpoints = TweetApiEndpoints[IO](dummyAuthMiddleware[IO], tweetService)
     val v2TweetEndpoints = Http4sTweetApiEndpoints[IO](tweetService)
     val userRepository = PostgresUserRepository.create
+    val userService = UserService.create(userRepository)
+    val v2UserApiEndpoints = Http4sUserApiEndpoints(userService)
     val v2SwaggerDocsEndpoints = SwaggerDocsEndpoints[IO]
     val allRepositories = AllRepositories[IO](
       tweets = TweetRepository.mapF[ConnectionIO, IO](tweetRepository),
@@ -112,6 +118,7 @@ object Main extends IOApp {
         v1TweetEndpoints,
         v2CommentEndpoints,
         v2TweetEndpoints,
+        v2UserApiEndpoints,
         v2SwaggerDocsEndpoints,
         graphQLEndpoint
       )
