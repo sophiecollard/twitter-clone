@@ -9,6 +9,8 @@ import twitterclone.services.error.ServiceError._
 import twitterclone.services.error.ServiceErrorOr
 import twitterclone.services.syntax._
 
+import java.time.{LocalDateTime, ZoneId}
+
 trait UserService[F[_]] {
 
   /** Creates a new user */
@@ -34,7 +36,8 @@ object UserService {
           id = Id.random[User],
           handle,
           name,
-          status = Status.PendingActivation
+          status = Status.PendingActivation,
+          registeredOn = LocalDateTime.now(ZoneId.of("UTC"))
         )
 
         userRepository.exists(handle).flatMap { handleAlreadyExists =>

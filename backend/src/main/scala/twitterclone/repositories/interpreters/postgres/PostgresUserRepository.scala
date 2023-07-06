@@ -4,11 +4,13 @@ import doobie.{ConnectionIO, Query0, Update, Update0}
 import doobie.implicits._
 import doobie.postgres.implicits._
 import doobie.refined.implicits._
-import twitterclone.model.Id
+import twitterclone.model.{Id, Pagination}
 import twitterclone.model.user.Handle
 import twitterclone.model.user.Name.meta
 import twitterclone.model.user.User
 import twitterclone.repositories.domain.UserRepository
+
+import java.time.{LocalDateTime, ZoneId}
 
 object PostgresUserRepository {
 
@@ -28,12 +30,15 @@ object PostgresUserRepository {
 
       override def exists(handle: Handle.Value): ConnectionIO[Boolean] =
         existsQuery(handle).unique
+
+      override def list(pagination: Pagination): ConnectionIO[List[User]] =
+        listQuery(pagination).to[List]
     }
 
   private val createUpdate: Update[User] =
     Update(
-      s"""INSERT INTO users (id, handle, name, status)
-         |VALUES (?, ?, ?, ?)
+      s"""INSERT INTO users (id, handle, name, status, registered_on)
+         |VALUES (?, ?, ?, ?, ?)
          |ON CONFLICT DO NOTHING;
          |""".stripMargin
     )
@@ -45,13 +50,13 @@ object PostgresUserRepository {
          |""".stripMargin.update
 
   private def getQuery(id: Id[User]): Query0[User] =
-    sql"""SELECT id, handle, name, status
+    sql"""SELECT id, handle, name, status, registered_on
          |FROM users
          |WHERE id = $id
          |""".stripMargin.query[User]
 
   private def getByHandleQuery(handle: Handle.Value): Query0[User] =
-    sql"""SELECT id, handle, name, status
+    sql"""SELECT id, handle, name, status, registered_on
          |FROM users
          |WHERE handle = $handle
          |""".stripMargin.query[User]
@@ -63,5 +68,13 @@ object PostgresUserRepository {
          |  WHERE handle = $handle
          |)
          |""".stripMargin.query[Boolean]
+
+  private def listQuery(pagination: Pagination): Query0[User] =
+    sql"""SELECT id, handle, name, status, registered_on
+         |FROM users
+         |WHERE registered_on < ${pagination.postedBefore.getOrElse(LocalDateTime.now(ZoneId.of("UTC")))}
+         |ORDER BY registered_on DESC
+         |LIMIT ${pagination.pageSize}
+         |""".stripMargin.query[User]
 
 }

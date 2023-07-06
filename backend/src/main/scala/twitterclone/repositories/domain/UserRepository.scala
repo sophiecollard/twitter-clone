@@ -1,7 +1,7 @@
 package twitterclone.repositories.domain
 
 import cats.~>
-import twitterclone.model.Id
+import twitterclone.model.{Id, Pagination}
 import twitterclone.model.user.Handle.Value
 import twitterclone.model.user.{Handle, User}
 import twitterclone.services.syntax.Transactable
@@ -17,6 +17,8 @@ trait UserRepository[F[_]] {
   def getByHandle(handle: Handle.Value): F[Option[User]]
 
   def exists(handle: Handle.Value): F[Boolean]
+
+  def list(pagination: Pagination): F[List[User]]
 
 }
 
@@ -38,6 +40,9 @@ object UserRepository {
 
       override def exists(handle: Value): G[Boolean] =
         repo.exists(handle).transact
+
+      override def list(pagination: Pagination): G[List[User]] =
+        repo.list(pagination).transact
     }
 
 }

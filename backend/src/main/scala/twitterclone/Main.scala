@@ -28,6 +28,7 @@ import twitterclone.services.graphql.interpreters.SangriaGraphQLService
 import twitterclone.services.tweet.TweetService
 import twitterclone.services.user.UserService
 
+import java.time.LocalDateTime
 import java.util.UUID
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.ExecutionContext
@@ -139,7 +140,8 @@ object Main extends IOApp {
       id = Id[User](UUID.fromString("0b73e653-5f82-46cd-a232-0166d83ce531")),
       handle = Handle("test_user"),
       name = Name("Test User"),
-      status = Status.Active
+      status = Status.Active,
+      registeredOn = LocalDateTime.now()
     )
 
 }
