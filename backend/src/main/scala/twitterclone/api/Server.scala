@@ -10,7 +10,7 @@ import twitterclone.api.graphql.GraphQLEndpoint
 import twitterclone.api.v1.comment.CommentApiEndpoints
 import twitterclone.api.v1.tweet.TweetApiEndpoints
 import twitterclone.api.v2.SwaggerDocsEndpoints
-import twitterclone.api.v2.interpreters.{Http4sCommentApiEndpoints, Http4sTweetApiEndpoints}
+import twitterclone.api.v2.interpreters.{Http4sCommentApiEndpoints, Http4sTweetApiEndpoints, Http4sUserApiEndpoints}
 import twitterclone.config.ServerConfig
 
 import scala.concurrent.duration._
@@ -23,6 +23,7 @@ object Server {
     v1TweetApiEndpoints: TweetApiEndpoints[F],
     v2CommentApiEndpoints: Http4sCommentApiEndpoints[F],
     v2TweetApiEndpoints: Http4sTweetApiEndpoints[F],
+    v2UserApiEndpoints: Http4sUserApiEndpoints[F],
     v2SwaggerDocsEndpoints: SwaggerDocsEndpoints[F],
     graphQLEndpoint: GraphQLEndpoint[F]
   ): ServerBuilder[F] = {
@@ -35,6 +36,7 @@ object Server {
       "/api/v1/tweets" -> v1TweetApiEndpoints.httpRoutes,
       "/api/v2" -> v2CommentApiEndpoints.httpRoutes,
       "/api/v2" -> v2TweetApiEndpoints.httpRoutes,
+      "/api/v2" -> v2UserApiEndpoints.httpRoutes,
       "/api/v2" -> v2SwaggerDocsEndpoints.httpRoutes,
       "/api/graphql" -> graphQLEndpoint.httpRoutes
     ).orNotFound

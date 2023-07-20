@@ -71,6 +71,7 @@ object QueryType {
             context.ctx.users.get(userId).unsafeToFuture()
           }
         )
+        // TODO Add users query
       )
     )
 

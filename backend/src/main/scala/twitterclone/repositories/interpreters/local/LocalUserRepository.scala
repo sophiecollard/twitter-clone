@@ -2,10 +2,11 @@ package twitterclone.repositories.interpreters.local
 
 import cats.Applicative
 import cats.implicits._
-import twitterclone.model.Id
+import twitterclone.model.{Id, Pagination}
 import twitterclone.model.user.{Handle, User}
 import twitterclone.repositories.domain.UserRepository
 
+import java.time.LocalDateTime
 import scala.collection.concurrent.TrieMap
 
 object LocalUserRepository {
@@ -38,6 +39,15 @@ object LocalUserRepository {
         state
           .values
           .exists(_.handle == handle)
+          .pure[F]
+
+      override def list(pagination: Pagination): F[List[User]] =
+        state
+          .values
+          .filter(u => pagination.postedBefore.forall(u.registeredOn isBefore _))
+          .toList
+          .sortBy(_.registeredOn)(Ordering[LocalDateTime].reverse)
+          .take(pagination.pageSize)
           .pure[F]
     }
 
